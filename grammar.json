@@ -1,0 +1,597 @@
+[
+  {
+    "id": "g01",
+    "pattern": "虽然……但是……",
+    "title": "Tuy… nhưng…",
+    "note": "Nối hai mệnh đề tương phản.",
+    "example": "虽然今天很冷，但是他还是去跑步。",
+    "translation": "Mặc dù hôm nay rất lạnh, anh ấy vẫn đi chạy bộ.",
+    "q": "虽然下雨了，____我们还是去学校。",
+    "a": "但是",
+    "options": [
+      "但是",
+      "因为",
+      "所以",
+      "或者"
+    ],
+    "source": "Biên soạn riêng; chủ điểm đối chiếu ChineseTest"
+  },
+  {
+    "id": "g02",
+    "pattern": "如果……就……",
+    "title": "Nếu… thì…",
+    "note": "Điều kiện và kết quả.",
+    "example": "如果明天下雨，我们就不去公园。",
+    "translation": "Nếu mai trời mưa, chúng tôi sẽ không đi công viên.",
+    "q": "如果你有时间，____给我打电话。",
+    "a": "就",
+    "options": [
+      "就",
+      "才",
+      "被",
+      "把"
+    ],
+    "source": "Biên soạn riêng; chủ điểm đối chiếu ChineseTest"
+  },
+  {
+    "id": "g03",
+    "pattern": "不但……而且……",
+    "title": "Không những… mà còn…",
+    "note": "Bổ sung thông tin theo chiều tăng tiến.",
+    "example": "她不但会说汉语，而且会写汉字。",
+    "translation": "Cô ấy không chỉ nói được tiếng Trung mà còn viết được chữ Hán.",
+    "q": "他不但聪明，____很努力。",
+    "a": "而且",
+    "options": [
+      "而且",
+      "但是",
+      "还是",
+      "因为"
+    ],
+    "source": "Biên soạn riêng; chủ điểm đối chiếu ChineseTest"
+  },
+  {
+    "id": "g04",
+    "pattern": "越……越……",
+    "title": "Càng… càng…",
+    "note": "Mức độ của hai sự việc biến đổi cùng nhau.",
+    "example": "汉语越学越有意思。",
+    "translation": "Càng học tiếng Trung càng thấy thú vị.",
+    "q": "天气____来越冷。",
+    "a": "越",
+    "options": [
+      "越",
+      "最",
+      "正",
+      "又"
+    ],
+    "source": "Biên soạn riêng; chủ điểm đối chiếu ChineseTest"
+  },
+  {
+    "id": "g05",
+    "pattern": "除了……以外……",
+    "title": "Ngoài… ra…",
+    "note": "Bổ sung hoặc ngoại trừ thành phần.",
+    "example": "除了汉语以外，她还学英语。",
+    "translation": "Ngoài tiếng Trung ra, cô ấy còn học tiếng Anh.",
+    "q": "除了喝茶____，我还喜欢喝咖啡。",
+    "a": "以外",
+    "options": [
+      "以外",
+      "后来",
+      "刚才",
+      "因为"
+    ],
+    "source": "Biên soạn riêng; chủ điểm đối chiếu ChineseTest"
+  },
+  {
+    "id": "g06",
+    "pattern": "把字句",
+    "title": "Câu chữ 把",
+    "note": "Đưa tân ngữ lên trước động từ để nhấn mạnh cách xử lý.",
+    "example": "请把书放在桌子上。",
+    "translation": "Xin hãy đặt sách lên bàn.",
+    "q": "请____门关上。",
+    "a": "把",
+    "options": [
+      "把",
+      "被",
+      "比",
+      "跟"
+    ],
+    "source": "Biên soạn riêng; chủ điểm đối chiếu ChineseTest"
+  },
+  {
+    "id": "g07",
+    "pattern": "被字句",
+    "title": "Câu chữ 被",
+    "note": "Nêu đối tượng chịu tác động của hành động.",
+    "example": "我的自行车被别人骑走了。",
+    "translation": "Xe đạp của tôi bị người khác đi mất.",
+    "q": "手机____弟弟拿走了。",
+    "a": "被",
+    "options": [
+      "被",
+      "把",
+      "比",
+      "从"
+    ],
+    "source": "Biên soạn riêng; chủ điểm đối chiếu ChineseTest"
+  },
+  {
+    "id": "g08",
+    "pattern": "比字句",
+    "title": "So sánh với 比",
+    "note": "A 比 B + tính từ diễn đạt hơn kém.",
+    "example": "今天比昨天热。",
+    "translation": "Hôm nay nóng hơn hôm qua.",
+    "q": "妹妹____哥哥高。",
+    "a": "比",
+    "options": [
+      "比",
+      "被",
+      "把",
+      "离"
+    ],
+    "source": "Biên soạn riêng; chủ điểm đối chiếu ChineseTest"
+  },
+  {
+    "id": "g09",
+    "pattern": "得补语",
+    "title": "Bổ ngữ với 得",
+    "note": "Động từ + 得 + tính từ bổ nghĩa mức độ.",
+    "example": "她汉语说得很好。",
+    "translation": "Cô ấy nói tiếng Trung rất tốt.",
+    "q": "他跑____很快。",
+    "a": "得",
+    "options": [
+      "得",
+      "地",
+      "的",
+      "了"
+    ],
+    "source": "Biên soạn riêng; chủ điểm đối chiếu ChineseTest"
+  },
+  {
+    "id": "g10",
+    "pattern": "过",
+    "title": "Trải nghiệm với 过",
+    "note": "Đặt 过 sau động từ để nói trải nghiệm trong quá khứ.",
+    "example": "我去过北京两次。",
+    "translation": "Tôi từng đến Bắc Kinh hai lần.",
+    "q": "你吃____中国菜吗？",
+    "a": "过",
+    "options": [
+      "过",
+      "着",
+      "的",
+      "地"
+    ],
+    "source": "Biên soạn riêng; chủ điểm đối chiếu ChineseTest"
+  },
+  {
+    "id": "g11",
+    "pattern": "正在……呢",
+    "title": "Đang làm gì",
+    "note": "Nhấn mạnh một hành động đang diễn ra.",
+    "example": "妈妈正在做饭呢。",
+    "translation": "Mẹ đang nấu cơm.",
+    "q": "老师____讲课呢。",
+    "a": "正在",
+    "options": [
+      "正在",
+      "已经",
+      "才",
+      "就"
+    ],
+    "source": "Biên soạn riêng; chủ điểm đối chiếu ChineseTest"
+  },
+  {
+    "id": "g12",
+    "pattern": "先……再……",
+    "title": "Trước… rồi…",
+    "note": "Trình bày trình tự các hành động.",
+    "example": "我们先吃饭，再去看电影。",
+    "translation": "Chúng ta ăn cơm trước rồi đi xem phim.",
+    "q": "你____做作业，再玩游戏。",
+    "a": "先",
+    "options": [
+      "先",
+      "又",
+      "最",
+      "很"
+    ],
+    "source": "Biên soạn riêng; chủ điểm đối chiếu ChineseTest"
+  },
+  {
+    "id": "g13",
+    "pattern": "因为……所以……",
+    "title": "Vì… nên…",
+    "note": "Trình bày nguyên nhân và kết quả.",
+    "example": "因为我生病了，所以今天不去上课。",
+    "translation": "Vì bị ốm nên hôm nay tôi không đi học.",
+    "q": "因为下雪了，____飞机晚点了。",
+    "a": "所以",
+    "options": [
+      "所以",
+      "可是",
+      "或者",
+      "虽然"
+    ],
+    "source": "Biên soạn riêng; chủ điểm đối chiếu ChineseTest"
+  },
+  {
+    "id": "g14",
+    "pattern": "一边……一边……",
+    "title": "Vừa… vừa…",
+    "note": "Hai hoạt động diễn ra đồng thời.",
+    "example": "他一边听音乐一边做作业。",
+    "translation": "Anh ấy vừa nghe nhạc vừa làm bài tập.",
+    "q": "她____唱歌，一边做饭。",
+    "a": "一边",
+    "options": [
+      "一边",
+      "一起",
+      "一样",
+      "一直"
+    ],
+    "source": "Biên soạn riêng; chủ điểm đối chiếu ChineseTest"
+  },
+  {
+    "id": "g15",
+    "pattern": "已经……了",
+    "title": "Đã… rồi",
+    "note": "Diễn đạt tình trạng đã hoàn thành/thay đổi.",
+    "example": "我们已经吃过饭了。",
+    "translation": "Chúng tôi đã ăn cơm rồi.",
+    "q": "我____买好票了。",
+    "a": "已经",
+    "options": [
+      "已经",
+      "正在",
+      "常常",
+      "以前"
+    ],
+    "source": "Biên soạn riêng; chủ điểm đối chiếu ChineseTest"
+  },
+  {
+    "id": "g16",
+    "pattern": "还是 / 或者",
+    "title": "Hay / hoặc",
+    "note": "还是 cho câu hỏi lựa chọn, 或者 cho câu kể.",
+    "example": "你喝茶还是喝咖啡？",
+    "translation": "Bạn uống trà hay cà phê?",
+    "q": "你想坐地铁____坐公交车？",
+    "a": "还是",
+    "options": [
+      "还是",
+      "但是",
+      "所以",
+      "而且"
+    ],
+    "source": "Biên soạn riêng; chủ điểm đối chiếu ChineseTest"
+  },
+  {
+    "id": "g17",
+    "pattern": "快……了",
+    "title": "Sắp… rồi",
+    "note": "Diễn đạt sự việc sắp xảy ra.",
+    "example": "电影快开始了。",
+    "translation": "Phim sắp bắt đầu rồi.",
+    "q": "火车____到站了。",
+    "a": "快",
+    "options": [
+      "快",
+      "过",
+      "还",
+      "别"
+    ],
+    "source": "Biên soạn riêng; chủ điểm đối chiếu ChineseTest"
+  },
+  {
+    "id": "g18",
+    "pattern": "越来越……",
+    "title": "Ngày càng…",
+    "note": "Trình bày sự tăng/giảm dần theo thời gian.",
+    "example": "天气越来越暖和了。",
+    "translation": "Thời tiết ngày càng ấm.",
+    "q": "他的汉语____来越好。",
+    "a": "越",
+    "options": [
+      "越",
+      "比",
+      "很",
+      "最"
+    ],
+    "source": "Biên soạn riêng; chủ điểm đối chiếu ChineseTest"
+  },
+  {
+    "id": "g19",
+    "pattern": "只要……就……",
+    "title": "Chỉ cần… là…",
+    "note": "Điều kiện đủ để có kết quả.",
+    "example": "只要你努力，就会进步。",
+    "translation": "Chỉ cần bạn cố gắng, bạn sẽ tiến bộ.",
+    "q": "只要早点儿出发，____不会迟到。",
+    "a": "就",
+    "options": [
+      "就",
+      "才",
+      "把",
+      "跟"
+    ],
+    "source": "Biên soạn riêng; chủ điểm đối chiếu ChineseTest"
+  },
+  {
+    "id": "g20",
+    "pattern": "只有……才……",
+    "title": "Chỉ khi… mới…",
+    "note": "Nhấn mạnh điều kiện cần.",
+    "example": "只有多练习，才能说得流利。",
+    "translation": "Chỉ khi luyện nhiều mới nói lưu loát.",
+    "q": "只有努力学习，____能通过考试。",
+    "a": "才",
+    "options": [
+      "才",
+      "就",
+      "也",
+      "还"
+    ],
+    "source": "Biên soạn riêng; chủ điểm đối chiếu ChineseTest"
+  },
+  {
+    "id": "g21",
+    "pattern": "跟……一样",
+    "title": "Giống như…",
+    "note": "Hai đối tượng có đặc điểm giống nhau.",
+    "example": "这件衣服跟那件一样贵。",
+    "translation": "Bộ đồ này đắt như bộ kia.",
+    "q": "我的书包____你的书包一样大。",
+    "a": "跟",
+    "options": [
+      "跟",
+      "比",
+      "被",
+      "把"
+    ],
+    "source": "Biên soạn riêng; chủ điểm đối chiếu ChineseTest"
+  },
+  {
+    "id": "g22",
+    "pattern": "对……来说",
+    "title": "Đối với…",
+    "note": "Trình bày ý kiến hay đánh giá theo đối tượng.",
+    "example": "对我来说，学习汉语很有意思。",
+    "translation": "Đối với tôi, học tiếng Trung rất thú vị.",
+    "q": "____他来说，这个问题不难。",
+    "a": "对",
+    "options": [
+      "对",
+      "从",
+      "比",
+      "把"
+    ],
+    "source": "Biên soạn riêng; chủ điểm đối chiếu ChineseTest"
+  },
+  {
+    "id": "g23",
+    "pattern": "从……到……",
+    "title": "Từ… đến…",
+    "note": "Chỉ khoảng thời gian hoặc khoảng cách.",
+    "example": "从我家到学校要二十分钟。",
+    "translation": "Từ nhà tôi đến trường mất 20 phút.",
+    "q": "____北京到上海坐高铁很方便。",
+    "a": "从",
+    "options": [
+      "从",
+      "把",
+      "被",
+      "比"
+    ],
+    "source": "Biên soạn riêng; chủ điểm đối chiếu ChineseTest"
+  },
+  {
+    "id": "g24",
+    "pattern": "一……就……",
+    "title": "Vừa… là…",
+    "note": "Hai việc xảy ra gần như liền nhau.",
+    "example": "他一到家就给我打电话。",
+    "translation": "Vừa về nhà là anh ấy gọi tôi.",
+    "q": "我一回家____开始做饭。",
+    "a": "就",
+    "options": [
+      "就",
+      "才",
+      "还",
+      "过"
+    ],
+    "source": "Biên soạn riêng; chủ điểm đối chiếu ChineseTest"
+  },
+  {
+    "id": "g25",
+    "pattern": "先……然后……",
+    "title": "Trước… sau đó…",
+    "note": "Dùng để kể quy trình tuần tự.",
+    "example": "先洗手，然后吃饭。",
+    "translation": "Rửa tay trước, sau đó ăn cơm.",
+    "q": "请先看题，____回答。",
+    "a": "然后",
+    "options": [
+      "然后",
+      "因为",
+      "虽然",
+      "除了"
+    ],
+    "source": "Biên soạn riêng; chủ điểm đối chiếu ChineseTest"
+  },
+  {
+    "id": "g26",
+    "pattern": "差不多",
+    "title": "Gần như / xấp xỉ",
+    "note": "Nói mức độ hoặc số lượng gần bằng.",
+    "example": "我们差不多八点到。",
+    "translation": "Khoảng gần tám giờ chúng tôi đến.",
+    "q": "我____做完作业了。",
+    "a": "差不多",
+    "options": [
+      "差不多",
+      "到处",
+      "一直",
+      "更加"
+    ],
+    "source": "Biên soạn riêng; chủ điểm đối chiếu ChineseTest"
+  },
+  {
+    "id": "g27",
+    "pattern": "刚才 / 刚",
+    "title": "Vừa rồi / vừa mới",
+    "note": "刚才 chỉ thời điểm; 刚 diễn đạt hành động mới xảy ra.",
+    "example": "我刚才看见王老师了。",
+    "translation": "Lúc nãy tôi gặp thầy Vương.",
+    "q": "你____去哪儿了？",
+    "a": "刚才",
+    "options": [
+      "刚才",
+      "将来",
+      "以后",
+      "上面"
+    ],
+    "source": "Biên soạn riêng; chủ điểm đối chiếu ChineseTest"
+  },
+  {
+    "id": "g28",
+    "pattern": "还是……吧",
+    "title": "Hay là… đi",
+    "note": "Đưa lời khuyên nhẹ nhàng.",
+    "example": "天气不好，我们还是坐地铁吧。",
+    "translation": "Thời tiết xấu, chúng ta cứ đi tàu điện ngầm đi.",
+    "q": "太晚了，你____回家吧。",
+    "a": "还是",
+    "options": [
+      "还是",
+      "刚刚",
+      "已经",
+      "只有"
+    ],
+    "source": "Biên soạn riêng; chủ điểm đối chiếu ChineseTest"
+  },
+  {
+    "id": "g29",
+    "pattern": "不仅……还……",
+    "title": "Không chỉ… còn…",
+    "note": "Nối thông tin tăng tiến.",
+    "example": "他不仅会游泳，还会打篮球。",
+    "translation": "Anh ấy không chỉ biết bơi mà còn chơi bóng rổ.",
+    "q": "这个地方不仅安静，____很安全。",
+    "a": "还",
+    "options": [
+      "还",
+      "把",
+      "被",
+      "才"
+    ],
+    "source": "Biên soạn riêng; chủ điểm đối chiếu ChineseTest"
+  },
+  {
+    "id": "g30",
+    "pattern": "结果补语",
+    "title": "Bổ ngữ kết quả",
+    "note": "Động từ + 好/完/懂 thể hiện kết quả.",
+    "example": "你听懂老师的话了吗？",
+    "translation": "Bạn đã hiểu lời thầy nói chưa?",
+    "q": "我已经写____作业了。",
+    "a": "完",
+    "options": [
+      "完",
+      "在",
+      "被",
+      "把"
+    ],
+    "source": "Biên soạn riêng; chủ điểm đối chiếu ChineseTest"
+  },
+  {
+    "id": "g31",
+    "pattern": "方向补语",
+    "title": "Bổ ngữ xu hướng",
+    "note": "Động từ + 来/去 chỉ hướng vận động.",
+    "example": "请进来坐一会儿。",
+    "translation": "Mời vào ngồi một lát.",
+    "q": "老师走____教室了。",
+    "a": "进",
+    "options": [
+      "进",
+      "用",
+      "给",
+      "把"
+    ],
+    "source": "Biên soạn riêng; chủ điểm đối chiếu ChineseTest"
+  },
+  {
+    "id": "g32",
+    "pattern": "可能补语",
+    "title": "Bổ ngữ khả năng",
+    "note": "Động từ + 得/不 + bổ ngữ thể hiện khả năng.",
+    "example": "这个字我看不懂。",
+    "translation": "Chữ này tôi đọc không hiểu.",
+    "q": "声音太小，我听____清楚。",
+    "a": "不",
+    "options": [
+      "不",
+      "了",
+      "是",
+      "把"
+    ],
+    "source": "Biên soạn riêng; chủ điểm đối chiếu ChineseTest"
+  },
+  {
+    "id": "g33",
+    "pattern": "或者……或者……",
+    "title": "Hoặc… hoặc…",
+    "note": "Đưa ra những khả năng khác nhau.",
+    "example": "周末我们或者去爬山，或者去游泳。",
+    "translation": "Cuối tuần hoặc đi leo núi, hoặc đi bơi.",
+    "q": "你可以____坐地铁，或者坐公交车。",
+    "a": "或者",
+    "options": [
+      "或者",
+      "所以",
+      "虽然",
+      "但是"
+    ],
+    "source": "Biên soạn riêng; chủ điểm đối chiếu ChineseTest"
+  },
+  {
+    "id": "g34",
+    "pattern": "比如",
+    "title": "Ví dụ như",
+    "note": "Dùng khi đưa ví dụ làm rõ ý.",
+    "example": "我喜欢运动，比如跑步和打羽毛球。",
+    "translation": "Tôi thích thể thao, ví dụ chạy bộ và chơi cầu lông.",
+    "q": "我喜欢水果，____苹果和香蕉。",
+    "a": "比如",
+    "options": [
+      "比如",
+      "为了",
+      "如果",
+      "直到"
+    ],
+    "source": "Biên soạn riêng; chủ điểm đối chiếu ChineseTest"
+  },
+  {
+    "id": "g35",
+    "pattern": "一直",
+    "title": "Liên tục / suốt",
+    "note": "Nhấn mạnh hành động hoặc trạng thái kéo dài.",
+    "example": "他一直在图书馆学习。",
+    "translation": "Anh ấy học suốt ở thư viện.",
+    "q": "我____等你到六点。",
+    "a": "一直",
+    "options": [
+      "一直",
+      "马上",
+      "刚刚",
+      "因为"
+    ],
+    "source": "Biên soạn riêng; chủ điểm đối chiếu ChineseTest"
+  }
+]

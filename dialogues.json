@@ -1,0 +1,314 @@
+[
+  {
+    "id": "l01",
+    "audio": "女：今天晚上你有时间吗？ 男：不好意思，我得准备明天的考试。",
+    "q": "男的今晚为什么没时间？",
+    "answer": "要准备考试",
+    "options": [
+      "要准备考试",
+      "要去旅游",
+      "要看医生",
+      "要开会"
+    ],
+    "source": "Hội thoại & câu hỏi tự biên soạn; âm thanh TTS"
+  },
+  {
+    "id": "l02",
+    "audio": "男：你怎么去学校？ 女：我每天骑自行车，大概二十分钟。",
+    "q": "女的怎么去学校？",
+    "answer": "骑自行车",
+    "options": [
+      "骑自行车",
+      "坐飞机",
+      "坐高铁",
+      "走路"
+    ],
+    "source": "Hội thoại & câu hỏi tự biên soạn; âm thanh TTS"
+  },
+  {
+    "id": "l03",
+    "audio": "女：你今天看起来很累。 男：昨天晚上我一直工作到十二点。",
+    "q": "男的为什么累？",
+    "answer": "工作到很晚",
+    "options": [
+      "工作到很晚",
+      "跑步太多",
+      "没吃午饭",
+      "感冒了"
+    ],
+    "source": "Hội thoại & câu hỏi tự biên soạn; âm thanh TTS"
+  },
+  {
+    "id": "l04",
+    "audio": "男：请问，这个苹果多少钱一斤？ 女：八块钱一斤。",
+    "q": "苹果一斤多少钱？",
+    "answer": "八块",
+    "options": [
+      "八块",
+      "三块",
+      "十块",
+      "十五块"
+    ],
+    "source": "Hội thoại & câu hỏi tự biên soạn; âm thanh TTS"
+  },
+  {
+    "id": "l05",
+    "audio": "女：会议几点开始？ 男：下午两点，别迟到了。",
+    "q": "会议什么时候开始？",
+    "answer": "下午两点",
+    "options": [
+      "下午两点",
+      "上午两点",
+      "下午三点",
+      "晚上八点"
+    ],
+    "source": "Hội thoại & câu hỏi tự biên soạn; âm thanh TTS"
+  },
+  {
+    "id": "l06",
+    "audio": "男：你喜欢哪件衬衫？ 女：蓝色那件比红色的好看。",
+    "q": "女的更喜欢什么颜色？",
+    "answer": "蓝色",
+    "options": [
+      "蓝色",
+      "红色",
+      "黄色",
+      "白色"
+    ],
+    "source": "Hội thoại & câu hỏi tự biên soạn; âm thanh TTS"
+  },
+  {
+    "id": "l07",
+    "audio": "女：今天吃什么？ 男：我想吃面条，不想吃米饭。",
+    "q": "男的想吃什么？",
+    "answer": "面条",
+    "options": [
+      "面条",
+      "米饭",
+      "饺子",
+      "蛋糕"
+    ],
+    "source": "Hội thoại & câu hỏi tự biên soạn; âm thanh TTS"
+  },
+  {
+    "id": "l08",
+    "audio": "男：你弟弟在哪儿？ 女：他正在公园打篮球呢。",
+    "q": "弟弟在做什么？",
+    "answer": "打篮球",
+    "options": [
+      "打篮球",
+      "看电影",
+      "读书",
+      "睡觉"
+    ],
+    "source": "Hội thoại & câu hỏi tự biên soạn; âm thanh TTS"
+  },
+  {
+    "id": "l09",
+    "audio": "女：明天会下雨吗？ 男：天气预报说可能有雨，带伞吧。",
+    "q": "男的建议带什么？",
+    "answer": "雨伞",
+    "options": [
+      "雨伞",
+      "帽子",
+      "地图",
+      "护照"
+    ],
+    "source": "Hội thoại & câu hỏi tự biên soạn; âm thanh TTS"
+  },
+  {
+    "id": "l10",
+    "audio": "男：请问去火车站怎么走？ 女：先向北走，再坐公交车。",
+    "q": "应该先怎么走？",
+    "answer": "向北走",
+    "options": [
+      "向北走",
+      "向南走",
+      "向西走",
+      "向东走"
+    ],
+    "source": "Hội thoại & câu hỏi tự biên soạn; âm thanh TTS"
+  },
+  {
+    "id": "l11",
+    "audio": "女：你的手机呢？ 男：忘在办公室了，我现在回去拿。",
+    "q": "手机在哪里？",
+    "answer": "办公室",
+    "options": [
+      "办公室",
+      "超市",
+      "宾馆",
+      "学校"
+    ],
+    "source": "Hội thoại & câu hỏi tự biên soạn; âm thanh TTS"
+  },
+  {
+    "id": "l12",
+    "audio": "男：你为什么没参加比赛？ 女：我前天发烧了，今天还不舒服。",
+    "q": "女的怎么了？",
+    "answer": "生病了",
+    "options": [
+      "生病了",
+      "迷路了",
+      "迟到了",
+      "受伤了"
+    ],
+    "source": "Hội thoại & câu hỏi tự biên soạn; âm thanh TTS"
+  },
+  {
+    "id": "l13",
+    "audio": "女：今天是星期三，周五见面怎么样？ 男：没问题，下午三点吧。",
+    "q": "他们哪天见面？",
+    "answer": "星期五",
+    "options": [
+      "星期五",
+      "星期三",
+      "星期六",
+      "星期二"
+    ],
+    "source": "Hội thoại & câu hỏi tự biên soạn; âm thanh TTS"
+  },
+  {
+    "id": "l14",
+    "audio": "男：你想住几天？ 女：从星期一到星期四，一共三晚。",
+    "q": "女的要住几晚？",
+    "answer": "三晚",
+    "options": [
+      "三晚",
+      "一晚",
+      "两晚",
+      "四晚"
+    ],
+    "source": "Hội thoại & câu hỏi tự biên soạn; âm thanh TTS"
+  },
+  {
+    "id": "l15",
+    "audio": "女：你中文说得真好！ 男：谢谢，我每天都跟朋友练习。",
+    "q": "男的怎么练中文？",
+    "answer": "跟朋友练习",
+    "options": [
+      "跟朋友练习",
+      "只看电影",
+      "只写字",
+      "只听歌"
+    ],
+    "source": "Hội thoại & câu hỏi tự biên soạn; âm thanh TTS"
+  },
+  {
+    "id": "l16",
+    "audio": "男：这张照片是在哪儿拍的？ 女：在我们学校的花园。",
+    "q": "照片在哪里拍的？",
+    "answer": "学校花园",
+    "options": [
+      "学校花园",
+      "火车站",
+      "医院",
+      "商店"
+    ],
+    "source": "Hội thoại & câu hỏi tự biên soạn; âm thanh TTS"
+  },
+  {
+    "id": "l17",
+    "audio": "女：你的作业做完了吗？ 男：还差两道题，马上就好。",
+    "q": "男的作业怎么样？",
+    "answer": "还没全部做完",
+    "options": [
+      "还没全部做完",
+      "已经全部做完",
+      "还没开始",
+      "忘带了"
+    ],
+    "source": "Hội thoại & câu hỏi tự biên soạn; âm thanh TTS"
+  },
+  {
+    "id": "l18",
+    "audio": "男：这家饭馆怎么样？ 女：味道很好，而且价格也不贵。",
+    "q": "女的觉得饭馆怎么样？",
+    "answer": "好吃也不贵",
+    "options": [
+      "好吃也不贵",
+      "不好吃",
+      "很贵",
+      "太远"
+    ],
+    "source": "Hội thoại & câu hỏi tự biên soạn; âm thanh TTS"
+  },
+  {
+    "id": "l19",
+    "audio": "女：我的电脑开不了机了。 男：你先检查一下电源。",
+    "q": "男的建议检查什么？",
+    "answer": "电源",
+    "options": [
+      "电源",
+      "打印机",
+      "电话",
+      "门锁"
+    ],
+    "source": "Hội thoại & câu hỏi tự biên soạn; âm thanh TTS"
+  },
+  {
+    "id": "l20",
+    "audio": "男：现在几点了？ 女：差一刻十点。",
+    "q": "现在几点？",
+    "answer": "九点四十五",
+    "options": [
+      "九点四十五",
+      "十点十五",
+      "九点十五",
+      "十点四十五"
+    ],
+    "source": "Hội thoại & câu hỏi tự biên soạn; âm thanh TTS"
+  },
+  {
+    "id": "l21",
+    "audio": "女：你买到电影票了吗？ 男：买到了，明天下午六点的。",
+    "q": "电影是什么时候？",
+    "answer": "明天下午六点",
+    "options": [
+      "明天下午六点",
+      "今天下午六点",
+      "明天上午六点",
+      "后天晚上九点"
+    ],
+    "source": "Hội thoại & câu hỏi tự biên soạn; âm thanh TTS"
+  },
+  {
+    "id": "l22",
+    "audio": "男：桌子上的那本书是谁的？ 女：是我的，我昨天刚买的。",
+    "q": "这本书是谁的？",
+    "answer": "女的",
+    "options": [
+      "女的",
+      "男的",
+      "老师的",
+      "经理的"
+    ],
+    "source": "Hội thoại & câu hỏi tự biên soạn; âm thanh TTS"
+  },
+  {
+    "id": "l23",
+    "audio": "女：你今天怎么来这么早？ 男：路上没有堵车，所以提前到了。",
+    "q": "男的为什么来得早？",
+    "answer": "路上没堵车",
+    "options": [
+      "路上没堵车",
+      "坐飞机了",
+      "起得很晚",
+      "没上班"
+    ],
+    "source": "Hội thoại & câu hỏi tự biên soạn; âm thanh TTS"
+  },
+  {
+    "id": "l24",
+    "audio": "男：你的房间安静吗？ 女：白天还可以，晚上外面很吵。",
+    "q": "什么时候比较吵？",
+    "answer": "晚上",
+    "options": [
+      "晚上",
+      "早上",
+      "中午",
+      "下午"
+    ],
+    "source": "Hội thoại & câu hỏi tự biên soạn; âm thanh TTS"
+  }
+]

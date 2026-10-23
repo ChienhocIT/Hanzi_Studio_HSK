@@ -1,0 +1,381 @@
+[
+  {
+    "id": "o01",
+    "parts": [
+      "我",
+      "每天",
+      "都",
+      "学习",
+      "汉语。"
+    ],
+    "answer": "我每天都学习汉语。",
+    "translation": "Tôi học tiếng Trung mỗi ngày.",
+    "source": "Câu xếp từ tự biên soạn"
+  },
+  {
+    "id": "o02",
+    "parts": [
+      "他",
+      "昨天",
+      "去了",
+      "图书馆。"
+    ],
+    "answer": "他昨天去了图书馆。",
+    "translation": "Hôm qua anh ấy đến thư viện.",
+    "source": "Câu xếp từ tự biên soạn"
+  },
+  {
+    "id": "o03",
+    "parts": [
+      "请",
+      "把",
+      "书",
+      "放在",
+      "桌子上。"
+    ],
+    "answer": "请把书放在桌子上。",
+    "translation": "Xin đặt sách lên bàn.",
+    "source": "Câu xếp từ tự biên soạn"
+  },
+  {
+    "id": "o04",
+    "parts": [
+      "我",
+      "比",
+      "弟弟",
+      "高。"
+    ],
+    "answer": "我比弟弟高。",
+    "translation": "Tôi cao hơn em trai.",
+    "source": "Câu xếp từ tự biên soạn"
+  },
+  {
+    "id": "o05",
+    "parts": [
+      "她",
+      "汉语",
+      "说得",
+      "很好。"
+    ],
+    "answer": "她汉语说得很好。",
+    "translation": "Cô ấy nói tiếng Trung rất tốt.",
+    "source": "Câu xếp từ tự biên soạn"
+  },
+  {
+    "id": "o06",
+    "parts": [
+      "明天",
+      "我们",
+      "一起",
+      "去",
+      "公园。"
+    ],
+    "answer": "明天我们一起去公园。",
+    "translation": "Mai chúng tôi cùng đi công viên.",
+    "source": "Câu xếp từ tự biên soạn"
+  },
+  {
+    "id": "o07",
+    "parts": [
+      "他",
+      "已经",
+      "做完",
+      "作业",
+      "了。"
+    ],
+    "answer": "他已经做完作业了。",
+    "translation": "Anh ấy đã làm xong bài tập.",
+    "source": "Câu xếp từ tự biên soạn"
+  },
+  {
+    "id": "o08",
+    "parts": [
+      "妈妈",
+      "正在",
+      "厨房",
+      "做饭。"
+    ],
+    "answer": "妈妈正在厨房做饭。",
+    "translation": "Mẹ đang nấu cơm trong bếp.",
+    "source": "Câu xếp từ tự biên soạn"
+  },
+  {
+    "id": "o09",
+    "parts": [
+      "今天",
+      "天气",
+      "比",
+      "昨天",
+      "好。"
+    ],
+    "answer": "今天天气比昨天好。",
+    "translation": "Hôm nay thời tiết đẹp hơn hôm qua.",
+    "source": "Câu xếp từ tự biên soạn"
+  },
+  {
+    "id": "o10",
+    "parts": [
+      "我",
+      "想",
+      "买",
+      "一张",
+      "火车票。"
+    ],
+    "answer": "我想买一张火车票。",
+    "translation": "Tôi muốn mua một vé tàu.",
+    "source": "Câu xếp từ tự biên soạn"
+  },
+  {
+    "id": "o11",
+    "parts": [
+      "我们",
+      "先",
+      "吃饭，",
+      "再",
+      "看电影。"
+    ],
+    "answer": "我们先吃饭，再看电影。",
+    "translation": "Chúng ta ăn trước rồi xem phim.",
+    "source": "Câu xếp từ tự biên soạn"
+  },
+  {
+    "id": "o12",
+    "parts": [
+      "因为",
+      "下雨，",
+      "所以",
+      "我",
+      "没去。"
+    ],
+    "answer": "因为下雨，所以我没去。",
+    "translation": "Vì mưa nên tôi không đi.",
+    "source": "Câu xếp từ tự biên soạn"
+  },
+  {
+    "id": "o13",
+    "parts": [
+      "他",
+      "每天",
+      "骑",
+      "自行车",
+      "上班。"
+    ],
+    "answer": "他每天骑自行车上班。",
+    "translation": "Anh ấy đạp xe đi làm mỗi ngày.",
+    "source": "Câu xếp từ tự biên soạn"
+  },
+  {
+    "id": "o14",
+    "parts": [
+      "你",
+      "应该",
+      "多",
+      "喝水。"
+    ],
+    "answer": "你应该多喝水。",
+    "translation": "Bạn nên uống nhiều nước.",
+    "source": "Câu xếp từ tự biên soạn"
+  },
+  {
+    "id": "o15",
+    "parts": [
+      "我",
+      "在",
+      "超市",
+      "买了",
+      "水果。"
+    ],
+    "answer": "我在超市买了水果。",
+    "translation": "Tôi mua hoa quả ở siêu thị.",
+    "source": "Câu xếp từ tự biên soạn"
+  },
+  {
+    "id": "o16",
+    "parts": [
+      "他",
+      "一边",
+      "听音乐",
+      "一边",
+      "看书。"
+    ],
+    "answer": "他一边听音乐一边看书。",
+    "translation": "Anh ấy vừa nghe nhạc vừa đọc sách.",
+    "source": "Câu xếp từ tự biên soạn"
+  },
+  {
+    "id": "o17",
+    "parts": [
+      "这个",
+      "问题",
+      "不",
+      "难。"
+    ],
+    "answer": "这个问题不难。",
+    "translation": "Vấn đề này không khó.",
+    "source": "Câu xếp từ tự biên soạn"
+  },
+  {
+    "id": "o18",
+    "parts": [
+      "我",
+      "对",
+      "中国文化",
+      "很",
+      "感兴趣。"
+    ],
+    "answer": "我对中国文化很感兴趣。",
+    "translation": "Tôi rất hứng thú văn hóa Trung Quốc.",
+    "source": "Câu xếp từ tự biên soạn"
+  },
+  {
+    "id": "o19",
+    "parts": [
+      "她",
+      "不但",
+      "聪明，",
+      "而且",
+      "努力。"
+    ],
+    "answer": "她不但聪明，而且努力。",
+    "translation": "Cô ấy không những thông minh mà còn chăm chỉ.",
+    "source": "Câu xếp từ tự biên soạn"
+  },
+  {
+    "id": "o20",
+    "parts": [
+      "火车",
+      "上午",
+      "九点",
+      "出发。"
+    ],
+    "answer": "火车上午九点出发。",
+    "translation": "Tàu khởi hành lúc 9 giờ sáng.",
+    "source": "Câu xếp từ tự biên soạn"
+  },
+  {
+    "id": "o21",
+    "parts": [
+      "老师",
+      "让",
+      "我们",
+      "多",
+      "练习。"
+    ],
+    "answer": "老师让我们多练习。",
+    "translation": "Thầy bảo chúng tôi luyện tập nhiều.",
+    "source": "Câu xếp từ tự biên soạn"
+  },
+  {
+    "id": "o22",
+    "parts": [
+      "这个",
+      "衣服",
+      "太",
+      "大",
+      "了。"
+    ],
+    "answer": "这个衣服太大了。",
+    "translation": "Bộ đồ này quá rộng.",
+    "source": "Câu xếp từ tự biên soạn"
+  },
+  {
+    "id": "o23",
+    "parts": [
+      "明天",
+      "可能",
+      "会",
+      "下雨。"
+    ],
+    "answer": "明天可能会下雨。",
+    "translation": "Ngày mai có thể mưa.",
+    "source": "Câu xếp từ tự biên soạn"
+  },
+  {
+    "id": "o24",
+    "parts": [
+      "你",
+      "为什么",
+      "不",
+      "告诉",
+      "我？"
+    ],
+    "answer": "你为什么不告诉我？",
+    "translation": "Tại sao bạn không nói với tôi?",
+    "source": "Câu xếp từ tự biên soạn"
+  },
+  {
+    "id": "o25",
+    "parts": [
+      "我",
+      "已经",
+      "去过",
+      "北京。"
+    ],
+    "answer": "我已经去过北京。",
+    "translation": "Tôi từng đến Bắc Kinh rồi.",
+    "source": "Câu xếp từ tự biên soạn"
+  },
+  {
+    "id": "o26",
+    "parts": [
+      "周末",
+      "我",
+      "常常",
+      "去",
+      "游泳。"
+    ],
+    "answer": "周末我常常去游泳。",
+    "translation": "Cuối tuần tôi thường đi bơi.",
+    "source": "Câu xếp từ tự biên soạn"
+  },
+  {
+    "id": "o27",
+    "parts": [
+      "妹妹",
+      "比",
+      "我",
+      "小",
+      "两岁。"
+    ],
+    "answer": "妹妹比我小两岁。",
+    "translation": "Em gái nhỏ hơn tôi hai tuổi.",
+    "source": "Câu xếp từ tự biên soạn"
+  },
+  {
+    "id": "o28",
+    "parts": [
+      "我们",
+      "还没",
+      "找到",
+      "教室。"
+    ],
+    "answer": "我们还没找到教室。",
+    "translation": "Chúng tôi chưa tìm thấy phòng học.",
+    "source": "Câu xếp từ tự biên soạn"
+  },
+  {
+    "id": "o29",
+    "parts": [
+      "他",
+      "一到家",
+      "就",
+      "睡觉。"
+    ],
+    "answer": "他一到家就睡觉。",
+    "translation": "Vừa về nhà là anh ấy ngủ.",
+    "source": "Câu xếp từ tự biên soạn"
+  },
+  {
+    "id": "o30",
+    "parts": [
+      "我",
+      "希望",
+      "明年",
+      "去",
+      "中国。"
+    ],
+    "answer": "我希望明年去中国。",
+    "translation": "Tôi hi vọng năm sau tới Trung Quốc.",
+    "source": "Câu xếp từ tự biên soạn"
+  }
+]
