@@ -48,7 +48,7 @@ Supabase MCP xác nhận đủ năm migration trong history, gồm `reference_vo
 | Kiểm tra | Kết quả |
 | --- | --- |
 | `npm test` | 21/21 đạt |
-| `npm run test:db` | Áp dụng đủ 6 migration; 17 + 5 + 8 + 4 + 5 nhóm nghiệp vụ đạt, gồm xóa học viên/giáo viên, giáo viên bị hạ quyền, đọc phòng đã kết thúc không chờ khóa dòng |
+| `npm run test:db` | Áp dụng đủ 7 migration; 17 + 5 + 8 + 4 + 5 nhóm nghiệp vụ đạt, gồm xóa học viên/giáo viên, giáo viên bị hạ quyền, đọc phòng đã kết thúc không chờ khóa dòng |
 | Playwright | 25/25 đạt: thêm landing lần đầu, đăng ký gửi tên hiển thị, giáo viên vào lớp sau đăng nhập, nhập lại bản sao lưu giáo trình, chặn chèn mã qua video ID |
 | Ảnh kiểm tra | Landing desktop/mobile/tối, trang đăng nhập desktop/mobile, lớp học, tổng quan; không tràn ngang ở 390 px |
 

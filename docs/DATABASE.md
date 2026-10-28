@@ -1,6 +1,6 @@
 # Sơ đồ dữ liệu (ERD) và trạng thái Supabase
 
-Cập nhật 2026-10-29, sau migration `202610290005_account_lifecycle.sql`. Sơ đồ suy ra từ các migration trong `supabase/migrations/`. Số liệu production được đọc bằng Supabase MCP, chế độ chỉ đọc (`begin transaction read only` … `rollback`).
+Cập nhật 2026-10-29, sau migration `202610290005_account_lifecycle.sql` và `202610290006_revoke_demoted_teacher.sql`. Sơ đồ suy ra từ các migration trong `supabase/migrations/`. Số liệu production được đọc bằng Supabase MCP, chế độ chỉ đọc (`begin transaction read only` … `rollback`).
 
 ```mermaid
 erDiagram
@@ -40,7 +40,7 @@ erDiagram
   - Đã thêm index cho 11 khóa ngoại mà advisor báo thiếu index.
   - 6 policy đổi sang `(select auth.uid())` để không gọi lại hàm trên từng dòng.
   - Đọc phòng thi đã kết thúc không còn phải chờ khóa dòng.
-- **Thu hồi quyền:** `private.teaches`, cùng các nhánh host của phòng thi, giờ yêu cầu vai trò giáo viên/quản trị viên còn hiệu lực. Giáo viên bị hạ quyền sẽ mất quyền dạy, quyền xem báo cáo và quyền mở phòng.
+- **Thu hồi quyền (0006):** `private.teaches`, cùng các nhánh host của phòng thi, giờ yêu cầu vai trò giáo viên/quản trị viên còn hiệu lực. Giáo viên bị hạ quyền sẽ mất quyền dạy, quyền xem báo cáo và quyền mở phòng.
 - **Còn mở:**
   - Chưa có ràng buộc `CHECK` liên cột cho trạng thái phòng thi và thông tin chấm điểm (hiện do RPC đảm bảo).
   - `vocab_entries` chưa có bảng lịch sử duyệt.
