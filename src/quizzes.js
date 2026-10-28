@@ -14,9 +14,9 @@ export function readQuestions(form) {
     return {prompt,options,correct_index:correct};
   });
 }
-export function quizResponse(assignment,mine,questions,own,submissions) {
+export function quizResponse(assignment,mine,questions,own,submissions,studentName) {
   const expired=new Date(assignment.due_at).getTime()<Date.now();
-  const scores=own?submissions.filter(s=>s.assignment_id===assignment.id).map(s=>`<p>${h(s.student_id)}: ${h(s.score)}/100. ${h(s.feedback)}</p>`).join(''):'';
+  const scores=own?submissions.filter(s=>s.assignment_id===assignment.id).map(s=>`<p>${h(studentName(s.student_id))}: ${h(s.score)}/100. ${h(s.feedback)}</p>`).join(''):'';
   if(!questions)return `${scores}<button type="button" class="btn" data-work="open-quiz" data-id="${assignment.id}">Xem bài trắc nghiệm</button>`;
   const chosen=mine?JSON.parse(mine.answer):[];
   const disabled=own||Boolean(mine)||expired;

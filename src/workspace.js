@@ -8,11 +8,12 @@ const stamp=value=>value?new Date(value).toLocaleString('vi-VN'):'Chưa nộp';
 const reply=async request=>{const{data,error}=await request;if(error)throw error;return data;};
 
 export async function mountWorkspace(root,client,user,profile,msg,failure) {
-  let contents=[],classes=[],assignments=[],submissions=[],people=[],selectedClass='',tab='library',loading=false;
+  let contents=[],classes=[],assignments=[],submissions=[],people=[],roster=new Map(),selectedClass='',tab='library',loading=false;
   const quizQuestions=new Map();
   let liveController;
   const rpc=(name,args)=>reply(client.rpc(name,args));
   const teaching=['teacher','admin'].includes(profile.role);
+  const studentName=id=>roster.get(id)||'Học viên chưa đặt tên';
   root.innerHTML=`<div class="cloud-tabs" role="group" aria-label="Không gian học tập">${action('Học liệu','tab','data-tab="library"')}${action('Lớp học','tab','data-tab="classes"')}${action('Phòng thi','tab','data-tab="live"')}${profile.role==='admin'?action('Phân quyền','tab','data-tab="roles"'):''}</div><div id="cloud-view" class="cloud-loading">Đang tải học liệu...</div>`;
   const view=root.querySelector('#cloud-view');
   function contentForm(item={}) {
@@ -25,8 +26,8 @@ export async function mountWorkspace(root,client,user,profile,msg,failure) {
     const mine=submissions.find(s=>s.assignment_id===a.id&&s.student_id===user.id);
     const late=new Date(a.due_at).getTime()<Date.now();
     let response;
-    if(a.format==='quiz') response=quizResponse(a,mine,quizQuestions.get(a.id),own,submissions);
-    else if (own) response=submissions.filter(s=>s.assignment_id===a.id).map(s=>`<details><summary>${h(s.student_id)}: ${s.score===null?'Chưa chấm':`${s.score}/100`}</summary><p class="cloud-prose">${h(s.answer)}</p><p>Nộp lúc ${stamp(s.submitted_at)}</p><form data-work-form="grade" data-assignment="${a.id}" data-student="${s.student_id}" class="cloud-form">${field('Điểm (0-100)','grade','number',`min="0" max="100" step="1" value="${s.score??''}"`)}<label>Nhận xét<textarea name="comment" maxlength="5000">${h(s.feedback)}</textarea></label><button class="btn">Lưu điểm</button></form></details>`).join('')||'<p>Chưa có bài nộp.</p>';
+    if(a.format==='quiz') response=quizResponse(a,mine,quizQuestions.get(a.id),own,submissions,studentName);
+    else if (own) response=submissions.filter(s=>s.assignment_id===a.id).map(s=>`<details><summary>${h(studentName(s.student_id))}: ${s.score===null?'Chưa chấm':`${s.score}/100`}</summary><p class="cloud-prose">${h(s.answer)}</p><p>Nộp lúc ${stamp(s.submitted_at)}</p><form data-work-form="grade" data-assignment="${a.id}" data-student="${s.student_id}" class="cloud-form">${field('Điểm (0-100)','grade','number',`min="0" max="100" step="1" value="${s.score??''}"`)}<label>Nhận xét<textarea name="comment" maxlength="5000">${h(s.feedback)}</textarea></label><button class="btn">Lưu điểm</button></form></details>`).join('')||'<p>Chưa có bài nộp.</p>';
     else response=`${mine?`<p>Nộp lúc ${stamp(mine.submitted_at)}. ${mine.score===null?'Đang chờ chấm.':`Điểm: ${mine.score}/100`}</p><p class="cloud-prose">${h(mine.feedback)}</p>`:''}${!late&&mine?.score==null?`<form data-work-form="submission" data-id="${a.id}" class="cloud-form"><label>Câu trả lời<textarea name="answer" required maxlength="30000" rows="5">${h(mine?.answer)}</textarea></label><button class="btn">${mine?'Cập nhật bài nộp':'Nộp bài'}</button></form>`:`<p>${late?'Đã hết hạn nộp.':'Bài đã được chấm.'}</p><p class="cloud-prose">${h(mine?.answer)}</p>`}`;
     return `<article><h4>${h(a.title)}</h4><p>Hạn nộp: ${stamp(a.due_at)}</p><p class="cloud-prose">${h(a.instructions)}</p><details><summary>${h(a.lesson.title)} (HSK ${h(a.lesson.level)})</summary><p class="cloud-prose">${h(a.lesson.body)}</p><a href="${h(a.lesson.source_url)}" target="_blank" rel="noopener noreferrer">Nguồn</a><p>${h(a.lesson.license)}</p></details>${response}</article>`;
   }
@@ -46,8 +47,9 @@ export async function mountWorkspace(root,client,user,profile,msg,failure) {
     if(tab==='library')renderLibrary();else if(tab==='classes')renderClasses();else if(tab==='live')liveController=mountLive(view,client,classes,user);else renderRoles();
   }
   async function loadClass() {
-    assignments=[];submissions=[];
+    assignments=[];submissions=[];roster=new Map();
     if(!selectedClass)return;
+    if(classes.find(c=>c.id===selectedClass)?.teacher_id===user.id)roster=new Map((await rpc('class_roster',{class_uuid:selectedClass})).map(r=>[r.student_id,r.display_name]));
     assignments=await reply(client.from('assignments').select('*').eq('class_id',selectedClass).order('created_at',{ascending:false}).limit(100));
     if(assignments.length)submissions=await reply(client.from('submissions').select('*').in('assignment_id',assignments.map(a=>a.id)).limit(1000));
   }

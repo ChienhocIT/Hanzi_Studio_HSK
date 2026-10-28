@@ -174,7 +174,7 @@ test('Teacher creates class, assigns essay, grades a submission and reads class 
   await form.getByRole('combobox',{name:'Học liệu đã xuất bản',exact:true}).selectOption(itemId);
   await form.getByLabel('Hạn nộp (giờ thiết bị)',{exact:true}).fill('2030-12-20T12:00');
   await form.getByRole('button',{name:'Giao bài',exact:true}).click();
-  await page.getByText('another-student: Chưa chấm',{exact:true}).click();
+  await page.getByText('Trần An: Chưa chấm',{exact:true}).click();
   const grade=page.locator('[data-work-form="grade"]');
   await grade.getByLabel('Điểm (0-100)',{exact:true}).fill('85');await grade.getByLabel('Nhận xét',{exact:true}).fill('Cần ôn lại cấu trúc câu.');
   await grade.getByRole('button',{name:'Lưu điểm',exact:true}).click();

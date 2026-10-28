@@ -8,7 +8,7 @@ export function mountLive(root,client,classes,user) {
   let hostQuizzes=[];
   const storageKey=`hanzi-live-room:${user.id}`;
   const rpc=(name,args)=>reply(client.rpc(name,args));
-  root.innerHTML=`<h3>Phòng thi trực tiếp</h3><p>Thi cùng lớp từ bài trắc nghiệm giáo viên đã soạn. Thời gian và điểm do server quyết định. Trạng thái được cập nhật mỗi 3 giây.</p><p id="live-status" role="status" aria-live="polite"></p><form data-live-form="join" class="cloud-form">${field('Mã phòng thi','code','text','minlength="8" maxlength="8" pattern="[A-Za-z0-9]{8}" autocomplete="off"')}<p>Tên hiển thị và kết quả sẽ xuất hiện trong phòng cùng các học viên tham gia.</p><button class="btn">Vào phòng thi</button></form><label class="cloud-select">Lớp tổ chức thi<select id="live-class"><option value="">Chọn lớp</option>${classes.map(c=>`<option value="${c.id}" ${c.id===classId?'selected':''}>${h(c.title)}</option>`).join('')}</select></label><div id="live-create"></div><div id="live-history"></div><div id="live-room"></div>`;
+  root.innerHTML=`<h3>Phòng thi trực tiếp</h3><p>Thi cùng lớp từ bài trắc nghiệm giáo viên đã soạn. Thời gian và điểm do server quyết định. Khi phòng đang chờ hoặc đang thi, trạng thái được cập nhật mỗi 3 giây.</p><p id="live-status" role="status" aria-live="polite"></p><form data-live-form="join" class="cloud-form">${field('Mã phòng thi','code','text','minlength="8" maxlength="8" pattern="[A-Za-z0-9]{8}" autocomplete="off"')}<p>Tên hiển thị và kết quả sẽ xuất hiện trong phòng cùng các học viên tham gia.</p><button class="btn">Vào phòng thi</button></form><label class="cloud-select">Lớp tổ chức thi<select id="live-class"><option value="">Chọn lớp</option>${classes.map(c=>`<option value="${c.id}" ${c.id===classId?'selected':''}>${h(c.title)}</option>`).join('')}</select></label><div id="live-create"></div><div id="live-history"></div><div id="live-room"></div>`;
   const status=(text,error=false)=>{
     if(disposed)return;
     const el=root.querySelector('#live-status');el.textContent=text;el.classList.toggle('cloud-error',error);
@@ -129,6 +129,8 @@ export function mountLive(root,client,classes,user) {
   root.addEventListener('click',onClick);
   const poll=setInterval(()=>{
     if(!root.isConnected){destroy();return;}
+    // Finished rooms no longer change; "Làm mới phòng" still fetches on demand.
+    if(room&&['ended','expired'].includes(room.state))return;
     if(document.visibilityState==='visible'&&root.getClientRects().length)refresh();
   },3000);
   const clock=setInterval(tick,1000);

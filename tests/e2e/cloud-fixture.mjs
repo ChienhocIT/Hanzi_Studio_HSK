@@ -41,6 +41,7 @@ export async function mockCloud(page,role='student',{authenticated=true,userId=i
     else if(url.pathname.endsWith('/create_class')){data.classes=[{id:classId,title:body.class_title,teacher_id:id,open:true,join_code:'a'.repeat(32)}];result=classId;}
     else if(url.pathname.endsWith('/create_assignment')){data.assignments=[{id:assignmentId,class_id:classId,title:body.assignment_title,instructions:body.instructions,lesson:item,due_at:body.due_at,format:'essay'}];result=assignmentId;}
     else if(url.pathname.endsWith('/grade_submission')){data.submissions[0].score=body.grade;data.submissions[0].feedback=body.comment;}
+    else if(url.pathname.endsWith('/class_roster'))result=[...new Set(data.submissions.map(s=>s.student_id))].map(student_id=>({student_id,display_name:'Trần An',joined_at:new Date().toISOString()}));
     else if(url.pathname.endsWith('/class_report'))result=data.submissions.map(s=>({...s,display_name:'Học viên trong lớp',assignment_title:data.assignments[0].title}));
     else if(url.pathname.endsWith('/submit_assignment'))data.submissions=[{assignment_id:assignmentId,student_id:id,answer:body.answer_text,score:null,submitted_at:new Date().toISOString(),feedback:''}];
     else if(url.pathname.endsWith('/create_quiz_assignment')){
