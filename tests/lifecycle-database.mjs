@@ -23,6 +23,17 @@ export async function exerciseLifecycle(db) {
     await assert.rejects(as(outsider,'select * from public.class_roster($1)',[classId]),/forbidden/);
     assert.equal((await as(teacher,'select id from public.profiles where id=$1',[second])).rowCount,0);
   });
+  await check('A demoted teacher can no longer teach, report or host',async()=>{
+    const room=(await db.query('select id from public.live_rooms where host_id=$1 limit 1',[teacher])).rows[0].id;
+    await db.query("update public.profiles set role='student' where id=$1",[teacher]);
+    try {
+      await assert.rejects(as(teacher,'select * from public.class_report($1)',[classId]),/forbidden/);
+      await assert.rejects(as(teacher,'select * from public.class_roster($1)',[classId]),/forbidden/);
+      await assert.rejects(as(teacher,"select public.control_live_room($1,'end')",[room]),/forbidden/);
+      await assert.rejects(as(teacher,'select public.get_live_room($1)',[room]),/enrollment_required/);
+      assert.equal((await as(teacher,'select id from public.classes where id=$1',[classId])).rowCount,0);
+    } finally { await db.query("update public.profiles set role='teacher' where id=$1",[teacher]); }
+  });
   await check('Reading a finalized live room does not wait for its row lock',async()=>{
     const room=(await db.query('select id from public.live_rooms where finalized limit 1')).rows[0].id;
     const holder=new pg.Client(db.connectionParameters);await holder.connect();

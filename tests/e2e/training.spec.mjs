@@ -212,3 +212,23 @@ test('Sign-up sends the display name and teachers land in their classroom after 
   await expect(page).toHaveURL(/#classroom$/);await expect(page.locator('#classroom-role')).toHaveText('Giáo viên');
   await expect(page.getByRole('button',{name:'Lớp học',exact:true})).toBeVisible();
 });
+test('Curriculum import keeps row sources and re-imports its own backup format',async({page})=>{
+  await page.goto('/index.html#contenthub');
+  const result=await page.evaluate(async()=>{
+    await hsImportContent('hanzi,level,pinyin,vi,source\n你好,1,nǐ hǎo,Xin chào,https://example.com/list','lesson.csv');
+    const row=hs30State.injected.find(x=>x.hz==='你好');
+    const backup=JSON.stringify({schema:'hanzi-studio-curriculum-v4',state:{...hs30State}});
+    hs30State.injected=[];await hsImportContent(backup,'hanzi-studio-v4-content-backup.json');
+    return {source:row.source,importedFrom:row.importedFrom,restored:hs30State.injected.map(x=>x.hz)};
+  });
+  expect(result.source).toBe('https://example.com/list');expect(result.importedFrom).toBe('lesson.csv');expect(result.restored).toContain('你好');
+});
+test('Imported Video Lab lessons cannot inject markup through the video ID',async({page})=>{
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>d.accept());
+  await page.goto('/index.html#video');
+  const file={name:'lab.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify({type:'hanzi-video-lab',version:1,data:{lessons:[{title:'X',videoId:'a" onload="window.__xss=1',segments:[{text:'你好'}]}],stats:{}}}))};
+  await page.locator('#vl-import-json').setInputFiles(file);
+  await page.locator('[data-vl-load="0"]').dispatchEvent('click');
+  expect(await page.evaluate(()=>window.__xss)).toBeUndefined();
+  await expect(page.locator('#vl-video-player iframe')).toHaveCount(0);expect(errors).toEqual([]);
+});
