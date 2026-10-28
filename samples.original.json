@@ -1,0 +1,500 @@
+{
+  "disclaimer": "Ví dụ tác giả tự biên soạn; nhãn độ khó chỉ mang tính minh họa, KHÔNG phải bộ từ chính thức của HSK 2025.",
+  "items": [
+    {
+      "id": "curated-1-1",
+      "level": 1,
+      "hz": "你好",
+      "py": "nǐ hǎo",
+      "vi": "Xin chào",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-1-2",
+      "level": 1,
+      "hz": "谢谢",
+      "py": "xièxie",
+      "vi": "Cảm ơn",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-1-3",
+      "level": 1,
+      "hz": "再见",
+      "py": "zàijiàn",
+      "vi": "Tạm biệt",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-1-4",
+      "level": 1,
+      "hz": "我",
+      "py": "wǒ",
+      "vi": "Tôi",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-1-5",
+      "level": 1,
+      "hz": "你",
+      "py": "nǐ",
+      "vi": "Bạn",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-1-6",
+      "level": 1,
+      "hz": "他",
+      "py": "tā",
+      "vi": "Anh ấy",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-1-7",
+      "level": 1,
+      "hz": "她",
+      "py": "tā",
+      "vi": "Cô ấy",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-1-8",
+      "level": 1,
+      "hz": "我们",
+      "py": "wǒmen",
+      "vi": "Chúng tôi",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-1-9",
+      "level": 1,
+      "hz": "是",
+      "py": "shì",
+      "vi": "Là",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-1-10",
+      "level": 1,
+      "hz": "有",
+      "py": "yǒu",
+      "vi": "Có",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-1-11",
+      "level": 1,
+      "hz": "没有",
+      "py": "méiyǒu",
+      "vi": "Không có",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-1-12",
+      "level": 1,
+      "hz": "喜欢",
+      "py": "xǐhuan",
+      "vi": "Thích",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-1-13",
+      "level": 1,
+      "hz": "吃",
+      "py": "chī",
+      "vi": "Ăn",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-1-14",
+      "level": 1,
+      "hz": "喝",
+      "py": "hē",
+      "vi": "Uống",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-1-15",
+      "level": 1,
+      "hz": "水",
+      "py": "shuǐ",
+      "vi": "Nước",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-1-16",
+      "level": 1,
+      "hz": "茶",
+      "py": "chá",
+      "vi": "Trà",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-1-17",
+      "level": 1,
+      "hz": "学校",
+      "py": "xuéxiào",
+      "vi": "Trường học",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-1-18",
+      "level": 1,
+      "hz": "学生",
+      "py": "xuésheng",
+      "vi": "Học sinh",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-1-19",
+      "level": 1,
+      "hz": "老师",
+      "py": "lǎoshī",
+      "vi": "Giáo viên",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-1-20",
+      "level": 1,
+      "hz": "朋友",
+      "py": "péngyou",
+      "vi": "Bạn bè",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-1-21",
+      "level": 1,
+      "hz": "今天",
+      "py": "jīntiān",
+      "vi": "Hôm nay",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-1-22",
+      "level": 1,
+      "hz": "明天",
+      "py": "míngtiān",
+      "vi": "Ngày mai",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-1-23",
+      "level": 1,
+      "hz": "中国",
+      "py": "Zhōngguó",
+      "vi": "Trung Quốc",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-1-24",
+      "level": 1,
+      "hz": "汉语",
+      "py": "Hànyǔ",
+      "vi": "Tiếng Trung",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-1-25",
+      "level": 1,
+      "hz": "学习",
+      "py": "xuéxí",
+      "vi": "Học tập",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-2-1",
+      "level": 2,
+      "hz": "觉得",
+      "py": "juéde",
+      "vi": "Cảm thấy / Cho rằng",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-2-2",
+      "level": 2,
+      "hz": "需要",
+      "py": "xūyào",
+      "vi": "Cần",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-2-3",
+      "level": 2,
+      "hz": "已经",
+      "py": "yǐjīng",
+      "vi": "Đã",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-2-4",
+      "level": 2,
+      "hz": "因为",
+      "py": "yīnwèi",
+      "vi": "Bởi vì",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-2-5",
+      "level": 2,
+      "hz": "所以",
+      "py": "suǒyǐ",
+      "vi": "Vì vậy",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-2-6",
+      "level": 2,
+      "hz": "还是",
+      "py": "háishi",
+      "vi": "Hay là",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-2-7",
+      "level": 2,
+      "hz": "但是",
+      "py": "dànshì",
+      "vi": "Nhưng",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-2-8",
+      "level": 2,
+      "hz": "可能",
+      "py": "kěnéng",
+      "vi": "Có thể",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-2-9",
+      "level": 2,
+      "hz": "开始",
+      "py": "kāishǐ",
+      "vi": "Bắt đầu",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-2-10",
+      "level": 2,
+      "hz": "希望",
+      "py": "xīwàng",
+      "vi": "Hy vọng",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-2-11",
+      "level": 2,
+      "hz": "运动",
+      "py": "yùndòng",
+      "vi": "Vận động",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-2-12",
+      "level": 2,
+      "hz": "知道",
+      "py": "zhīdào",
+      "vi": "Biết",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-4-1",
+      "level": 4,
+      "hz": "经验",
+      "py": "jīngyàn",
+      "vi": "Kinh nghiệm",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-4-2",
+      "level": 4,
+      "hz": "适应",
+      "py": "shìyìng",
+      "vi": "Thích nghi",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-4-3",
+      "level": 4,
+      "hz": "鼓励",
+      "py": "gǔlì",
+      "vi": "Khuyến khích",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-4-4",
+      "level": 4,
+      "hz": "计划",
+      "py": "jìhuà",
+      "vi": "Kế hoạch",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-4-5",
+      "level": 4,
+      "hz": "沟通",
+      "py": "gōutōng",
+      "vi": "Giao tiếp",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-4-6",
+      "level": 4,
+      "hz": "保护",
+      "py": "bǎohù",
+      "vi": "Bảo vệ",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-5-1",
+      "level": 5,
+      "hz": "创新",
+      "py": "chuàngxīn",
+      "vi": "Đổi mới",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-5-2",
+      "level": 5,
+      "hz": "挑战",
+      "py": "tiǎozhàn",
+      "vi": "Thử thách",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-5-3",
+      "level": 5,
+      "hz": "发展趋势",
+      "py": "fāzhǎn qūshì",
+      "vi": "Xu hướng phát triển",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-5-4",
+      "level": 5,
+      "hz": "效率",
+      "py": "xiàolǜ",
+      "vi": "Hiệu suất",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-5-5",
+      "level": 5,
+      "hz": "策略",
+      "py": "cèlüè",
+      "vi": "Chiến lược",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-6-1",
+      "level": 6,
+      "hz": "可持续",
+      "py": "kě chíxù",
+      "vi": "Bền vững",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-6-2",
+      "level": 6,
+      "hz": "价值观",
+      "py": "jiàzhíguān",
+      "vi": "Giá trị quan",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-6-3",
+      "level": 6,
+      "hz": "跨文化",
+      "py": "kuà wénhuà",
+      "vi": "Liên văn hóa",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-6-4",
+      "level": 6,
+      "hz": "综合分析",
+      "py": "zōnghé fēnxī",
+      "vi": "Phân tích tổng hợp",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-7-9-1",
+      "level": "7-9",
+      "hz": "宏观经济",
+      "py": "hóngguān jīngjì",
+      "vi": "Kinh tế vĩ mô",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-7-9-2",
+      "level": "7-9",
+      "hz": "批判性思维",
+      "py": "pīpànxìng sīwéi",
+      "vi": "Tư duy phản biện",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    },
+    {
+      "id": "curated-7-9-3",
+      "level": "7-9",
+      "hz": "人工智能",
+      "py": "réngōng zhìnéng",
+      "vi": "Trí tuệ nhân tạo",
+      "source": "internal_demo",
+      "reviewStatus": "sample"
+    }
+  ]
+}

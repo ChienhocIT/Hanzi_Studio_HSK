@@ -1,7 +1,7 @@
 {
-  "name": "Hanzi Studio — HSK 3 Learning Platform",
+  "name": "Hanzi Studio — HSK 1–9 Learning Platform",
   "short_name": "Hanzi Studio",
-  "description": "HSK 3: 500 từ vựng, ngữ pháp, đọc hiểu, nghe hiểu, shadowing YouTube, điền từ hội thoại, viết và thi thử",
+  "description": "HSK 1–9: 500 từ vựng, ngữ pháp, đọc hiểu, nghe hiểu, shadowing YouTube, điền từ hội thoại, viết và thi thử",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#f8f9fd",
@@ -20,5 +20,5 @@
       "purpose": "any maskable"
     }
   ],
-  "version": "3.0.0"
+  "version": "4.1.0"
 }
