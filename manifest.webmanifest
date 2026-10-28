@@ -1,10 +1,10 @@
 {
-  "name": "Hanzi Studio — HSK 1–9 Learning Platform",
+  "name": "Hanzi Studio - Học tiếng Trung cùng bạn",
   "short_name": "Hanzi Studio",
-  "description": "HSK 1–9: 500 từ vựng, ngữ pháp, đọc hiểu, nghe hiểu, shadowing YouTube, điền từ hội thoại, viết và thi thử",
+  "description": "Học tiếng Trung HSK 1-9 cùng Mây Long: flashcard nhắc ôn, nghe nói qua video, đọc hiểu, thi thử và lớp học trực tuyến.",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#f8f9fd",
+  "background_color": "#f6f5ff",
   "theme_color": "#6b5ce7",
   "icons": [
     {
@@ -20,5 +20,5 @@
       "purpose": "any maskable"
     }
   ],
-  "version": "4.2.0"
+  "version": "5.0.0"
 }

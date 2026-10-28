@@ -25,6 +25,7 @@ export async function mockCloud(page,role='student',{authenticated=true,userId=i
     if(url.pathname.endsWith('/settings'))result={external:{google:true,email:true},disable_signup:false};
     else if(url.pathname.endsWith('/token'))result=session;
     else if(url.pathname.endsWith('/logout'))result={};
+    else if(url.pathname.endsWith('/signup'))result={id:'00000000-0000-4000-8000-000000000099',aud:'authenticated',email:body.email,user_metadata:body.data,identities:[{id:'x'}],created_at:new Date().toISOString()};
     else if(url.pathname.endsWith('/user'))result=user;
     else if(url.pathname.endsWith('/recover'))result={};
     else if(url.pathname.endsWith('/profiles'))result=url.searchParams.get('id')?{id,display_name:'Học viên kiểm thử',role}:[{id,display_name:'Học viên kiểm thử',role}];

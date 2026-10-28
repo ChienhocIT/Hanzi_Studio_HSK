@@ -7,7 +7,7 @@ function world() {
     submissions:[],questions:[{position:0,prompt:'你好 nghĩa là gì?',options:['Xin chào','Tạm biệt']},{position:1,prompt:'谢谢 nghĩa là gì?',options:['Xin lỗi','Cảm ơn']}],progress:null};
 }
 async function createRoom(page) {
-  await page.goto('/index.html#settings');await page.getByRole('button',{name:'Phòng thi',exact:true}).click();
+  await page.goto('/index.html#classroom');await page.getByRole('button',{name:'Phòng thi',exact:true}).click();
   await page.getByText('Tạo phòng thi',{exact:true}).click();
   await page.getByRole('combobox',{name:'Bài trắc nghiệm của lớp',exact:true}).selectOption(assignmentId);
   await page.getByLabel('Thời gian thi (phút)',{exact:true}).fill('2');
@@ -22,7 +22,7 @@ test('Host and learner complete a live session across two browser contexts',asyn
     const errors=[];host.on('pageerror',e=>errors.push(e.message));student.on('pageerror',e=>errors.push(e.message));
     await mockCloud(host,'teacher',{world:data});const learner=await mockCloud(student,'student',{userId:studentId,world:data});
     await createRoom(host);
-    await student.goto('/index.html#settings');await student.getByRole('button',{name:'Phòng thi',exact:true}).click();
+    await student.goto('/index.html#classroom');await student.getByRole('button',{name:'Phòng thi',exact:true}).click();
     await student.getByLabel('Mã phòng thi',{exact:true}).fill('ABCD1234');await student.getByRole('button',{name:'Vào phòng thi',exact:true}).click();
     await expect(student.locator('#live-room')).toContainText('Đang chờ giáo viên bắt đầu.');
     await expect(student.getByRole('radio')).toHaveCount(0);
@@ -52,7 +52,7 @@ test('Live UI preserves unsent choices during polling and restores saved draft a
   const data=world();
   data.liveRooms=[{id:'00000000-0000-4000-8000-000000000040',host_id:id,title:'Phòng luyện tập',instructions:'Chọn nghĩa',state:'running',join_code:'ABCD1234',duration_seconds:120,ends_at:new Date(Date.now()+120000).toISOString(),questions:data.questions,participants:[{user_id:studentId,display_name:'Học viên'}]}];
   const {calls}=await mockCloud(page,'student',{userId:studentId,world:data});
-  await page.goto('/index.html#settings');await page.getByRole('button',{name:'Phòng thi',exact:true}).click();
+  await page.goto('/index.html#classroom');await page.getByRole('button',{name:'Phòng thi',exact:true}).click();
   await page.getByRole('button',{name:'Phòng luyện tập',exact:true}).click();
   await page.getByRole('radio',{name:'Cảm ơn',exact:true}).check();
   await expect(page.locator('#live-save-status')).toHaveText('Đã lưu lựa chọn lên server.');
@@ -72,7 +72,7 @@ test('A room network failure is reported and refresh recovers without clearing s
   const data=world();
   data.liveRooms=[{id:'00000000-0000-4000-8000-000000000040',host_id:id,title:'Phòng luyện tập',instructions:'Chọn nghĩa',state:'running',join_code:'ABCD1234',duration_seconds:120,ends_at:new Date(Date.now()+120000).toISOString(),questions:data.questions,participants:[{user_id:studentId,display_name:'Học viên'}]}];
   await mockCloud(page,'student',{userId:studentId,world:data});
-  await page.goto('/index.html#settings');await page.getByRole('button',{name:'Phòng thi',exact:true}).click();
+  await page.goto('/index.html#classroom');await page.getByRole('button',{name:'Phòng thi',exact:true}).click();
   await page.getByRole('button',{name:'Phòng luyện tập',exact:true}).click();
   await page.getByRole('radio',{name:'Xin chào',exact:true}).check();
   await expect(page.locator('#live-save-status')).toHaveText('Đã lưu lựa chọn lên server.');
@@ -87,7 +87,7 @@ test('Room titles and participant names render as text rather than executable HT
   const data=world(),title='<img src=x onerror=alert(1)>';
   data.liveRooms=[{id:'00000000-0000-4000-8000-000000000040',host_id:id,title,instructions:'Chọn nghĩa',state:'waiting',join_code:'ABCD1234',participants:[{user_id:studentId,display_name:title}],questions:[]}];
   await mockCloud(page,'student',{userId:studentId,world:data});
-  await page.goto('/index.html#settings');await page.getByRole('button',{name:'Phòng thi',exact:true}).click();
+  await page.goto('/index.html#classroom');await page.getByRole('button',{name:'Phòng thi',exact:true}).click();
   await expect(page.locator('#live-history img')).toHaveCount(0);
   await page.getByRole('button',{name:title,exact:true}).click();
   await expect(page.locator('#live-room')).toContainText(title);await expect(page.locator('#live-room img')).toHaveCount(0);
