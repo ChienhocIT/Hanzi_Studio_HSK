@@ -1,0 +1,15 @@
+/* Hanzi Studio — Mây Long Brand v4.2: illustration layer only; preserves all learning flows. */
+.brandmark{background:none!important;box-shadow:none!important;display:flex!important;align-items:center;justify-content:center;overflow:visible!important;border-radius:0!important}
+.brandmark img{width:43px;height:43px;display:block;object-fit:contain}
+.hs-mascot-hero{position:absolute;width:min(100%,335px);height:auto;object-fit:contain;right:3%;bottom:-12px;z-index:2;filter:drop-shadow(0 14px 19px rgba(84,68,157,.12));pointer-events:none}
+.hs-mascot-hero-spark{position:absolute;right:9%;top:17px;font-size:34px;color:#9C8BEA;z-index:1;opacity:.8}
+.dashboard-hero .hero-illustration{position:relative;min-height:250px;isolation:isolate}
+.dashboard-hero .hero-illustration:before{content:'';position:absolute;width:280px;height:280px;top:4px;right:10%;border-radius:50%;background:rgba(220,211,255,.72)}
+.hs-mascot-chip{width:66px;height:66px;object-fit:contain;flex:0 0 66px;filter:drop-shadow(0 5px 7px rgba(57,39,111,.12))}
+.pro-home-discovery{min-height:94px}.pro-home-discovery .hs-mascot-chip{margin-left:auto;margin-right:8px}
+.hs-side-mascot{width:83px;height:83px;object-fit:contain;position:absolute;right:-5px;bottom:-3px;opacity:.91;pointer-events:none}
+.side-note{padding-right:68px}.side-note:after{display:none}.side-note strong{max-width:130px}.side-note p{max-width:139px}
+@media(max-width:1100px){.hs-mascot-hero{right:0;width:min(100%,265px)}.dashboard-hero .hero-illustration:before{right:-15%;width:250px;height:250px}}
+@media(max-width:760px){.dashboard-hero .hero-illustration{min-height:165px;max-height:190px}.hs-mascot-hero{height:188px;width:188px;right:calc(50% - 95px);bottom:-25px}.dashboard-hero .hero-illustration:before{width:210px;height:210px;right:calc(50% - 105px);top:0}.pro-home-discovery .hs-mascot-chip{width:54px;height:54px;flex-basis:54px}}
+@media(prefers-reduced-motion:reduce){.hs-mascot-hero{transition:none}}
+@media(max-width:670px){.dashboard-hero .hero-illustration{display:block!important;min-height:164px;height:165px;overflow:hidden}.dashboard-hero .hero-illustration:before{top:-30px}.dashboard-hero .hero-illustration .hs-mascot-hero{bottom:-23px;width:198px;height:198px}.pro-home-discovery{flex-wrap:wrap}.pro-home-discovery .hs-mascot-chip{margin-left:0}}

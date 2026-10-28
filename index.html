@@ -6,11 +6,12 @@
   <meta name="theme-color" content="#f8f9fd">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Hanzi Studio">
-  <link rel="apple-touch-icon" href="./icon-192.png">
+  <link rel="apple-touch-icon" href="./assets/brand/logo-icon-180.png">
   <meta name="description" content="Hanzi Studio — Học tiếng Trung từ HSK 1 đến HSK 9, HSK 3 qua video YouTube, flashcard 500 từ, đọc và nghe hiểu, luyện nói và điền từ, thi thử.">
-  <title>Hanzi Studio v4.1 — HSK 1–9 | Luyện tiếng Trung</title>
+  <title>Hanzi Studio v4.2 — HSK 1–9 | Luyện tiếng Trung</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" type="image/svg+xml" href="./icon.svg">
+<link rel="icon" type="image/png" sizes="48x48" href="./assets/brand/logo-icon-48.png">
 <style>
 
 :root{--bg:#f8f9fd;--surface:#fff;--muted-bg:#f2f3fa;--paper:#fff;--stroke:#e9eaf2;--txt:#242b41;--muted:#858ba0;--quiet:#a7acbc;--primary:#6b5ce7;--primary-strong:#5543d7;--primary-light:#f0eeff;--teal:#29aa95;--teal-light:#e3f7ef;--orange:#ed965d;--orange-light:#fff1e6;--red:#e56975;--red-light:#fdf0f2;--shadow:0 9px 36px rgba(33,37,82,.045);--radius:20px}
@@ -34,11 +35,12 @@
 <link rel="stylesheet" href="./advanced.css">
 <link rel="stylesheet" href="./video.css">
 <link rel="stylesheet" href="./curriculum.css">
+<link rel="stylesheet" href="./brand.css">
 </head>
 <body>
 <div class="app" id="app">
 <aside class="sidebar">
- <div class="brand"><div class="brandmark">汉</div><div><div class="brandname">hanzi<span style="color:var(--primary)">studio.</span></div><div class="brandhint">CHINESE LEARNING</div></div></div>
+ <div class="brand"><div class="brandmark"><img src="./assets/brand/logo-mark.svg" alt="" width="43" height="43"></div><div><div class="brandname">hanzi<span style="color:var(--primary)">studio.</span></div><div class="brandhint">CHINESE LEARNING</div></div></div>
  <div class="navlabel">KHÔNG GIAN HỌC</div>
  <nav class="navlinks" aria-label="Điều hướng chính">
   <button class="navbtn active" data-go="home"><span data-icon="home"></span> Tổng quan</button>
@@ -70,7 +72,7 @@
  <div class="navlabel" style="margin-top:24px">TÙY CHỈNH</div>
  <nav class="navlinks"><button class="navbtn" data-go="settings"><span data-icon="settings"></span> Cài đặt & dữ liệu</button></nav>
  <div class="sidebar-spacer"></div>
- <div class="side-note"><strong>Mỗi ngày 15 phút, tiến bộ mỗi ngày ✨</strong><p>Học từ mới, ôn từ khó và xây dựng thói quen.</p><button data-go="study">Học ngay <span aria-hidden="true">→</span></button></div>
+ <div class="side-note"><strong>Mỗi ngày 15 phút, tiến bộ mỗi ngày ✨</strong><p>Học từ mới, ôn từ khó và xây dựng thói quen.</p><button data-go="study">Học ngay <span aria-hidden="true">→</span></button><img class="hs-side-mascot" src="./assets/mascot/maylong-thinking.webp" alt="" width="83" height="83" loading="lazy"></div>
  <div class="side-footer">HSK 3 · Nền tảng tự học · v4.0 · RC</div>
 </aside>
 <main class="main">
@@ -81,8 +83,8 @@
 <div class="body">
 <section id="page-home" class="page active" aria-label="Tổng quan">
  <div class="section-header" style="margin-bottom:22px"><div><h2 id="greeting">Chào bạn, sẵn sàng học hôm nay? 👋</h2><p>Hành trình chinh phục HSK 3 của bạn bắt đầu từ những từ vựng nhỏ.</p></div><span class="status-pip">HSK 3.0 · 500 từ</span></div>
- <div class="dashboard-hero"><div class="hero-copy"><div class="tiny-tag">BỘ TỪ VỰNG HSK 3 · 2026</div><h1>Học thông minh.<br>Nhớ từ lâu hơn.</h1><p>Ôn tập với thẻ lật, luyện nghe phát âm, kiểm tra và theo dõi tiến trình trong một không gian.</p><button class="btn btn-primary" data-go="study"><span data-icon="play"></span> Bắt đầu học ngay <span data-icon="arrow-right"></span></button></div><div class="hero-illustration" aria-hidden="true"><div class="ornament one"></div><div class="ornament two"></div><div class="illust-back"></div><div class="illust-card"><span>学</span></div><div class="illust-spark">✳</div></div></div>
- <div class="pro-home-discovery"><div><span class="pro-eyebrow">KHÁM PHÁ PHIÊN BẢN 2.0</span><strong>Không chỉ ghi nhớ từ vựng.</strong><p>Học ngữ pháp, luyện nghe, đọc hiểu, xếp câu và thi thử trong một nơi.</p></div><button class="btn btn-primary" data-go="arena">Khám phá khóa học ↗</button></div>
+ <div class="dashboard-hero"><div class="hero-copy"><div class="tiny-tag">BỘ TỪ VỰNG HSK 3 · 2026</div><h1>Học thông minh.<br>Nhớ từ lâu hơn.</h1><p>Ôn tập với thẻ lật, luyện nghe phát âm, kiểm tra và theo dõi tiến trình trong một không gian.</p><button class="btn btn-primary" data-go="study"><span data-icon="play"></span> Bắt đầu học ngay <span data-icon="arrow-right"></span></button></div><div class="hero-illustration" aria-hidden="true"><img class="hs-mascot-hero" src="./assets/mascot/maylong-hello.webp" alt="" width="335" height="335" fetchpriority="high"><span class="hs-mascot-hero-spark">✦</span></div></div>
+ <div class="pro-home-discovery"><div><span class="pro-eyebrow">KHÁM PHÁ PHIÊN BẢN 2.0</span><strong>Không chỉ ghi nhớ từ vựng.</strong><p>Học ngữ pháp, luyện nghe, đọc hiểu, xếp câu và thi thử trong một nơi.</p></div><img class="hs-mascot-chip" src="./assets/mascot/maylong-study.webp" alt="" width="66" height="66" loading="lazy"><button class="btn btn-primary" data-go="arena">Khám phá khóa học ↗</button></div>
  <div class="mobile-quick"><button data-go="review"><span data-icon="repeat"></span> Ôn từ đến hạn</button><button data-go="stats"><span data-icon="chart"></span> Xem thống kê</button></div>
  <div class="metric-grid"><div class="metric"><div class="metric-head">Từ đã học <span class="metric-icon purple" data-icon="book"></span></div><div class="metric-value" id="m-studied">0</div><div class="metric-foot">trên 500 từ vựng</div></div><div class="metric"><div class="metric-head">Đã ghi nhớ <span class="metric-icon teal" data-icon="check"></span></div><div class="metric-value" id="m-mastered">0</div><div class="metric-foot" id="m-mastered-foot">0% tổng từ vựng</div></div><div class="metric"><div class="metric-head">Cần ôn hôm nay <span class="metric-icon orange" data-icon="repeat"></span></div><div class="metric-value" id="m-due">0</div><div class="metric-foot">thẻ đến lịch ôn</div></div><div class="metric"><div class="metric-head">Chuỗi học <span class="metric-icon pink" data-icon="flame"></span></div><div class="metric-value" id="m-streak">0 <span style="font-size:15px;color:var(--muted);letter-spacing:0">ngày</span></div><div class="metric-foot">giữ nhịp học đều đặn</div></div></div>
  <div class="space-30"></div>

@@ -1,27 +1,16 @@
-# Hanzi Studio v4.1 — Nền tảng luyện tiếng Trung HSK
+# Hanzi Studio v4.1 — triển khai website đa cấp độ HSK
 
-Website production: https://hanzistudiohsk3prov3.vercel.app/
+- Kế thừa **v4**: 500 từ HSK 3 từ PDF người dùng, 55 từ mẫu ngoài HSK 3, 21 hội thoại tự biên soạn, lộ trình HSK 1–6 và HSK 7–9, flashcard, ngữ pháp, nghe, đọc, game, thi thử, luyện viết, video YouTube.
+- **v4.1**: Sao lưu/khôi phục đồng thời **cả 4 kho localStorage** (HSK 3 + lộ trình HSK 1–9 + video/điền từ + hội thoại), có kiểm định định dạng, giới hạn dung lượng và xác nhận trước khi ghi đè.
+- Đóng gói **đa tệp**, đủ JavaScript/CSS/ảnh icon/PWA/manifest. Không triển khai HTML đơn lẻ khi thiếu tài nguyên đi kèm.
+- Bản v4.1 **chưa có** cloud sync, tài khoản Google, đánh giá thanh điệu chuyên sâu, lớp học realtime, hay bộ 11.000 mục từ đã duyệt.
 
-Phiên bản v4.1 được đồng bộ từ bản phát hành trên Vercel về repository này. Đây là ứng dụng frontend tĩnh HTML, CSS, JavaScript và JSON, không yêu cầu quá trình build.
+## Cách deploy
+Đưa toàn bộ file trong thư mục này vào root Vercel (static, Framework Preset = Other); Vercel tự phục vụ index.html. Có thể dùng GitHub tích hợp Vercel để chạy CI/CD.
 
-## Chức năng đã tích hợp
-- Flashcard 500 từ HSK 3, phát âm trình duyệt, ôn tập và theo dõi tiến độ cục bộ.
-- Ngữ pháp, đọc hiểu, luyện nghe, ghép cặp, xếp câu, thi thử và sổ tay câu sai.
-- Học từ video YouTube, luyện đọc theo và điền từ trong hội thoại (các chức năng phụ thuộc API/trình duyệt).
-- Lộ trình cấp độ HSK 1–9, xếp trình độ, hội thoại theo chủ đề, luyện viết chữ Hán.
-- Nhập học liệu có ghi nguồn, sao lưu/khôi phục dữ liệu học dưới dạng JSON.
-- PWA, hỗ trợ điện thoại và máy tính.
+## Lưu ý quyền học liệu
+Bộ từ 500 mục đến từ tài liệu PDF do người dùng cung cấp; trước khi mở công khai cho nhiều người cần kiểm tra quyền phân phối. Bộ 55 từ và 21 đoạn hội thoại chỉ là ví dụ, chưa qua kiểm duyệt học thuật. Chấm nói dựa trên văn bản nhận dạng; **không phải** kiểm tra độ chính xác thanh điệu.
 
-## Chạy tại máy
-Trong thư mục gốc, dùng web server tĩnh, ví dụ: `python3 -m http.server 8000`, sau đó mở http://localhost:8000/. Không chạy trực tiếp với file:// nếu cần nạp tệp JSON hoặc dùng service worker.
 
-## Triển khai Vercel
-Dự án sử dụng framework Other (tĩnh). Các file `index.html`, JS, CSS, JSON, manifest và icon nằm tại gốc repository. `vercel.json` cấu hình các HTTP header bảo mật. Có thể liên kết repo `ChienhocIT/Hanzi_Studio_HSK3_Pro_v3` với project Vercel hiện tại để tự deploy khi cập nhật `main`.
-
-## Giới hạn hiện tại
-Đây **chưa phải** nền tảng backend đa tài khoản hoàn chỉnh. Dữ liệu học chủ yếu lưu trong trình duyệt và có sao lưu JSON thủ công; chưa có đồng bộ tài khoản đám mây. Tài liệu học các cấp ngoài HSK 3 mới ở mức mẫu, chưa phải ngân hàng HSK 1–9 chính thức đầy đủ. Phân tích phát âm phụ thuộc hỗ trợ nhận diện tiếng nói của trình duyệt và chưa tương đương chấm điểm phát âm chuyên sâu.
-
-Không nhập mã khóa API, cookie đăng nhập hay dữ liệu cá nhân vào repository công khai.
-
-## Nguồn học liệu
-Dữ liệu 500 từ HSK 3 được chuyển từ tài liệu học do chủ dự án cung cấp. Nội dung mở rộng cần được kiểm duyệt và xác minh giấy phép trước khi xuất bản rộng rãi.
+## Brand kit v4.2
+Thêm bộ nhận diện Mây Long gồm logo SVG, biểu tượng PWA, 6 pose linh vật WebP/PNG, hero illustration, brand.css. Xem `BRAND_PREVIEW.html` và `BRAND_GUIDELINES.md`. Không thay đổi nghiệp vụ học tập hoặc localStorage.
