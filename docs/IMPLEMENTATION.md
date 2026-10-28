@@ -10,6 +10,14 @@
 | D: lớp học | Tạo lớp/mã tham gia, đóng/mở nhận học viên, giao bài từ học liệu duyệt, tự luận/trắc nghiệm, báo cáo; phòng luyện thi có mã chờ 24 giờ, bắt đầu/kết thúc, giờ server, lưu lựa chọn, chấm khi hết giờ và bảng xếp hạng | Báo cáo kỹ năng, đề bí mật độc lập với bài tập, kiểm thử tải và nghiệm thu cloud thật |
 | E: vận hành | Lockfile, build chỉ xuất public assets, CI, regression tests, service worker tránh cache auth/API | Quan sát lỗi production, backup DB theo lịch/diễn tập, kiểm thử tải, kiểm định accessibility/SEO toàn app, AI gia sư và thanh toán |
 
+## Giao diện v5 (2026-10-29)
+
+- Trang giới thiệu `#welcome`: hiển thị ở lần truy cập đầu tiên.
+- Trang tài khoản `#auth`: đăng nhập, đăng ký có tên hiển thị, quên và đặt lại mật khẩu.
+- Trang lớp học `#classroom`: nội dung hiển thị theo vai trò. Sau khi đăng nhập, học viên về trang tổng quan, giáo viên và quản trị viên vào lớp học.
+- Logo chính Mây Long, icon chuyên mục 3D, font Be Vietnam Pro tự host, chế độ sáng/tối.
+- Danh mục HSK 3.0 trong `vocab_entries` vẫn chưa có màn học hoặc màn duyệt.
+
 ## Ranh giới dữ liệu
 
 Không tự chuyển dữ liệu mẫu thành học liệu được kiểm duyệt. Không tạo hàng nghìn câu HSK giả để đủ số lượng. Quy trình biên tập yêu cầu tác giả cung cấp nguồn, giấy phép, phiên bản đề cương và người duyệt có chuyên môn. Các số lượng trong báo cáo người dùng chưa được tái kiểm kê cho mục tiêu phát hành này.

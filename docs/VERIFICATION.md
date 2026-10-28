@@ -43,6 +43,17 @@ Chrome headless trên domain thật: màn tài khoản có nút đăng nhập, G
 
 Supabase MCP xác nhận đủ năm migration trong history, gồm `reference_vocabulary`. Đã kiểm tra bốn migration nền tạo 11 bảng public có RLS và ba bảng chính từ chối khách. Security advisor ghi cảnh báo RPC `SECURITY DEFINER` cho authenticated và INFO về bảng không có policy; đây là quyền gọi RPC có kiểm tra vai trò và bảng khóa truy cập trực tiếp theo thiết kế. Xem [hướng dẫn advisor](https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable). Không tự mở policy để xóa cảnh báo.
 
+## Đợt bổ sung 2026-10-29: giao diện v5, vòng đời tài khoản, bảo mật
+
+| Kiểm tra | Kết quả |
+| --- | --- |
+| `npm test` | 21/21 đạt |
+| `npm run test:db` | Áp dụng đủ 6 migration; 17 + 5 + 8 + 4 + 5 nhóm nghiệp vụ đạt, gồm xóa học viên/giáo viên, giáo viên bị hạ quyền, đọc phòng đã kết thúc không chờ khóa dòng |
+| Playwright | 25/25 đạt: thêm landing lần đầu, đăng ký gửi tên hiển thị, giáo viên vào lớp sau đăng nhập, nhập lại bản sao lưu giáo trình, chặn chèn mã qua video ID |
+| Ảnh kiểm tra | Landing desktop/mobile/tối, trang đăng nhập desktop/mobile, lớp học, tổng quan; không tràn ngang ở 390 px |
+
+Rà soát OCR do Codex thực hiện (chỉ đọc): 61/61 file reviewable, phát hiện 3 High, 2 Medium, 1 Low. Đã sửa cả 3 High: giáo viên bị hạ quyền vẫn còn quyền dạy, chèn mã qua `videoId` của Video Lab, bộ đếm câu sai chưa được escape. Đã sửa 2 Medium: nhập lại bản sao lưu giáo trình, giữ nguồn theo từng hàng. Đã sửa Low: `CLAUDE.md`. Sơ đồ dữ liệu và trạng thái production nằm ở [DATABASE.md](DATABASE.md).
+
 ## Chưa xác nhận
 
 Google OAuth, gửi thư SMTP/xác nhận email thực, refresh/khôi phục tài khoản thực, đồng bộ nhiều thiết bị thực, lớp học và phòng thi với tài khoản thật, micro/video trên các trình duyệt thực, accessibility toàn ứng dụng, tải lớn và backup/phục hồi database production.
