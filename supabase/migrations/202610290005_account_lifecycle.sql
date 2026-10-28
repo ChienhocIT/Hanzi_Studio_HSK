@@ -33,6 +33,21 @@ create index submission_student on public.submissions(student_id);
 create index live_room_host on public.live_rooms(host_id);
 create index live_participant_user on public.live_participants(user_id);
 create index content_author on public.content_items(author_id);
+create index content_reviewer on public.content_items(reviewer_id);
+create index audit_content on public.content_audit(content_id);
+create index audit_actor on public.content_audit(actor_id);
+create index class_teacher on public.classes(teacher_id);
+create index assignment_content on public.assignments(content_id);
+create index vocab_source on public.vocab_entries(source_id);
+create index vocab_reviewer on public.vocab_entries(reviewer_id);
+
+-- Evaluate auth.uid() once per statement instead of once per row (Supabase lint 0003).
+alter policy profiles_read on public.profiles using(id=(select auth.uid()) or private.has_role(array['admin']));
+alter policy progress_read on public.learning_progress using(user_id=(select auth.uid()));
+alter policy content_read on public.content_items using(status='published' or author_id=(select auth.uid()) or private.has_role(array['admin']));
+alter policy audit_read on public.content_audit using(exists(select 1 from public.content_items where id=content_id and (author_id=(select auth.uid()) or private.has_role(array['admin']))));
+alter policy members_read on public.class_members using(student_id=(select auth.uid()) or private.teaches(class_id));
+alter policy submissions_read on public.submissions using(student_id=(select auth.uid()) or exists(select 1 from public.assignments where id=assignment_id and private.teaches(class_id)));
 
 -- An orphaned draft (author deleted) must not be submittable by another teacher.
 create or replace function public.review_content(item_id uuid, expected_revision integer, decision text, note text default '') returns void
