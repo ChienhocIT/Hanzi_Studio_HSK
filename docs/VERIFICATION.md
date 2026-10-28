@@ -4,8 +4,8 @@ Ngày: 2026-10-29. Phạm vi: gói phát hành vào `main`; không phải nghi�
 
 | Kiểm tra | Kết quả |
 | --- | --- |
-| `npm run check` | 16 kiểm thử dữ liệu/cấu hình đạt; build `dist/` thành công |
-| `npm run test:db` | 30 nhóm nghiệp vụ và 5 kiểm tra runner/guard đạt trên PostgreSQL 16 riêng, áp dụng đủ 4 migration |
+| `npm run check` | 21 kiểm thử dữ liệu/cấu hình đạt; build `dist/` thành công |
+| `npm run test:db` | 34 nhóm nghiệp vụ và 5 kiểm tra runner/guard đạt trên PostgreSQL 16 riêng, áp dụng đủ 5 migration |
 | Playwright | 21 luồng giao diện với API/session giả hoặc dữ liệu tham khảo local; không gọi Supabase thật |
 | Hồi quy giao diện | Điều hướng đủ 22 màn cũ, không có JavaScript exception trong bài kiểm tra |
 | Mobile và theme | Kiểm tra rộng 390 px, không tràn ngang; xem ảnh sáng/tối và kiểm tra tương phản nút được đo |

@@ -8,3 +8,5 @@ playwright-report/
 test-results/
 .review/
 .sources/
+__pycache__/
+*.py[cod]

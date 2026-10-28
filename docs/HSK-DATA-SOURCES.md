@@ -274,3 +274,35 @@ Một từ có thể có nhiều dòng (một dòng cho mỗi `syllabus`), nhờ
 - audio-cmn: https://github.com/hugolpz/audio-cmn
 - Lingua Libre: https://en.wikipedia.org/wiki/Lingua_Libre
 - Tatoeba downloads: https://tatoeba.org/en/downloads
+
+## 12. Đã triển khai: danh mục từ HSK 3.0 (đề cương 2025)
+
+Đây là hạng mục 1 của §8. Chỉ gồm từ, cấp, pinyin và từ loại; không có nghĩa, không đưa PDF hay danh mục vào repo hoặc `dist/`.
+
+| Thành phần | Tệp |
+| --- | --- |
+| Trích bảng 词汇大纲 theo tọa độ cột (PyMuPDF) | `scripts/extract-hsk3-vocabulary.py` |
+| Chuẩn hóa, kiểm tra 序号 liên tục và số mục từng cấp | `scripts/hsk3-vocabulary.mjs`, `tests/vocabulary.test.mjs` |
+| Tải PDF, so SHA-256, trích, ghi `.sources/hsk3-2025-vocabulary.json` | `scripts/import-hsk3.mjs` (`npm run data:import-hsk3`) |
+| Bảng `data_sources`, `vocab_entries`, RPC `review_vocab_entries` | `supabase/migrations/202610290004_reference_vocabulary.sql` |
+| Nạp vào database, không ghi đè mục đã duyệt | `scripts/seed-vocabulary.mjs` (`npm run db:seed-vocabulary`), `tests/vocabulary-database.mjs` |
+
+**Kết quả kiểm chứng ngày 2026-10-29:** 11.000 mục, 序号 1–11.000 liên tục, đúng 300/200/500/1.000/1.600/1.800/5.600. Có 102 mục mang cấp phụ (ví dụ `好 1（2）（4）`: cấp 1, nghĩa trong ngoặc ở cấp 2 và 4). 495 mục không ghi từ loại (cụm như 不客气). Đã nạp đủ vào PostgreSQL 16 tạm thời; nạp lại lần hai không thay đổi gì.
+
+**Lưu ý khi trích:** `pdftotext` ghép sai pinyin sang dòng khác vì đường chân chữ pinyin cao hơn khoảng 3pt. Watermark "汉考国际" (48pt, xoay) bị loại theo cỡ chữ và hướng, vì "国际" cũng là một từ trong danh mục. Một ô 等级 dài (序号 895 像 `3（4）（7-9）`) tràn dấu `）` sang ô 词语 và đã được sửa tự động.
+
+**Đối chiếu với `krmanik/HSK-3.0`** (commit `d30e970`): sau khi tính đến hai khác biệt quy ước của bộ đó, chỉ còn 6 khác biệt:
+- Bộ đó giữ số đánh dấu đồng hình trong từ (`本1`).
+- Bộ đó liệt kê lại từ ở cả cấp phụ, nên có 204 mục ở cấp 2.
+
+Cả 6 khác biệt đều là dạng có phần tùy chọn trong ngoặc: `没（有）`, `有（一）点儿`, `有时（候）`, `差（一）点儿`, `要不（然）`, `凡（是）`. Ảnh render từ PDF 2025 cho thấy bản chính thức ghi `没有`, `有点儿`, `凡是` không có ngoặc. Bản trích của dự án khớp PDF; các dạng có ngoặc nhiều khả năng lấy từ chuẩn 2021.
+
+**Quy trình:**
+
+1. Cài Python 3 và `pip install pymupdf` (chỉ cần cho bước trích; CI không chạy bước này). Có thể đặt biến `PYTHON` để chọn trình thông dịch.
+2. `npm run data:import-hsk3`: dừng nếu PDF đổi hash, còn chữ không gán được vào ô, hoặc số mục lệch đề cương.
+3. Áp dụng migration `202610290004_reference_vocabulary.sql` qua Supabase migration integration/MCP/CLI. `vercel-build` không chạy DDL. `npm run db:migrate` dành cho cài đặt mới có ledger Hanzi riêng.
+4. `npm run db:seed-vocabulary` cần `POSTGRES_URL` của đúng project (cùng kiểm tra với `db:migrate`). Mọi mục vào ở trạng thái `draft`.
+5. Học viên chỉ đọc được mục `published`. Giáo viên và admin đọc được tất cả; khách không đọc được. Chỉ admin được duyệt, qua `select public.review_vocab_entries('HSK 3.0 (CLEC 2025)', array[1,2,3], 'published')`. Chưa có giao diện duyệt hay màn học dùng bảng này.
+
+Khi nạp lại, mục `draft` được cập nhật. Mục đã duyệt giữ nguyên, còn 序号 có khác biệt được in ra để biên tập xem lại. Nội dung nguồn đổi SHA-256 cần ID nguồn mới; không thay nguồn gốc của mục đã duyệt. Bản phát hành chỉ đưa công cụ và fixture kiểm thử vào Git, chưa xác nhận đã nạp danh mục 11.000 mục vào project production; chưa có giao diện học dùng bảng này.

@@ -5,6 +5,7 @@ import pg from 'pg';
 import { exerciseDatabase } from '../tests/database.mjs';
 import { exerciseQuizzes } from '../tests/quiz-database.mjs';
 import { exerciseLiveRooms } from '../tests/live-database.mjs';
+import { exerciseVocabulary } from '../tests/vocabulary-database.mjs';
 import {migrationBundle} from './bundle-migrations.mjs';
 import {applyMigrations,readMigrations} from './migrate.mjs';
 const name='hanzi-tests-'+randomUUID().slice(0,8), password=randomUUID();
@@ -23,15 +24,15 @@ try {
     create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
     grant usage on schema auth to authenticated,anon; grant execute on function auth.uid() to authenticated,anon;`);
   const migrations=await readMigrations();
-  assert.equal(await applyMigrations(db,migrations),4);
-  console.log('PASS Production runner installs the four migrations atomically.');
+  assert.equal(await applyMigrations(db,migrations),migrations.length);
+  console.log(`PASS Production runner installs the ${migrations.length} migrations atomically.`);
   assert.equal(await applyMigrations(db,migrations),0);
   console.log('PASS Production runner does not reapply existing migrations.');
   await assert.rejects(applyMigrations(db,migrations.map((m,i)=>i===0?{...m,checksum:'changed'}:m)),/missing or modified/);
   console.log('PASS Production runner rejects modified migration history.');
   await assert.rejects(applyMigrations(db,[...migrations,{name:'999999999999_test_failure.sql',checksum:'test',sql:'create table public.hanzi_rollback_probe(id integer); select 1/0;'}]));
   assert.equal((await db.query("select to_regclass('public.hanzi_rollback_probe') name")).rows[0].name,null);
-  assert.equal((await db.query('select count(*)::integer count from hanzi_release.migrations')).rows[0].count,4);
+  assert.equal((await db.query('select count(*)::integer count from hanzi_release.migrations')).rows[0].count,migrations.length);
   console.log('PASS Production runner rolls back a failed pending migration.');
   let guarded=false;
   try{await db.query(await migrationBundle());}catch(error){guarded=error.message.includes('Hanzi tables already exist');await db.query('rollback');}
@@ -40,6 +41,7 @@ try {
   await exerciseDatabase(db);
   await exerciseQuizzes(db);
   await exerciseLiveRooms(db);
+  await exerciseVocabulary(db);
 } finally {
   if(db)await db.end();
   if(started) {

@@ -22,7 +22,7 @@ Yêu cầu Node.js 22 trở lên. Chạy `npm ci`, sau đó `npm run dev` và m�
 `npm test` chạy kiểm thử tiến độ; `npm run test:db` chạy kiểm tra PostgreSQL trong Docker riêng; `npm run test:e2e` chạy Playwright với API giả. Không cần khóa dịch vụ thật cho các kiểm thử này.
 
 ## Triển khai Vercel
-Dự án sử dụng framework Other (tĩnh), build `npm run vercel-build`, output `dist/`. Repository hiện tại là `ChienhocIT/Hanzi_Studio_HSK`. Production tự áp dụng migration PostgreSQL qua kết nối server của Supabase Marketplace trước khi build; thiếu cấu hình hoặc migration lỗi sẽ dừng phát hành. Preview/local không tự thay đổi database. Xem [hướng dẫn kết nối Supabase và nghiệm thu](docs/DEPLOYMENT.md). Local không có cấu hình cloud vẫn học ở chế độ khách.
+Dự án sử dụng framework Other (tĩnh), build `npm run vercel-build`, output `dist/`. Repository hiện tại là `ChienhocIT/Hanzi_Studio_HSK`. Supabase integration quản lý migration; build Production dùng cấu hình public đã cung cấp hoặc cặp biến môi trường ghi đè, không cần mật khẩu database. Kiểm tra dịch vụ thật riêng bằng `npm run check:cloud`. Xem [hướng dẫn kết nối Supabase và nghiệm thu](docs/DEPLOYMENT.md). Local không có cấu hình cloud vẫn học ở chế độ khách.
 
 ## Giới hạn hiện tại
 Mã nguồn có luồng cloud nhưng chưa được nghiệm thu trên project Supabase/Vercel production trong đợt triển khai này. Tài liệu học các cấp ngoài HSK 3 vẫn ở mức mẫu; chưa phải ngân hàng HSK 1–9 chính thức đầy đủ. Phân tích phát âm vẫn dựa vào nhận diện tiếng nói, chưa chấm ngữ âm/thanh điệu chuyên sâu. Phòng trực tiếp hiện dùng lại câu hỏi bài tập để luyện cùng lớp, chưa phải đề thi bí mật/chuẩn hóa. Chưa có AI gia sư hoặc thanh toán. Xem [phạm vi triển khai và phần còn lại](docs/IMPLEMENTATION.md).

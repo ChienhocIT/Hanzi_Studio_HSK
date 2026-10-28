@@ -11,6 +11,6 @@ test('Migration connection is bound to the public project and always verifies TL
   assert.throws(()=>migrationConnection(base),/Missing POSTGRES/);
 });
 test('Every migration is hashed and the runner removes the file transaction wrappers',async()=>{
-  const migrations=await readMigrations();assert.equal(migrations.length,4);
+  const migrations=await readMigrations();assert.equal(migrations.length,5);
   for(const m of migrations){assert.match(m.checksum,/^[a-f0-9]{64}$/);assert.ok(!/^begin;/.test(m.sql));assert.ok(!/commit;\s*$/.test(m.sql));}
 });
