@@ -6,6 +6,8 @@ Project API đúng: **https://rpoqcklcmsnrbmhfxdxg.supabase.co**. URL đuôi `.s
 
 Commit `3d48fe4` đã push vào `main` ngày 2026-10-29. [CI GitHub](https://github.com/ChienhocIT/Hanzi_Studio_HSK/actions/runs/40761512437) đạt, gồm unit/build/database/browser. [Deployment Vercel đầu tiên](https://vercel.com/minh-chienhoc-it/hanzi_studio_hsk/YmhdZMwzpout1WoBu2JUqpXS1NC7) thất bại; chủ dự án cung cấp log xác nhận thiếu public project URL. Bản sửa đưa cấu hình public vào gói Production và tách migration khỏi build tĩnh để dùng migration history hiện có. Cần kiểm tra trạng thái deployment của commit sửa tiếp theo.
 
+**Bản sửa `8b7ac94` đã deploy thành công:** [Vercel](https://vercel.com/minh-chienhoc-it/hanzi_studio_hsk/E5BFNRHGCtrasWXYf7nrvdQLp1Kr), [CI GitHub](https://github.com/ChienhocIT/Hanzi_Studio_HSK/actions/runs/40764179379). Domain `https://hanzistudiohsk.vercel.app` phục vụ bundle cloud và ngân hàng 4.997 mục HTTP 200, khớp hash build. Chrome kiểm tra được màn tài khoản và tra cứu bộ từ. Supabase MCP xác nhận migration thứ năm `202610290004_reference_vocabulary` đã có trong history; chưa nạp danh mục 11.000 mục vào production. Chi tiết tại [VERIFICATION.md](VERIFICATION.md).
+
 Ngày 2026-10-29, kiểm tra đầu tiên thấy bảng còn thiếu. Sau khi push và kết nối MCP, đã xác minh bốn migration trong Supabase migration history; 11 bảng public đều bật RLS. GET Data API cho `profiles`, `assignment_questions`, `live_rooms` trả lỗi quyền cho khách đúng như thiết kế. Email bật, Google vẫn tắt. Không tạo tài khoản, gửi email hoặc ghi dữ liệu cá nhân trong các phép kiểm tra này. MCP Supabase đã đăng nhập; Vercel MCP cần chủ dự án chấp thuận quyền team `minh-chienhoc-it`.
 
 ## Database

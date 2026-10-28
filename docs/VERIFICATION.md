@@ -25,18 +25,26 @@ Bộ tham khảo: kiểm tra đủ 4.997 ID duy nhất, nhãn unreviewed, nguồ
 
 Đã dùng `ocr delegate preview --format json` và `ocr delegate rule --format json` để lấy danh sách/rule, rồi rà soát bởi agent, không gọi endpoint LLM của OCR. Checklist và rule nằm trong `.review/` (bị Git ignore).
 
-Phạm vi OCR tích lũy: 50 file reviewable. Mã nguồn, cấu hình, migration, test, metadata nguồn, gallery asset và mẫu email được rà soát. Riêng `data/hsk2-reference.json` được kiểm tra toàn bộ bằng assertions về cấu trúc/nguồn, nhưng chưa đọc duyệt ngữ nghĩa từng mục; được ghi skipped riêng trong checklist nội dung với lý do này. Không khẳng định coverage 100% cho nội dung học liệu. Chi tiết checklist và hash ở `.review/report.json`. OCR loại các tệp Markdown, `.env.example` và lockfile; tài liệu/cấu hình public được kiểm tra riêng. `CLAUDE.md` được giữ nguyên.
+Phạm vi OCR tích lũy: 59 file reviewable. Mã nguồn, cấu hình, migration, test, metadata nguồn, gallery asset và mẫu email được rà soát. Riêng `data/hsk2-reference.json` được kiểm tra toàn bộ bằng assertions về cấu trúc/nguồn, nhưng chưa đọc duyệt ngữ nghĩa từng mục; được ghi skipped riêng trong checklist nội dung với lý do này. Không khẳng định coverage 100% cho nội dung học liệu. Chi tiết checklist và hash ở `.review/report.json`. OCR loại các tệp Markdown, `.env.example` và lockfile; tài liệu/cấu hình public được kiểm tra riêng. `CLAUDE.md` được giữ nguyên.
 
-Summary: `total_files=50`, `reviewed_files=49`, `skipped_files=1`, `coverage_rate=98%`.
+Summary: `total_files=59`, `reviewed_files=58`, `skipped_files=1`, `coverage_rate=98.31%`.
 
-Runner Production đã kiểm tra cài mới nguyên tử, không chạy lại migration cũ, từ chối checksum bị sửa và rollback cả schema/ledger khi một migration thất bại. Unit test từ chối URL database khác project và không cho `sslmode` trong URL vô hiệu hóa xác thực TLS. Chưa chạy DDL trên project cloud thật ở thời điểm ghi nhận này.
+Runner cài mới đã kiểm tra tính nguyên tử, không chạy lại migration cũ, từ chối checksum bị sửa và rollback cả schema/ledger khi một migration thất bại. Unit test từ chối URL database khác project và không cho `sslmode` trong URL vô hiệu hóa xác thực TLS. Build Vercel không dùng runner này; Supabase integration quản lý migration của project thật. Import danh mục nháp không ghi đè mục đã duyệt hoặc đổi hash nguồn dưới cùng ID.
 
 Đã sửa rủi ro đồng bộ khi JWT đổi tài khoản giữa yêu cầu, tránh tăng revision khi không có thay đổi, và không cache callback/Auth/API qua service worker. Không còn phát hiện High/Critical chưa xử lý trong phạm vi rà soát này. Giới hạn dung lượng, danh sách và nghiệp vụ còn thiếu được ghi trong [IMPLEMENTATION.md](IMPLEMENTATION.md).
 
 Rà soát phòng thi đã sửa việc escape tên phòng ở danh sách, tránh phản hồi chậm của phòng trước thay nội dung phòng đang mở, giữ đúng room ID khi nộp trong lúc đổi phòng và hủy timer/listener khi rời tab. Có kiểm thử XSS hồi quy cho tên phòng và người tham gia.
 
+## Production đã xác minh
+
+Commit mã nguồn `8b7ac94` đã push vào `main`; [CI GitHub](https://github.com/ChienhocIT/Hanzi_Studio_HSK/actions/runs/40764179379) và [Vercel project đích](https://vercel.com/minh-chienhoc-it/hanzi_studio_hsk/E5BFNRHGCtrasWXYf7nrvdQLp1Kr) đều thành công. Trên `https://hanzistudiohsk.vercel.app`, `cloud-config.js`, `cloud.bundle.js` và `data/hsk2-reference.json` trả HTTP 200; SHA-256 của bundle và bộ 4.997 mục khớp build local.
+
+Chrome headless trên domain thật: màn tài khoản có nút đăng nhập, Google tắt được hiển thị đúng; bộ tham khảo tải đủ 4.997 mục và tìm `爸爸` trả nghĩa. Không có JavaScript exception hay yêu cầu ghi cloud trong phép thử. Ảnh kiểm tra nằm trong `.review/` bị Git ignore. Đây chưa phải nghiệm thu tài khoản hay lớp học với người dùng thật.
+
+Supabase MCP xác nhận đủ năm migration trong history, gồm `reference_vocabulary`. Đã kiểm tra bốn migration nền tạo 11 bảng public có RLS và ba bảng chính từ chối khách. Security advisor ghi cảnh báo RPC `SECURITY DEFINER` cho authenticated và INFO về bảng không có policy; đây là quyền gọi RPC có kiểm tra vai trò và bảng khóa truy cập trực tiếp theo thiết kế. Xem [hướng dẫn advisor](https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable). Không tự mở policy để xóa cảnh báo.
+
 ## Chưa xác nhận
 
-Google OAuth/email/SMTP, migration trên project thật, refresh/khôi phục tài khoản thực, đồng bộ nhiều thiết bị thực, micro/video trên các trình duyệt thực, accessibility toàn ứng dụng, tải lớn và backup/phục hồi database production. Workflow CI nằm trong repo; kết quả chạy GitHub và Vercel phải kiểm tra theo commit phát hành.
+Google OAuth, gửi thư SMTP/xác nhận email thực, refresh/khôi phục tài khoản thực, đồng bộ nhiều thiết bị thực, lớp học và phòng thi với tài khoản thật, micro/video trên các trình duyệt thực, accessibility toàn ứng dụng, tải lớn và backup/phục hồi database production.
 
-Đã thực hiện GET bằng publishable key trên project thật `rpoqcklcmsnrbmhfxdxg.supabase.co`: email bật, Google tắt và các bảng chính thiếu migration. Không tạo tài khoản/gửi thư/ghi dữ liệu. Tệp `.env.local` chứa cấu hình public bị Git ignore; build nhận các cặp biến Marketplace. Các mẫu email và bootstrap SQL mới chỉ được chuẩn bị local. Xem [các bước kết nối còn lại](CLOUD-SETUP-ACTIONS.md).
+GET bằng publishable key trên project thật `rpoqcklcmsnrbmhfxdxg.supabase.co` cho thấy email bật, Google tắt. Không tạo tài khoản/gửi thư/ghi dữ liệu trong kiểm tra này. Cấu hình public Production đã đóng gói; mẫu email chưa được đưa lên Auth dashboard. Xem [các bước kết nối còn lại](CLOUD-SETUP-ACTIONS.md).
