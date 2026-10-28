@@ -1,0 +1,45 @@
+import {test,expect} from '@playwright/test';
+test('Reference bank loads separately, searches licensed data and saves card ratings into existing curriculum backup',async({page})=>{
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  await page.goto('/index.html#contenthub');
+  await page.getByRole('button',{name:'Mở bộ từ tham khảo',exact:true}).click();
+  await expect(page.locator('#reference-status')).toContainText('4.997');
+  const panel=page.locator('#reference-panel');
+  await expect(panel).toContainText('CC BY-SA 4.0');await expect(panel).toContainText('Nghĩa tiếng Anh');
+  await panel.getByLabel('Tìm chữ Hán, Pinyin hoặc nghĩa tiếng Anh',{exact:true}).fill('爸爸');
+  await panel.getByRole('button',{name:'Tra cứu',exact:true}).click();
+  await expect(page.locator('#reference-results')).toContainText('dad');
+  await panel.getByRole('button',{name:'Luyện thẻ tham khảo',exact:true}).click();
+  await expect(page.locator('#reference-results')).toContainText('Tự nhớ nghĩa');
+  await panel.getByRole('button',{name:'Mở nghĩa',exact:true}).click();
+  await expect(page.locator('#reference-results')).toContainText('dad');
+  await panel.getByRole('button',{name:'Đã nhớ',exact:true}).click();
+  const record=await page.evaluate(()=>JSON.parse(localStorage.getItem('hanzi-studio-curriculum-v4')).progress['wiktionary-hsk2-1-爸爸']);
+  expect(record.reps).toBe(1);expect(record.due).toBeGreaterThan(Date.now());
+  await page.reload();await page.getByRole('button',{name:'Mở bộ từ tham khảo',exact:true}).click();
+  expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('hanzi-studio-curriculum-v4')).progress['wiktionary-hsk2-1-爸爸'].reps)).toBe(1);
+  expect(errors).toEqual([]);
+});
+test('Reference bank reports download errors and supports retry without duplicating existing HSK deck',async({page})=>{
+  await page.route('**/data/hsk2-reference.json',route=>route.fulfill({status:503,body:'unavailable'}));
+  await page.goto('/index.html#contenthub');await page.getByRole('button',{name:'Mở bộ từ tham khảo',exact:true}).click();
+  await expect(page.locator('#reference-status')).toContainText('Không tải được');
+  await page.unroute('**/data/hsk2-reference.json');await page.getByRole('button',{name:'Mở bộ từ tham khảo',exact:true}).click();
+  await expect(page.locator('#reference-status')).toContainText('4.997');
+  expect(await page.evaluate(()=>DECK.length)).toBe(500);
+  await page.setViewportSize({width:390,height:844});
+  await page.locator('#reference-panel').scrollIntoViewIfNeeded();
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+});
+test('A full localStorage does not claim the rating was saved or advance the reference card',async({page})=>{
+  await page.goto('/index.html#contenthub');await page.getByRole('button',{name:'Mở bộ từ tham khảo',exact:true}).click();
+  const panel=page.locator('#reference-panel');
+  await panel.getByRole('button',{name:'Luyện thẻ tham khảo',exact:true}).click();
+  const word=await page.locator('.reference-word').textContent();
+  await panel.getByRole('button',{name:'Mở nghĩa',exact:true}).click();
+  await page.evaluate(()=>{const original=Storage.prototype.setItem;Storage.prototype.setItem=function(key,value){if(key==='hanzi-studio-curriculum-v4')throw new DOMException('quota','QuotaExceededError');return original.call(this,key,value);};});
+  await panel.getByRole('button',{name:'Đã nhớ',exact:true}).click();
+  await expect(page.locator('#reference-status')).toContainText('Không lưu được lượt ôn');
+  await expect(page.locator('.reference-word')).toHaveText(word);
+  expect(await page.evaluate(()=>Object.keys(hs30State.progress).filter(key=>key.startsWith('wiktionary-hsk2-')).length)).toBe(0);
+});

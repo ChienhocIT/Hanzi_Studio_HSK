@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 150" role="img" aria-labelledby="t"><title id="t">Hanzi Studio — Chinese Learning</title><rect width="600" height="150" fill="none"/><svg x="16" y="11" width="128" height="128" viewBox="0 0 128 128"><title id="t">Hanzi Studio — Mây Long</title><defs><linearGradient id="bg" x1=".05" y1=".05" x2=".92" y2="1"><stop stop-color="#988AFF"/><stop offset="1" stop-color="#5A49D2"/></linearGradient><linearGradient id="face" x1="0" x2=".8" y1="0" y2="1"><stop stop-color="#F0E9FF"/><stop offset="1" stop-color="#C8B9FF"/></linearGradient></defs>
+ <rect width="128" height="128" rx="31" fill="url(#bg)"/>
+ <circle cx="103" cy="22" r="4" fill="#FFFFFF" opacity=".67"/><path d="M22 20v10M17 25h10" stroke="#CEFFEF" stroke-width="3" stroke-linecap="round" opacity=".8"/>
+ <path d="M36 47C24 42 16 50 20 62c3 10 14 9 20 3" fill="#71E0D0" stroke="#5A49D2" stroke-width="4"/>
+ <path d="M92 47c12-6 20 2 16 14-3 10-13 9-19 4" fill="#71E0D0" stroke="#5A49D2" stroke-width="4"/>
+ <path d="M39 41c-8-9-6-22 1-23 5-1 6 8 6 12 5-5 12-8 14-3 2 6-10 14-12 19" fill="#FFD18B" stroke="#F5B96B" stroke-width="2" stroke-linejoin="round"/>
+ <path d="M89 41c8-9 6-22-1-23-5-1-6 8-6 12-5-5-12-8-14-3-2 6 10 14 12 19" fill="#FFD18B" stroke="#F5B96B" stroke-width="2" stroke-linejoin="round"/>
+ <path d="M63 27c-16 0-24 15-24 23 0 0-13 12-13 28 0 21 17 36 38 36 22 0 38-15 38-36 0-16-13-28-13-28 0-16-10-23-26-23Z" fill="url(#face)" stroke="#AF9DEB" stroke-width="2"/>
+ <path d="M50 45c-1-12 15-19 21-11 5 7-1 14-9 14" fill="none" stroke="#AE98F1" stroke-width="7" stroke-linecap="round"/>
+ <ellipse cx="47" cy="73" rx="6.5" ry="9" fill="#232C4C"/><ellipse cx="81" cy="73" rx="6.5" ry="9" fill="#232C4C"/>
+ <circle cx="45" cy="70" r="2.2" fill="#FFF"/><circle cx="79" cy="70" r="2.2" fill="#FFF"/>
+ <ellipse cx="37" cy="89" rx="9" ry="5.4" fill="#FFABBC" opacity=".78"/><ellipse cx="91" cy="89" rx="9" ry="5.4" fill="#FFABBC" opacity=".78"/>
+ <ellipse cx="64" cy="88" rx="19" ry="12" fill="#FFF8FF"/><path d="M60 85q4 4 8 0" stroke="#7359AB" stroke-width="2.6" fill="none" stroke-linecap="round"/><path d="M57 93q7 7 14 0" stroke="#7359AB" stroke-width="2.7" fill="none" stroke-linecap="round"/>
+ </svg><text x="166" y="85" font-size="58" font-family="Inter,Manrope,Arial,sans-serif" font-weight="850" letter-spacing="-2.5" fill="#242B41">Hanzi</text><text x="331" y="85" font-size="58" font-family="Inter,Manrope,Arial,sans-serif" font-weight="850" letter-spacing="-2.5" fill="#6B5CE7">Studio</text><text x="169" y="113" font-size="15" font-family="Inter,Arial,sans-serif" font-weight="700" letter-spacing="3" fill="#858BA0">CHINESE LEARNING</text></svg>

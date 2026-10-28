@@ -1,0 +1,352 @@
+{
+  "product": "Hanzi Studio – May Long Mascot Collection",
+  "version": "concept-assets-only",
+  "totalMascots": 38,
+  "banners": 8,
+  "ui": 6,
+  "sourceNote": "6 original 512px transparent renders; other 32 mini stickers cropped/matted from user-approved concept sheet (native source 120–170 px).",
+  "assets": [
+    {
+      "id": "hello",
+      "category": "HQ 3D",
+      "name": "hello",
+      "source": "high-res",
+      "recommended": "220–500px",
+      "png": "01_hq_transparent/hello.png",
+      "webp": "01_hq_transparent/hello.webp"
+    },
+    {
+      "id": "study",
+      "category": "HQ 3D",
+      "name": "study",
+      "source": "high-res",
+      "recommended": "220–500px",
+      "png": "01_hq_transparent/study.png",
+      "webp": "01_hq_transparent/study.webp"
+    },
+    {
+      "id": "listening",
+      "category": "HQ 3D",
+      "name": "listening",
+      "source": "high-res",
+      "recommended": "220–500px",
+      "png": "01_hq_transparent/listening.png",
+      "webp": "01_hq_transparent/listening.webp"
+    },
+    {
+      "id": "speaking",
+      "category": "HQ 3D",
+      "name": "speaking",
+      "source": "high-res",
+      "recommended": "220–500px",
+      "png": "01_hq_transparent/speaking.png",
+      "webp": "01_hq_transparent/speaking.webp"
+    },
+    {
+      "id": "success",
+      "category": "HQ 3D",
+      "name": "success",
+      "source": "high-res",
+      "recommended": "220–500px",
+      "png": "01_hq_transparent/success.png",
+      "webp": "01_hq_transparent/success.webp"
+    },
+    {
+      "id": "thinking",
+      "category": "HQ 3D",
+      "name": "thinking",
+      "source": "high-res",
+      "recommended": "220–500px",
+      "png": "01_hq_transparent/thinking.png",
+      "webp": "01_hq_transparent/thinking.webp"
+    },
+    {
+      "id": "happy",
+      "category": "02_expressions",
+      "name": "happy",
+      "source": "concept-board crop / web sticker",
+      "recommended": "64–160px",
+      "png": "02_expressions/01_happy.png",
+      "webp": "02_expressions/01_happy.webp"
+    },
+    {
+      "id": "smiling",
+      "category": "02_expressions",
+      "name": "smiling",
+      "source": "concept-board crop / web sticker",
+      "recommended": "64–160px",
+      "png": "02_expressions/02_smiling.png",
+      "webp": "02_expressions/02_smiling.webp"
+    },
+    {
+      "id": "winking",
+      "category": "02_expressions",
+      "name": "winking",
+      "source": "concept-board crop / web sticker",
+      "recommended": "64–160px",
+      "png": "02_expressions/03_winking.png",
+      "webp": "02_expressions/03_winking.webp"
+    },
+    {
+      "id": "surprised",
+      "category": "02_expressions",
+      "name": "surprised",
+      "source": "concept-board crop / web sticker",
+      "recommended": "64–160px",
+      "png": "02_expressions/04_surprised.png",
+      "webp": "02_expressions/04_surprised.webp"
+    },
+    {
+      "id": "curious",
+      "category": "02_expressions",
+      "name": "curious",
+      "source": "concept-board crop / web sticker",
+      "recommended": "64–160px",
+      "png": "02_expressions/05_curious.png",
+      "webp": "02_expressions/05_curious.webp"
+    },
+    {
+      "id": "astonished",
+      "category": "02_expressions",
+      "name": "astonished",
+      "source": "concept-board crop / web sticker",
+      "recommended": "64–160px",
+      "png": "02_expressions/06_astonished.png",
+      "webp": "02_expressions/06_astonished.webp"
+    },
+    {
+      "id": "confident",
+      "category": "02_expressions",
+      "name": "confident",
+      "source": "concept-board crop / web sticker",
+      "recommended": "64–160px",
+      "png": "02_expressions/07_confident.png",
+      "webp": "02_expressions/07_confident.webp"
+    },
+    {
+      "id": "shy",
+      "category": "02_expressions",
+      "name": "shy",
+      "source": "concept-board crop / web sticker",
+      "recommended": "64–160px",
+      "png": "02_expressions/08_shy.png",
+      "webp": "02_expressions/08_shy.webp"
+    },
+    {
+      "id": "excited",
+      "category": "02_expressions",
+      "name": "excited",
+      "source": "concept-board crop / web sticker",
+      "recommended": "64–160px",
+      "png": "02_expressions/09_excited.png",
+      "webp": "02_expressions/09_excited.webp"
+    },
+    {
+      "id": "sleepy",
+      "category": "02_expressions",
+      "name": "sleepy",
+      "source": "concept-board crop / web sticker",
+      "recommended": "64–160px",
+      "png": "02_expressions/10_sleepy.png",
+      "webp": "02_expressions/10_sleepy.webp"
+    },
+    {
+      "id": "lovely",
+      "category": "02_expressions",
+      "name": "lovely",
+      "source": "concept-board crop / web sticker",
+      "recommended": "64–160px",
+      "png": "02_expressions/11_lovely.png",
+      "webp": "02_expressions/11_lovely.webp"
+    },
+    {
+      "id": "cool",
+      "category": "02_expressions",
+      "name": "cool",
+      "source": "concept-board crop / web sticker",
+      "recommended": "64–160px",
+      "png": "02_expressions/12_cool.png",
+      "webp": "02_expressions/12_cool.webp"
+    },
+    {
+      "id": "reading",
+      "category": "03_learning",
+      "name": "reading",
+      "source": "concept-board crop / web sticker",
+      "recommended": "64–160px",
+      "png": "03_learning/01_reading.png",
+      "webp": "03_learning/01_reading.webp"
+    },
+    {
+      "id": "listening",
+      "category": "03_learning",
+      "name": "listening",
+      "source": "concept-board crop / web sticker",
+      "recommended": "64–160px",
+      "png": "03_learning/02_listening.png",
+      "webp": "03_learning/02_listening.webp"
+    },
+    {
+      "id": "writing",
+      "category": "03_learning",
+      "name": "writing",
+      "source": "concept-board crop / web sticker",
+      "recommended": "64–160px",
+      "png": "03_learning/03_writing.png",
+      "webp": "03_learning/03_writing.webp"
+    },
+    {
+      "id": "speaking",
+      "category": "03_learning",
+      "name": "speaking",
+      "source": "concept-board crop / web sticker",
+      "recommended": "64–160px",
+      "png": "03_learning/04_speaking.png",
+      "webp": "03_learning/04_speaking.webp"
+    },
+    {
+      "id": "online_learning",
+      "category": "03_learning",
+      "name": "online_learning",
+      "source": "concept-board crop / web sticker",
+      "recommended": "64–160px",
+      "png": "03_learning/05_online_learning.png",
+      "webp": "03_learning/05_online_learning.webp"
+    },
+    {
+      "id": "reviewing",
+      "category": "03_learning",
+      "name": "reviewing",
+      "source": "concept-board crop / web sticker",
+      "recommended": "64–160px",
+      "png": "03_learning/06_reviewing.png",
+      "webp": "03_learning/06_reviewing.webp"
+    },
+    {
+      "id": "graduation",
+      "category": "03_learning",
+      "name": "graduation",
+      "source": "concept-board crop / web sticker",
+      "recommended": "64–160px",
+      "png": "03_learning/07_graduation.png",
+      "webp": "03_learning/07_graduation.webp"
+    },
+    {
+      "id": "goal_setting",
+      "category": "03_learning",
+      "name": "goal_setting",
+      "source": "concept-board crop / web sticker",
+      "recommended": "64–160px",
+      "png": "03_learning/08_goal_setting.png",
+      "webp": "03_learning/08_goal_setting.webp"
+    },
+    {
+      "id": "achievement_trophy",
+      "category": "03_learning",
+      "name": "achievement_trophy",
+      "source": "concept-board crop / web sticker",
+      "recommended": "64–160px",
+      "png": "03_learning/09_achievement_trophy.png",
+      "webp": "03_learning/09_achievement_trophy.webp"
+    },
+    {
+      "id": "scholar",
+      "category": "04_outfits",
+      "name": "scholar",
+      "source": "concept-board crop / web sticker",
+      "recommended": "64–160px",
+      "png": "04_outfits/01_scholar.png",
+      "webp": "04_outfits/01_scholar.webp"
+    },
+    {
+      "id": "teacher",
+      "category": "04_outfits",
+      "name": "teacher",
+      "source": "concept-board crop / web sticker",
+      "recommended": "64–160px",
+      "png": "04_outfits/02_teacher.png",
+      "webp": "04_outfits/02_teacher.webp"
+    },
+    {
+      "id": "hanfu",
+      "category": "04_outfits",
+      "name": "hanfu",
+      "source": "concept-board crop / web sticker",
+      "recommended": "64–160px",
+      "png": "04_outfits/03_hanfu.png",
+      "webp": "04_outfits/03_hanfu.webp"
+    },
+    {
+      "id": "mid_autumn",
+      "category": "04_outfits",
+      "name": "mid_autumn",
+      "source": "concept-board crop / web sticker",
+      "recommended": "64–160px",
+      "png": "04_outfits/04_mid_autumn.png",
+      "webp": "04_outfits/04_mid_autumn.webp"
+    },
+    {
+      "id": "lunar_new_year",
+      "category": "04_outfits",
+      "name": "lunar_new_year",
+      "source": "concept-board crop / web sticker",
+      "recommended": "64–160px",
+      "png": "04_outfits/05_lunar_new_year.png",
+      "webp": "04_outfits/05_lunar_new_year.webp"
+    },
+    {
+      "id": "graduate",
+      "category": "04_outfits",
+      "name": "graduate",
+      "source": "concept-board crop / web sticker",
+      "recommended": "64–160px",
+      "png": "04_outfits/06_graduate.png",
+      "webp": "04_outfits/06_graduate.webp"
+    },
+    {
+      "id": "explorer",
+      "category": "04_outfits",
+      "name": "explorer",
+      "source": "concept-board crop / web sticker",
+      "recommended": "64–160px",
+      "png": "04_outfits/07_explorer.png",
+      "webp": "04_outfits/07_explorer.webp"
+    },
+    {
+      "id": "tech",
+      "category": "04_outfits",
+      "name": "tech",
+      "source": "concept-board crop / web sticker",
+      "recommended": "64–160px",
+      "png": "04_outfits/08_tech.png",
+      "webp": "04_outfits/08_tech.webp"
+    },
+    {
+      "id": "sport",
+      "category": "04_outfits",
+      "name": "sport",
+      "source": "concept-board crop / web sticker",
+      "recommended": "64–160px",
+      "png": "04_outfits/09_sport.png",
+      "webp": "04_outfits/09_sport.webp"
+    },
+    {
+      "id": "travel",
+      "category": "04_outfits",
+      "name": "travel",
+      "source": "concept-board crop / web sticker",
+      "recommended": "64–160px",
+      "png": "04_outfits/10_travel.png",
+      "webp": "04_outfits/10_travel.webp"
+    },
+    {
+      "id": "little_reader",
+      "category": "04_outfits",
+      "name": "little_reader",
+      "source": "concept-board crop / web sticker",
+      "recommended": "64–160px",
+      "png": "04_outfits/11_little_reader.png",
+      "webp": "04_outfits/11_little_reader.webp"
+    }
+  ]
+}

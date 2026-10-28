@@ -1,0 +1,160 @@
+{
+  "format": "hanzi-reference-v1",
+  "syllabus": "HSK 2.0 (community reference; not HSK 3.0)",
+  "license": "CC-BY-SA-4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+  "generatedAt": "2026-10-28T19:40:08.893Z",
+  "attribution": "HSK wordlists: Wiktionary contributors. Dictionary: CC-CEDICT contributors, distributed by MDBG; original CEDICT by Paul Denisowski.",
+  "modifications": "Extracted headwords from six pinned Wiktionary revisions, deduplicated within levels, joined by exact simplified spelling to CC-CEDICT. Kept all dictionary pronunciations and senses. No generated translations or HSK 3.0 mapping.",
+  "sources": [
+    {
+      "level": "1",
+      "revision": 79426444,
+      "title": "Appendix:HSK list of Mandarin words v2.0/level 1",
+      "timestamp": "2024-05-26T05:13:28Z",
+      "sha256": "d1ca2ecbd4ce917ed9f399d48933656b633a1cbab6033b9c3a014dd3780245f7",
+      "url": "https://en.wiktionary.org/w/index.php?oldid=79426444",
+      "history": "https://en.wiktionary.org/w/index.php?title=Appendix%3AHSK%20list%20of%20Mandarin%20words%20v2.0%2Flevel%201&action=history"
+    },
+    {
+      "level": "2",
+      "revision": 79426451,
+      "title": "Appendix:HSK list of Mandarin words v2.0/level 2",
+      "timestamp": "2024-05-26T05:14:05Z",
+      "sha256": "a0d0c87f3c34d518d838a8909acca5a614539d871f2eb791f564295a051b7a88",
+      "url": "https://en.wiktionary.org/w/index.php?oldid=79426451",
+      "history": "https://en.wiktionary.org/w/index.php?title=Appendix%3AHSK%20list%20of%20Mandarin%20words%20v2.0%2Flevel%202&action=history"
+    },
+    {
+      "level": "3",
+      "revision": 79426457,
+      "title": "Appendix:HSK list of Mandarin words v2.0/level 3",
+      "timestamp": "2024-05-26T05:14:31Z",
+      "sha256": "058f3c83192f305f72b4fa4e8a6c9ecb4908d1f6eb9b2d712ab9ea2fd6113dee",
+      "url": "https://en.wiktionary.org/w/index.php?oldid=79426457",
+      "history": "https://en.wiktionary.org/w/index.php?title=Appendix%3AHSK%20list%20of%20Mandarin%20words%20v2.0%2Flevel%203&action=history"
+    },
+    {
+      "level": "4",
+      "revision": 79426548,
+      "title": "Appendix:HSK list of Mandarin words v2.0/level 4",
+      "timestamp": "2024-05-26T05:20:51Z",
+      "sha256": "7636689774432f5cfc7f5e3978828da05bc7c24759401a126075e42c2c6a5f16",
+      "url": "https://en.wiktionary.org/w/index.php?oldid=79426548",
+      "history": "https://en.wiktionary.org/w/index.php?title=Appendix%3AHSK%20list%20of%20Mandarin%20words%20v2.0%2Flevel%204&action=history"
+    },
+    {
+      "level": "5",
+      "revision": 79426556,
+      "title": "Appendix:HSK list of Mandarin words v2.0/level 5",
+      "timestamp": "2024-05-26T05:21:05Z",
+      "sha256": "19728780f01a797657819af68eb206bf3e5557434664fce532adc4b48d6a05bb",
+      "url": "https://en.wiktionary.org/w/index.php?oldid=79426556",
+      "history": "https://en.wiktionary.org/w/index.php?title=Appendix%3AHSK%20list%20of%20Mandarin%20words%20v2.0%2Flevel%205&action=history"
+    },
+    {
+      "level": "6",
+      "revision": 79426627,
+      "title": "Appendix:HSK list of Mandarin words v2.0/level 6",
+      "timestamp": "2024-05-26T05:26:41Z",
+      "sha256": "f36541865865ca2f922ffd9c341b7f24d43fc72cfbc8a52d214a7f191a883f62",
+      "url": "https://en.wiktionary.org/w/index.php?oldid=79426627",
+      "history": "https://en.wiktionary.org/w/index.php?title=Appendix%3AHSK%20list%20of%20Mandarin%20words%20v2.0%2Flevel%206&action=history"
+    }
+  ],
+  "dictionary": {
+    "url": "https://www.mdbg.net/chinese/export/cedict/cedict_1_0_ts_utf-8_mdbg.txt.gz",
+    "sha256": "366f39049fbcc9ca0cc414f319bfc56a33f6f9aba73aec1f609c5cb6502d2000",
+    "header": [
+      "# CC-CEDICT",
+      "# Community maintained free Chinese-English dictionary.",
+      "# ",
+      "# Published by MDBG",
+      "# ",
+      "# License:",
+      "# Creative Commons Attribution-ShareAlike 4.0 International License",
+      "# https://creativecommons.org/licenses/by-sa/4.0/",
+      "# ",
+      "# Referenced works:",
+      "# CEDICT - Copyright (C) 1997, 1998 Paul Andrew Denisowski",
+      "# ",
+      "# CC-CEDICT can be downloaded from:",
+      "# https://www.mdbg.net/chinese/dictionary?page=cc-cedict",
+      "# ",
+      "# Additions and corrections can be sent through:",
+      "# https://cc-cedict.org/editor/editor.php",
+      "# ",
+      "# For more information about CC-CEDICT see:",
+      "# https://cc-cedict.org/wiki/",
+      "# ",
+      "#! version=1",
+      "#! subversion=0",
+      "#! format=ts",
+      "#! charset=UTF-8",
+      "#! entries=125331",
+      "#! publisher=MDBG",
+      "#! license=https://creativecommons.org/licenses/by-sa/4.0/",
+      "#! date=2026-10-28T00:15:09Z",
+      "#! time=1793146509"
+    ]
+  },
+  "counts": {
+    "1": 150,
+    "2": 149,
+    "3": 298,
+    "4": 600,
+    "5": 1300,
+    "6": 2500
+  },
+  "missingDefinitions": [
+    {
+      "word": "打篮球",
+      "level": "2"
+    },
+    {
+      "word": "虽然……但是……",
+      "level": "2"
+    },
+    {
+      "word": "踢足球",
+      "level": "2"
+    },
+    {
+      "word": "因为……所以……",
+      "level": "2"
+    },
+    {
+      "word": "不但……而且……",
+      "level": "3"
+    },
+    {
+      "word": "只有……才……",
+      "level": "3"
+    },
+    {
+      "word": "得（助动词）",
+      "level": "4"
+    },
+    {
+      "word": "等（助词）",
+      "level": "4"
+    },
+    {
+      "word": "弹钢琴",
+      "level": "4"
+    },
+    {
+      "word": "系领带",
+      "level": "5"
+    },
+    {
+      "word": "纽扣儿",
+      "level": "6"
+    },
+    {
+      "word": "喂（动词）",
+      "level": "6"
+    }
+  ],
+  "count": 4997
+}

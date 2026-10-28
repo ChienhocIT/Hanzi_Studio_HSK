@@ -30,7 +30,7 @@ document.querySelectorAll('[data-icon]').forEach(el=>el.innerHTML=icon(el.datase
 const STORAGE='hanzi-studio-hsk3-prod-v1';
 function fresh(){return {v:1,records:{},bookmarks:[],events:[],quizHistory:[],settings:{goal:20,theme:'light',voiceRate:.85}}}
 let S=fresh();try{const parsed=JSON.parse(localStorage.getItem(STORAGE)||'null');if(parsed && parsed.v===1){S={...fresh(),...parsed,settings:{...fresh().settings,...parsed.settings},records:parsed.records||{},bookmarks:Array.isArray(parsed.bookmarks)?parsed.bookmarks:[],events:Array.isArray(parsed.events)?parsed.events:[],quizHistory:Array.isArray(parsed.quizHistory)?parsed.quizHistory:[]}}}catch(e){}
-function persist(){try{localStorage.setItem(STORAGE,JSON.stringify(S))}catch(e){toast('Không lưu được tiến độ. Hãy kiểm tra dung lượng trình duyệt.')}}
+function persist(){try{localStorage.setItem(STORAGE,JSON.stringify(S));window.dispatchEvent(new Event('hanzi:progress'))}catch(e){toast('Không lưu được tiến độ. Hãy kiểm tra dung lượng trình duyệt.')}}
 function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]))}
 function localDay(date=new Date()){let y=date.getFullYear(),m=('0'+(date.getMonth()+1)).slice(-2),d=('0'+date.getDate()).slice(-2);return `${y}-${m}-${d}`}
 function offsetDay(day,offset){let d=new Date(day+'T12:00:00');d.setDate(d.getDate()+offset);return localDay(d)}

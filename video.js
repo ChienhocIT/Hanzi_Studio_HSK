@@ -9,7 +9,7 @@ const KEY='hanzi-studio-video-lab-v1';
 const base={lessons:[],stats:{clozeAnswers:0,clozeCorrect:0,speakingAttempts:0,speakingTotal:0}};
 function restored(){try{const o=JSON.parse(localStorage.getItem(KEY)||'null');if(!o||typeof o!=='object')return structuredClone(base);return {lessons:Array.isArray(o.lessons)?o.lessons.slice(0,32):[],stats:{...base.stats,...(o.stats||{})}}}catch{return structuredClone(base)}}
 let store=restored();
-function save(){try{localStorage.setItem(KEY,JSON.stringify(store))}catch{notify('Không lưu được, có thể bộ nhớ trình duyệt đã đầy. Hãy xuất bản sao lưu.')}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(store));window.dispatchEvent(new Event('hanzi:progress'))}catch{notify('Không lưu được, có thể bộ nhớ trình duyệt đã đầy. Hãy xuất bản sao lưu.')}}
 let vm={videoId:'',title:'Bài học mới',segments:[],source:'none',index:0,tab:'transcript',difficulty:1,answers:{},feedback:{},speakText:'',speakScore:null,recognizing:false,playbackRate:1,loop:false,lastTime:-1};
 let player=null,playerReady=false,apiRequested=false,playerHasEmbed=false,speech=null,heartbeat=null,sampleIndex=11;
 const cnRE=/[\u3400-\u9fff]/;
