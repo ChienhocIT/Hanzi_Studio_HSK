@@ -2,7 +2,7 @@ import { build } from 'esbuild';
 import { mkdir, readFile, writeFile, copyFile, readdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { publicConfig } from './public-config.mjs';
-const assets = ['index.html', 'app.js', 'backup.js', 'advanced.js', 'content.js', 'curriculum.js', 'situations.js', 'video.js', 'advanced.css', 'curriculum.css', 'video.css', 'cloud.css', 'brand.css', 'fonts.css', 'theme.css', 'BRAND_PREVIEW.html', 'sw.js', 'manifest.webmanifest', 'icon.svg', 'icon-192.png', 'icon-512.png', 'words.json', 'grammar.json', 'dialogues.json', 'passages.json', 'reorders.json', 'samples.original.json', 'content.multi-level.seed.json'];
+const assets = ['index.html', 'app.js', 'backup.js', 'advanced.js', 'content.js', 'curriculum.js', 'situations.js', 'video.js', 'advanced.css', 'curriculum.css', 'video.css', 'cloud.css', 'brand.css', 'fonts.css', 'theme.css', 'BRAND_PREVIEW.html', 'privacy.html', 'terms.html', 'sw.js', 'manifest.webmanifest', 'icon.svg', 'icon-192.png', 'icon-512.png', 'words.json', 'grammar.json', 'dialogues.json', 'passages.json', 'reorders.json', 'samples.original.json', 'content.multi-level.seed.json'];
 for(const file of await readdir('assets',{recursive:true})) {
   const path='assets/'+file.replace(/\\/g,'/');
   // The mascot pack is design source (19 MB of boards and PNGs); pages use the copies in assets/mascot, icons and brand.

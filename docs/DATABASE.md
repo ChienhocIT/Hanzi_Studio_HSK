@@ -54,7 +54,7 @@ erDiagram
 | Migration đã áp dụng | Đủ 7 migration đến `0006_revoke_demoted_teacher`. Kiểm tra lại lúc 11:55: có `class_roster`, `private.teaches` kiểm tra vai trò, FK cascade. |
 | Số dòng | Tất cả 16 bảng đều 0 dòng |
 | Tài khoản | 0 Auth user, 0 hồ sơ |
-| Danh mục HSK 3.0 (11.000 mục) | Chưa nạp lúc 11:55: `vocab_entries` và `data_sources` đều trống. Đã có màn học/duyệt và lệnh nạp qua Management API. |
+| Danh mục HSK 3.0 (11.000 mục) | Đã nạp ngày 2026-10-29 qua Management API: 300/200/500/1.000/1.600/1.800/5.600, tất cả ở trạng thái `draft`. Lần nạp thứ hai không thay đổi dòng nào. Chờ quản trị viên xuất bản theo cấp. |
 | Bộ tham khảo HSK 2.0 (4.997 mục) | Là file tĩnh `data/hsk2-reference.json`, không lưu trong DB |
 | Advisors | Bảo mật: 22 WARN (RPC definer, theo thiết kế), 5 INFO. Hiệu năng: 11 FK thiếu index và 6 initplan, đã sửa trong `0005`. |
 

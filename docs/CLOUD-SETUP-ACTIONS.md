@@ -20,6 +20,17 @@ Sau đó chạy `npm run check:cloud`; phép kiểm tra public vẫn chưa thay 
 
 ## Cấu hình Auth, Google, SMTP và dữ liệu bằng script (2026-10-29)
 
+**Đã áp dụng trên production ngày 2026-10-29:**
+- Site URL đổi từ `http://localhost:3000` sang `https://hanzistudiohsk.vercel.app`. Trước đó link trong email trỏ về localhost.
+- Allow list `https://hanzistudiohsk.vercel.app/**`.
+- Bật Google provider. Endpoint `/auth/v1/settings` đã báo `google: true`.
+- Nạp 11.000 mục HSK 3.0 ở trạng thái nháp.
+
+**Còn chờ:**
+- SMTP riêng (Gmail app password).
+- Đưa Google OAuth app ra khỏi chế độ Testing. Mục Branding cần privacy policy `https://hanzistudiohsk.vercel.app/privacy.html` và terms `https://hanzistudiohsk.vercel.app/terms.html`.
+- Tạo quản trị viên đầu tiên.
+
 Mọi bước ghi dùng một **Supabase personal access token** đặt trong `.env.local` (Git ignore; build không đưa vào `dist/`). Tạo tại [Account → Access Tokens](https://supabase.com/dashboard/account/tokens), nên đặt hạn dùng ngắn và thu hồi sau khi xong. Token có quyền trên mọi project của tài khoản, không gửi qua chat hay commit. Xem các biến ở `.env.example`.
 
 1. **SMTP.** Chọn nhà cung cấp (ví dụ Resend, Brevo, Amazon SES) và xác minh domain gửi bằng SPF/DKIM theo hướng dẫn của họ. Domain `vercel.app` không thêm DNS được, nên cần domain riêng. Đặt `SMTP_HOST`, `SMTP_PORT` (465/587), `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`. Nếu thiếu SMTP riêng, Supabase chỉ gửi thư tới thành viên project, khoảng 2 thư/giờ, nên học viên thật không nhận được email xác nhận.

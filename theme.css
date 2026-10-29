@@ -154,8 +154,8 @@ body.public-mode .body{max-width:none;padding:0}
 .pub-footer .pub-wrap{display:flex;flex-wrap:wrap;gap:18px 28px;align-items:center;justify-content:space-between;border-top:1px solid var(--stroke);padding-top:28px}
 .pub-footer img{height:46px;width:auto}
 .pub-footer nav{display:flex;gap:6px;flex-wrap:wrap}
-.pub-footer nav button{border:0;background:none;color:var(--muted);padding:8px 10px;border-radius:999px;font-weight:600}
-.pub-footer nav button:hover{color:var(--txt)}
+.pub-footer nav button,.pub-footer nav a{border:0;background:none;color:var(--muted);padding:8px 10px;border-radius:999px;font-weight:600;font-size:inherit;text-decoration:none}
+.pub-footer nav button:hover,.pub-footer nav a:hover{color:var(--txt)}
 
 /* ---------- Auth ---------- */
 .auth-shell{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);min-height:100dvh}
@@ -237,3 +237,4 @@ body.public-mode .body{max-width:none;padding:0}
 .pub-nav .pub-logo img{height:64px}
 .auth-brand .pub-logo img{height:clamp(72px,9vw,104px)}
 @media(max-width:900px){.cell-b,.cell-c{padding-bottom:26px}}
+.auth-fineprint a{color:var(--primary);font-weight:600}
