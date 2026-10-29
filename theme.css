@@ -31,13 +31,13 @@ h1,h2,h3,h4{letter-spacing:-.02em}
 .brandmark{width:100%;justify-content:flex-start!important}
 .brandmark img{width:176px!important;height:auto!important;max-width:100%}
 .brand>div:not(.brandmark){display:none}
-.navbtn{border-radius:14px;font-weight:600}
+.navlabel{margin-top:14px}
+.navbtn{border-radius:14px;font-weight:600;gap:12px;padding:8px 12px;min-height:44px}
+.navbtn .nav-text{flex:1;min-width:0}
 .navbtn.active{background:var(--primary-light);color:var(--primary);box-shadow:inset 3px 0 0 var(--brand)}
-.nav-symbol{width:26px!important;height:26px!important;border-radius:8px;font-size:13px!important;color:#fff!important;font-family:var(--font)!important;background:var(--grad-brand);box-shadow:0 4px 10px rgba(107,92,231,.22)}
-.sidebar nav:nth-of-type(2) .nav-symbol{background:linear-gradient(135deg,#46c6ae,#29aa95)}
-.pro-links .navbtn:nth-child(3n+2) .nav-symbol{background:linear-gradient(135deg,#ffb36b,#f6a43c)}
-.pro-links .navbtn:nth-child(3n) .nav-symbol{background:linear-gradient(135deg,#ff9fb1,#f2708a)}
-.nav-classroom .nav-symbol{background:linear-gradient(135deg,#7f9bff,#6f8fff)}
+/* 3D brand icons (assets/icons, badges, decor) replace the old glyph tiles. */
+.nav-ico{width:28px;height:28px;flex:none;object-fit:contain;filter:drop-shadow(0 3px 5px rgba(76,61,180,.18));transition:transform .25s var(--ease-spring)}
+.navbtn:hover .nav-ico,.navbtn.active .nav-ico{transform:scale(1.1) rotate(-4deg)}
 .topbar{background:color-mix(in srgb,var(--surface) 86%,transparent);backdrop-filter:saturate(160%) blur(14px);-webkit-backdrop-filter:saturate(160%) blur(14px)}
 .account-chip{display:inline-flex;align-items:center;gap:9px;height:44px;padding:0 14px 0 5px;border:1px solid var(--stroke);border-radius:999px;background:var(--surface);color:var(--txt);font-weight:700;font-size:12px}
 .account-chip .avatar{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--grad-brand);color:#fff;font-size:12px;font-weight:800;overflow:hidden}
@@ -45,9 +45,6 @@ h1,h2,h3,h4{letter-spacing:-.02em}
 .account-chip small{display:block;color:var(--muted);font-size:10px;font-weight:600}
 .account-chip:hover{border-color:var(--lilac)}
 @media(max-width:670px){.account-chip{padding:0 4px}.account-chip .chip-text{display:none}}
-.dashboard-hero{background:var(--grad-soft);border:1px solid var(--stroke)}
-[data-theme="dark"] .dashboard-hero{color:var(--txt)}
-[data-theme="dark"] .dashboard-hero .tiny-tag{background:#2d2858;color:#d5d0ff}
 
 /* Skill tiles (home) */
 .skill-strip{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:12px;margin:26px 0 6px}
@@ -238,3 +235,58 @@ body.public-mode .body{max-width:none;padding:0}
 .auth-brand .pub-logo img{height:clamp(72px,9vw,104px)}
 @media(max-width:900px){.cell-b,.cell-c{padding-bottom:26px}}
 .auth-fineprint a{color:var(--primary);font-weight:600}
+
+/* ---------- Feature navigation v6: banner heroes, badges, 3D icons ---------- */
+/* Banner art is a light pastel scene with Mây Long on the right; copy sits on the left in fixed dark ink
+   on desktop and below the art (theme colours) on phones. */
+.art-hero{position:relative;overflow:hidden;display:flex;align-items:center;min-height:clamp(250px,24vw,320px);margin-bottom:20px;border:1px solid var(--stroke);border-radius:20px;background:#efeafe}
+.art-hero-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:right center}
+.art-hero-copy{position:relative;max-width:min(560px,56%);padding:clamp(24px,4vw,48px);color:#221d4b}
+.art-hero-copy h1,.art-hero-copy h3{margin:0 0 10px;color:#221d4b;font-size:clamp(28px,3.2vw,42px);line-height:1.12;letter-spacing:-.03em;font-weight:800}
+.art-hero-copy p{margin:0 0 22px;color:#4a4573;font-size:15px;line-height:1.6;max-width:44ch}
+.art-hero-actions{display:flex;flex-wrap:wrap;gap:10px}
+.art-hero-actions .btn{min-height:46px;padding:12px 22px;white-space:nowrap}
+.art-hero-actions .btn:not(.btn-primary){background:#fff;color:#3d33a8;border-color:#ddd7fb}
+[data-theme="dark"] .art-hero-media img{filter:brightness(.94)}
+@media(max-width:700px){
+  .art-hero{flex-direction:column;align-items:stretch;min-height:0;background:var(--surface)}
+  .art-hero-media{display:block;height:210px;background:#efeafe}
+  .art-hero-media img{position:static;height:100%;object-position:center 35%}
+  .art-hero-copy{max-width:none;padding:20px;color:var(--txt)}
+  .art-hero-copy h1,.art-hero-copy h3{color:var(--txt);font-size:26px}
+  .art-hero-copy p{color:var(--muted);font-size:14px;margin-bottom:16px}
+  .art-hero-actions .btn{flex:1 1 auto;justify-content:center}
+}
+/* Badges (home) */
+.home-badges{display:grid;grid-template-columns:minmax(180px,.7fr) 2fr;align-items:center;gap:20px;margin:0 0 6px;padding:18px 22px;border:1px solid var(--stroke);border-radius:20px;background:var(--grad-soft)}
+.home-badges h2{margin:0;font-size:18px;font-weight:800}
+.home-badges p{margin:6px 0 0;color:var(--muted);font-size:13px;line-height:1.5}
+.badge-row{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.badge-card{display:grid;justify-items:center;gap:4px;padding:12px 8px;border-radius:16px;background:var(--surface);border:1px solid var(--stroke);text-align:center}
+.badge-card img{width:44px;height:48px;object-fit:contain;filter:grayscale(1) opacity(.45);transition:filter .3s,transform .3s var(--ease-spring)}
+.badge-card strong{font-size:13px}
+.badge-card span{font-size:11px;color:var(--muted);line-height:1.35}
+.badge-card.is-won img{filter:drop-shadow(0 6px 10px rgba(246,196,83,.35))}
+.badge-card.is-won span{color:var(--teal);font-weight:700}
+.badge-card.is-won:hover img{transform:scale(1.08) rotate(-4deg)}
+@media(max-width:860px){.home-badges{grid-template-columns:1fr}.badge-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* Arena mode cards and mobile bottom nav use the same 3D icon set. */
+.pro-mode-ico{display:block;width:56px;height:56px;object-fit:contain;margin-bottom:18px;filter:drop-shadow(0 6px 10px rgba(76,61,180,.18));transition:transform .25s var(--ease-spring)}
+.pro-mode:hover .pro-mode-ico{transform:translateY(-2px) scale(1.06) rotate(-4deg)}
+.bnav-ico{width:26px;height:26px;object-fit:contain;transition:transform .25s var(--ease-spring)}
+.bottom-nav button{min-height:52px;font-size:10px}
+.bottom-nav button.active .bnav-ico{transform:translateY(-2px) scale(1.12)}
+.bottom-nav button:not(.active) .bnav-ico{filter:saturate(.75)}
+/* Decor and badge art has no tile of its own; a fixed pale tile keeps every icon square and readable in dark mode. */
+.ico-obj{box-sizing:border-box;padding:3px;border-radius:26%;background:linear-gradient(135deg,#f6f3ff,#e4defe);box-shadow:inset 0 0 0 1px rgba(107,92,231,.12)}
+.pro-mode-ico.ico-obj{padding:8px}
+.art-hero-copy h1,.art-hero-copy h3,.art-hero-copy p{text-wrap:pretty}
+/* Phones: practice modes become compact rows (icon left, text right) instead of half-screen cards. */
+@media(max-width:560px){
+  .pro-mode-grid{grid-template-columns:1fr!important;gap:10px}
+  .pro-mode{display:grid;grid-template-columns:52px 1fr;column-gap:14px;align-items:start;min-height:0;padding:16px}
+  .pro-mode-ico{grid-row:span 3;width:52px;height:52px;margin:0}
+  .pro-mode p{min-height:0;margin:0}
+  .pro-mode footer{grid-column:2;margin-top:8px}
+}
+@media(prefers-reduced-motion:reduce){.nav-ico,.bnav-ico,.pro-mode-ico,.badge-card img{transition:none!important}}

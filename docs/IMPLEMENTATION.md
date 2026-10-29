@@ -10,6 +10,18 @@
 | D: lớp học | Tạo lớp/mã tham gia, đóng/mở nhận học viên, giao bài từ học liệu duyệt, tự luận/trắc nghiệm, báo cáo; phòng luyện thi có mã chờ 24 giờ, bắt đầu/kết thúc, giờ server, lưu lựa chọn, chấm khi hết giờ và bảng xếp hạng | Báo cáo kỹ năng, đề bí mật độc lập với bài tập, kiểm thử tải và nghiệm thu cloud thật |
 | E: vận hành | Lockfile, build chỉ xuất public assets, CI, regression tests, service worker tránh cache auth/API | Quan sát lỗi production, backup DB theo lịch/diễn tập, kiểm thử tải, kiểm định accessibility/SEO toàn app, AI gia sư và thanh toán |
 
+## Giao diện điều hướng v6 (2026-10-29)
+
+- Thanh bên và thanh điều hướng dưới dùng một bộ icon 3D thống nhất. Gồm `assets/icons/`, cộng với decor và huy hiệu trên ô nền nhạt `.ico-obj`, nên vẫn đọc được ở chế độ tối.
+- Trang tổng quan:
+  - Banner Mây Long `assets/illustrations/banner-home-*` (bản dọc cho điện thoại).
+  - Khu "Huy hiệu của bạn" thay cho dải "Khám phá phiên bản 2.0". 4 huy hiệu (Học tập, Chuyên cần, Hoàn thành, Xuất sắc) mở khóa theo số liệu học thật trong `metrics()`, không dùng số giả.
+- Trung tâm luyện tập: banner `banner-reward-*` và icon 3D cho 9 chế độ. Trên điện thoại, mỗi chế độ là một hàng gọn.
+- Asset mới:
+  - `assets/badges/`, `assets/decor/` và `assets/icons/home.webp` sinh bằng `python scripts/extract-ui-assets.py` từ `maylong_masterboard_04.png` (board chủ dự án cung cấp ngày 2026-10-29).
+  - Huy hiệu và decor trên board chỉ khoảng 50–70px, nên chỉ dùng ở cỡ nhỏ (≤ 56px).
+  - Banner lấy nguyên từ `05_hero_banners/` của gói Mây Long.
+
 ## Giao diện v5 (2026-10-29)
 
 - Trang giới thiệu `#welcome`: hiển thị ở lần truy cập đầu tiên.

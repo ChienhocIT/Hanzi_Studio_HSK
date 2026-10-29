@@ -3,11 +3,29 @@ import {id,itemId,classId,assignmentId,key,state,item,mockCloud,vocab} from './c
 test('Production package preserves the existing May Long branding assets',async({page})=>{
   const failed=[];page.on('response',response=>{if(response.status()>=400&&response.url().includes('/assets/'))failed.push(response.url());});
   await page.goto('/index.html#home');
-  await expect(page.locator('.hs-mascot-hero')).toBeVisible();
-  for(const selector of ['.brandmark img','.hs-mascot-hero','.hs-mascot-chip']) {
-    await expect.poll(()=>page.locator(selector).evaluate(img=>img.complete&&img.naturalWidth>0)).toBe(true);
+  await expect(page.locator('.home-hero img')).toBeVisible();
+  for(const selector of ['.brandmark img','.home-hero img','#home-badges img','.sidebar .nav-ico','.bottom-nav .bnav-ico']) {
+    for(const img of await page.locator(selector).all())await expect.poll(()=>img.evaluate(el=>el.complete&&el.naturalWidth>0)).toBe(true);
   }
+  await page.evaluate(()=>nav('arena'));
+  await expect(page.locator('.arena-hero img')).toBeVisible();
+  for(const img of await page.locator('.pro-mode-ico').all())await expect.poll(()=>img.evaluate(el=>el.complete&&el.naturalWidth>0)).toBe(true);
   expect(failed).toEqual([]);
+});
+test('Home badges unlock from real study progress',async({page})=>{
+  await page.addInitScript(({key,state})=>{
+    const day=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    const events=[0,1,2].map(n=>({day:day(new Date(Date.now()-n*86400000)),id:1,rating:'good'}));
+    localStorage.setItem(key,JSON.stringify({...state,records:{1:{last:Date.now(),stage:'learning'}},events}));
+  },{key,state});
+  await page.goto('/index.html#home');
+  const badges=page.locator('#home-badges .badge-card');
+  await expect(badges).toHaveCount(4);
+  await expect(badges.filter({hasText:'Học tập'})).toHaveClass(/is-won/);
+  await expect(badges.filter({hasText:'Chuyên cần'})).toHaveClass(/is-won/);
+  await expect(badges.filter({hasText:'Hoàn thành'})).not.toHaveClass(/is-won/);
+  await expect(badges.filter({hasText:'Hoàn thành'})).toContainText('1/100');
+  await expect(page.locator('#badges-sub')).toContainText('Đã mở 2/4');
 });
 test('Guest can study and export access remains available without backend configuration',async({page})=>{
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
