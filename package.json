@@ -16,6 +16,7 @@
     "data:import-reference": "node scripts/import-reference.mjs",
     "data:import-hsk3": "node scripts/import-hsk3.mjs",
     "db:seed-vocabulary": "node --env-file-if-exists=.env.local scripts/seed-vocabulary.mjs",
+    "db:seed-glosses": "node --env-file-if-exists=.env.local scripts/seed-glosses.mjs",
     "db:promote-admin": "node --env-file-if-exists=.env.local scripts/promote-admin.mjs",
     "auth:configure": "node --env-file-if-exists=.env.local scripts/configure-auth.mjs",
     "db:bundle": "node scripts/bundle-migrations.mjs"

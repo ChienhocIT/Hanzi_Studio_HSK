@@ -51,7 +51,7 @@ test('All existing routes render without JavaScript exceptions',async({page})=>{
   const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('/');
   const routes=await page.evaluate(()=>Object.keys(NAV));
   for(const route of routes){await page.evaluate(route=>nav(route),route);await expect(page.locator('#page-'+route)).toHaveClass(/active/);}
-  expect(routes).toHaveLength(25);expect(errors).toEqual([]);
+  expect(routes).toHaveLength(27);expect(errors).toEqual([]);
 });
 test('Email login preserves guest progress and requires explicit cloud initialization',async({page})=>{
   const {calls}=await mockCloud(page,'student',{authenticated:false});
@@ -255,9 +255,10 @@ test('Learners study published HSK 3.0 syllabus words and ratings join the on-de
   await mockCloud(page,'student',{world:{items:[],classes:[],assignments:[],submissions:[],questions:[],progress:null,vocab:[...vocab(),{...vocab('draft')[0],seq:4,word:'草稿'}]}});
   // A restored backup can carry markup in progress fields; it must render as a number.
   await page.addInitScript(()=>{if(!sessionStorage.getItem('seeded')){sessionStorage.setItem('seeded','1');localStorage.setItem('hanzi-studio-curriculum-v4',JSON.stringify({progress:{'clec2025-2':{reps:'<img src=x onerror="window.__xss=1">',due:1}}}));}});
-  await page.goto('/index.html#contenthub');
+  await page.goto('/index.html#hsk');
   const panel=page.locator('#syllabus-panel');
   await expect(panel.locator('#syllabus-status')).toContainText('HSK 1: 3 mục');
+  await expect(panel.locator('.syllabus-table')).toContainText("you're welcome");
   await expect(panel.locator('.syllabus-table')).toContainText('不客气');await expect(panel.locator('.syllabus-table')).not.toContainText('草稿');
   await expect(panel.locator('.syllabus-table')).not.toContainText('Trạng thái');
   await panel.getByLabel('Tìm chữ Hán hoặc pinyin',{exact:true}).fill('ben');await panel.getByRole('button',{name:'Tra cứu',exact:true}).click();
@@ -268,12 +269,19 @@ test('Learners study published HSK 3.0 syllabus words and ratings join the on-de
   await panel.getByRole('button',{name:'Đã nhớ',exact:true}).click();
   await expect(panel.locator('#syllabus-status')).toContainText('Đã cập nhật lượt ôn');
   const record=await page.evaluate(()=>JSON.parse(localStorage.getItem('hanzi-studio-curriculum-v4')).progress['clec2025-2']);
-  expect(record.reps).toBe(1);expect(errors).toEqual([]);
+  expect(record.reps).toBe(1);
+  // A word rated "again" is due within minutes; once due it appears in the review mode.
+  await page.evaluate(()=>{const s=JSON.parse(localStorage.getItem('hanzi-studio-curriculum-v4'));s.progress['clec2025-1']={reps:1,interval:1,seenAt:Date.now(),due:Date.now()-1000};localStorage.setItem('hanzi-studio-curriculum-v4',JSON.stringify(s));});
+  await panel.getByLabel('Tìm chữ Hán hoặc pinyin',{exact:true}).fill('');await panel.getByRole('button',{name:'Tra cứu',exact:true}).click();
+  await panel.getByRole('button',{name:'Ôn từ đến hạn',exact:true}).click();
+  await expect(panel.locator('.reference-word')).toHaveText('好');await expect(panel).toContainText('1 / 1');
+  await panel.getByRole('button',{name:'Mở đáp án',exact:true}).click();await expect(panel).toContainText('good; well');
+  expect(errors).toEqual([]);
 });
 test('Admins publish a syllabus level in one action; signed-out visitors are asked to sign in',async({page,browser})=>{
   const world={items:[],classes:[],assignments:[],submissions:[],questions:[],progress:null,vocab:vocab('draft')};
   const {calls}=await mockCloud(page,'admin',{world});page.on('dialog',d=>d.accept());
-  await page.goto('/index.html#contenthub');
+  await page.goto('/index.html#hsk');
   const panel=page.locator('#syllabus-panel');
   await expect(panel.locator('.syllabus-table')).toContainText('Bản nháp');
   await panel.getByText('Duyệt cấp HSK 1 (quản trị viên)').click();
@@ -282,7 +290,7 @@ test('Admins publish a syllabus level in one action; signed-out visitors are ask
   expect(calls.find(c=>c.path.endsWith('/review_vocab_entries')).body).toEqual({entry_syllabus:'HSK 3.0 (CLEC 2025)',entry_seqs:[1,2,3],decision:'published'});
   await expect(panel.getByRole('button',{name:'Ẩn khỏi học viên',exact:true})).toBeEnabled();
   const guest=await (await browser.newContext({serviceWorkers:'block'})).newPage();await mockCloud(guest,'student',{authenticated:false});
-  await guest.goto('/index.html#contenthub');
+  await guest.goto('/index.html#hsk');
   await expect(guest.locator('#syllabus-panel').getByRole('button',{name:'Đăng nhập để mở danh mục',exact:true})).toBeVisible();
 });
 test('Unconfirmed accounts get a specific message and can resend the confirmation email',async({page})=>{
@@ -304,4 +312,43 @@ test('An expired email link explains what happened and is removed from the addre
   await page.goto('/index.html?error=access_denied&error_code=otp_expired&error_description=Email+link+is+invalid+or+has+expired#auth');
   await expect(page.locator('#auth-panel [data-cloud-status]')).toContainText('đã hết hạn');
   await expect(page).toHaveURL(/\/index\.html#auth$/);
+});
+test('AI tutor streams safe formatted answers, grades sentences and reports the daily quota',async({page})=>{
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  await mockCloud(page,'student');
+  const requests=[];
+  await page.route('**/api/tutor',async route=>{
+    const req=route.request(),body=req.postDataJSON();requests.push({body,auth:req.headers().authorization});
+    if(body.mode==='grade')return route.fulfill({contentType:'application/json',headers:{'x-tutor-remaining':'28'},body:JSON.stringify({result:{score:72,corrected:'我昨天去了学校。',pinyin:'Wǒ zuótiān qùle xuéxiào.',feedback:'Gần đúng, chú ý vị trí 了.',errors:[{part:'去学校了',issue:'Trật tự chưa tự nhiên',fix:'去了学校'}]}})});
+    return route.fulfill({contentType:'text/plain; charset=utf-8',headers:{'x-tutor-remaining':'29'},body:'**了** chỉ việc đã hoàn thành.\n- 我吃了饭 (wǒ chīle fàn)\n<img src=x onerror="window.__xss=1">'});
+  });
+  await page.goto('/index.html#tutor');
+  await expect(page.locator('#tutor-quota')).toHaveText('Còn 30/30 lượt hôm nay');
+  await page.getByRole('button',{name:'Phân biệt 了 và 过',exact:true}).click();
+  const answer=page.locator('.tutor-msg.from-tutor').last();
+  await expect(answer.locator('strong')).toHaveText('了');await expect(answer.locator('li')).toContainText('我吃了饭');
+  await expect(answer).toContainText('<img src=x');expect(await page.evaluate(()=>window.__xss)).toBeUndefined();
+  await expect(page.locator('#tutor-quota')).toHaveText('Còn 29/30 lượt hôm nay');
+  expect(requests[0].body).toEqual({mode:'chat',messages:[{role:'user',text:'Phân biệt 了 và 过'}]});
+  expect(requests[0].auth).toMatch(/^Bearer \S+/);
+  // Follow-up questions carry the history so far.
+  await page.getByLabel('Câu hỏi cho Mây Long').fill('Còn 过 thì sao?');await page.getByLabel('Câu hỏi cho Mây Long').press('Enter');
+  await expect(page.locator('.tutor-msg')).toHaveCount(4);
+  expect(requests[1].body.messages.map(m=>m.role)).toEqual(['user','model','user']);
+  await page.getByRole('tab',{name:'Chấm câu',exact:true}).click();
+  await page.getByLabel('Câu tiếng Trung của bạn').fill('我昨天去学校了');await page.getByLabel('Bạn muốn nói gì? (tiếng Việt, không bắt buộc)').fill('Hôm qua tôi đi học');
+  await page.getByRole('button',{name:'Chấm câu',exact:true}).click();
+  await expect(page.locator('.score-ring strong')).toHaveText('72');await expect(page.locator('.tutor-errors')).toContainText('去了学校');
+  expect(requests[2].body).toEqual({mode:'grade',sentence:'我昨天去学校了',meaning:'Hôm qua tôi đi học'});
+  await page.unroute('**/api/tutor');
+  await page.route('**/api/tutor',route=>route.fulfill({status:429,contentType:'application/json',body:'{"error":"tutor_quota_exceeded"}'}));
+  await page.getByRole('button',{name:'Chấm câu',exact:true}).click();
+  await expect(page.locator('#tutor-status')).toContainText('hết 30 lượt');await expect(page.locator('#tutor-quota')).toHaveText('Còn 0/30 lượt hôm nay');
+  await expect(page.getByLabel('Câu tiếng Trung của bạn')).toHaveValue('我昨天去学校了');
+  expect(errors).toEqual([]);
+});
+test('Signed-out visitors are asked to sign in before using the AI tutor',async({page})=>{
+  await mockCloud(page,'student',{authenticated:false});
+  await page.goto('/index.html#tutor');
+  await expect(page.getByRole('button',{name:'Đăng nhập để dùng trợ giảng',exact:true})).toBeVisible();
 });

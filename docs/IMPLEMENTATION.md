@@ -10,6 +10,21 @@
 | D: lớp học | Tạo lớp/mã tham gia, đóng/mở nhận học viên, giao bài từ học liệu duyệt, tự luận/trắc nghiệm, báo cáo; phòng luyện thi có mã chờ 24 giờ, bắt đầu/kết thúc, giờ server, lưu lựa chọn, chấm khi hết giờ và bảng xếp hạng | Báo cáo kỹ năng, đề bí mật độc lập với bài tập, kiểm thử tải và nghiệm thu cloud thật |
 | E: vận hành | Lockfile, build chỉ xuất public assets, CI, regression tests, service worker tránh cache auth/API | Quan sát lỗi production, backup DB theo lịch/diễn tập, kiểm thử tải, kiểm định accessibility/SEO toàn app, AI gia sư và thanh toán |
 
+## Từ vựng HSK 1–9 và Trợ giảng AI (2026-10-29)
+
+- **Từ vựng HSK 1–9** (`#hsk`, `src/syllabus.js`):
+  - Màn học riêng cho 11.000 từ của đề cương 2025, có mục trên thanh bên và ô trên trang chủ.
+  - Chọn cấp 1–9, tra cứu (gõ không dấu cũng được), nghe, luyện thẻ, **Ôn từ đến hạn**. Lượt ôn đi vào lịch ôn của giáo trình (`clec2025-<序号>`) và đồng bộ theo tài khoản.
+  - Nghĩa tiếng Anh: CC-CEDICT (`gloss_en`), chọn theo cách đọc của đề cương. 10.983/11.000 từ có nghĩa. Chưa có nghĩa tiếng Việt.
+  - Chỉ người đăng nhập mới xem được, vì đề cương không ghi giấy phép.
+  - Flashcard 500 từ HSK 3 có nghĩa tiếng Việt giữ nguyên.
+- **Trợ giảng AI** (`#tutor`, `src/tutor.js` → `api/tutor.js` → `server/tutor.mjs`):
+  - Hỏi đáp: câu trả lời stream từ Google Gemini.
+  - Chấm câu: điểm 0–100, câu sửa, pinyin, danh sách lỗi, nhận xét. Kết quả theo JSON schema và được máy chủ kiểm tra lại.
+  - Chỉ người đăng nhập, 30 tin/ngày theo giờ Việt Nam (`consume_tutor_quota`, giới hạn đặt trong SQL).
+  - Model `gemini-3.8-flash`, tự chuyển sang `gemini-3.5-flash-lite` khi quá tải.
+  - Không lưu nội dung trò chuyện. Gói miễn phí của Gemini có thể dùng nội dung để cải thiện sản phẩm Google; màn hình và `privacy.html` có ghi rõ.
+
 ## Giao diện điều hướng v6 (2026-10-29)
 
 - Thanh bên và thanh điều hướng dưới dùng một bộ icon 3D thống nhất. Gồm `assets/icons/`, cộng với decor và huy hiệu trên ô nền nhạt `.ico-obj`, nên vẫn đọc được ở chế độ tối.

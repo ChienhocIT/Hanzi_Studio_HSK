@@ -31,6 +31,11 @@ Sau đó chạy `npm run check:cloud`; phép kiểm tra public vẫn chưa thay 
   - Gmail cá nhân có thể chặn lại đăng nhập từ máy chủ cloud. Nên chuyển sang domain riêng và Resend/Brevo.
 - **Quản trị viên đầu tiên:** tài khoản Google của chủ dự án, cấp bằng `db:promote-admin`.
 
+**Trợ giảng AI (Gemini):**
+1. Tạo API key tại [Google AI Studio](https://aistudio.google.com/apikey). Gói miễn phí là đủ; nội dung gửi ở gói này có thể được Google dùng để cải thiện sản phẩm.
+2. Vào Vercel → Project → Settings → Environment Variables, thêm `GEMINI_API_KEY` cho môi trường Production (tùy chọn thêm `GEMINI_MODELS`), rồi Redeploy. Chưa có key thì `/api/tutor` trả `503 tutor_not_configured` và màn trợ giảng báo "chưa được bật".
+3. Nghĩa CC-CEDICT cho 11.000 từ: `npm run db:seed-glosses` (sau khi migration 0007 đã áp dụng). Có thể chạy lại an toàn.
+
 **Còn chờ:**
 - Đưa Google OAuth app ra khỏi chế độ Testing: gỡ logo (logo bắt buộc phải qua xét duyệt), điền privacy `https://hanzistudiohsk.vercel.app/privacy.html` và terms `https://hanzistudiohsk.vercel.app/terms.html`, rồi bấm Publish.
 - Quản trị viên xuất bản danh mục HSK 3.0 theo cấp.

@@ -34,6 +34,7 @@ export async function mockCloud(page,role='student',{authenticated=true,userId=i
       const level=url.searchParams.get('level')?.replace(/^eq\./,''),offset=Number(url.searchParams.get('offset')||0),limit=Number(url.searchParams.get('limit')||1000);
       result=data.vocab.filter(v=>v.level===level&&(role!=='student'||v.review_status==='published')).slice(offset,offset+limit);
     }
+    else if(url.pathname.endsWith('/tutor_quota_left'))result=data.tutorLeft??30;
     else if(url.pathname.endsWith('/review_vocab_entries')){const rows=data.vocab.filter(v=>body.entry_seqs.includes(v.seq));rows.forEach(v=>v.review_status=body.decision);result=rows.length;}
     else if(url.pathname.endsWith('/profiles'))result=url.searchParams.get('id')?{id,display_name:'Học viên kiểm thử',role}:[{id,display_name:'Học viên kiểm thử',role}];
     else if(url.pathname.endsWith('/content_items'))result=data.items;
@@ -91,7 +92,7 @@ export async function mockCloud(page,role='student',{authenticated=true,userId=i
 }
 // Rows shaped like public.vocab_entries for the HSK 3.0 (CLEC 2025) syllabus.
 export const vocab=(status='published')=>[
-  {seq:1,level:'1',extra_levels:['2','4'],word:'好',homograph:null,pinyin:'hǎo',pos:['形'],pos_extra:['副'],review_status:status,source_page:80},
-  {seq:2,level:'1',extra_levels:[],word:'本',homograph:1,pinyin:'běn',pos:['量'],pos_extra:[],review_status:status,source_page:80},
-  {seq:3,level:'1',extra_levels:[],word:'不客气',homograph:null,pinyin:'bú kèqi',pos:[],pos_extra:[],review_status:status,source_page:80}
+  {seq:1,level:'1',extra_levels:['2','4'],word:'好',homograph:null,pinyin:'hǎo',pos:['形'],pos_extra:['副'],review_status:status,source_page:80,gloss_en:['good','well']},
+  {seq:2,level:'1',extra_levels:[],word:'本',homograph:1,pinyin:'běn',pos:['量'],pos_extra:[],review_status:status,source_page:80,gloss_en:['root; stem']},
+  {seq:3,level:'1',extra_levels:[],word:'不客气',homograph:null,pinyin:'bú kèqi',pos:[],pos_extra:[],review_status:status,source_page:80,gloss_en:["you're welcome"]}
 ];

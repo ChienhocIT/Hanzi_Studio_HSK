@@ -6,6 +6,7 @@ import { exerciseDatabase } from '../tests/database.mjs';
 import { exerciseQuizzes } from '../tests/quiz-database.mjs';
 import { exerciseLiveRooms } from '../tests/live-database.mjs';
 import { exerciseVocabulary } from '../tests/vocabulary-database.mjs';
+import { exerciseTutor } from '../tests/tutor-database.mjs';
 import { exerciseLifecycle } from '../tests/lifecycle-database.mjs';
 import {migrationBundle} from './bundle-migrations.mjs';
 import {applyMigrations,readMigrations} from './migrate.mjs';
@@ -43,6 +44,7 @@ try {
   await exerciseQuizzes(db);
   await exerciseLiveRooms(db);
   await exerciseVocabulary(db);
+  await exerciseTutor(db);
   await exerciseLifecycle(db);
 } finally {
   if(db)await db.end();

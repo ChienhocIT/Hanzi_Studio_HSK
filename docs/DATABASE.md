@@ -26,6 +26,8 @@ erDiagram
   live_participants ||--o| live_drafts : "private (cascade)"
   data_sources ||--o{ vocab_entries : "source_id (no action)"
   profiles o|--o{ vocab_entries : "reviewer_id (set null)"
+  data_sources ||--o{ vocab_entries : "gloss_source_id (CC-CEDICT)"
+  profiles ||--o{ tutor_usage : "user_id (cascade)"
 ```
 
 ## Đánh giá thiết kế
@@ -40,6 +42,9 @@ erDiagram
   - Đã thêm index cho 11 khóa ngoại mà advisor báo thiếu index.
   - 6 policy đổi sang `(select auth.uid())` để không gọi lại hàm trên từng dòng.
   - Đọc phòng thi đã kết thúc không còn phải chờ khóa dòng.
+- **Nghĩa tiếng Anh và trợ giảng (0007):**
+  - `vocab_entries.gloss_en` lưu tối đa 8 nghĩa CC-CEDICT kèm `gloss_source_id`. Cột này đi theo dòng, nên dùng chung policy đọc với dòng đó.
+  - `tutor_usage` đếm số tin nhắn mỗi người mỗi ngày. Client chỉ được đọc; mọi thao tác ghi đi qua `consume_tutor_quota()`, giới hạn 30 nằm trong SQL.
 - **Thu hồi quyền (0006):** `private.teaches`, cùng các nhánh host của phòng thi, giờ yêu cầu vai trò giáo viên/quản trị viên còn hiệu lực. Giáo viên bị hạ quyền sẽ mất quyền dạy, quyền xem báo cáo và quyền mở phòng.
 - **Còn mở:**
   - Chưa có ràng buộc `CHECK` liên cột cho trạng thái phòng thi và thông tin chấm điểm (hiện do RPC đảm bảo).
