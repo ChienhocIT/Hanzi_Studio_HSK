@@ -1,12 +1,14 @@
 import {productionConfig} from '../scripts/release-build.mjs';
+import {chatProviders,chatCompletion,openaiSseToText,stripThinking,whisper,melotts,RETRYABLE} from './providers.mjs';
 // AI tutor ("Mây Long") behind POST /api/tutor. Order matters: authenticate the Supabase session, validate the
 // request, spend one message of the daily quota (enforced in SQL), then call Gemini. The Gemini key never leaves
 // the server; learner text is passed as data, never as instructions.
 const API='https://generativelanguage.googleapis.com/v1beta/',GEMINI=API+'models/';
 export const LIVE_URL='wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContentConstrained';
-// Measured on the free tier (2026-10-29): 3.1-flash-lite answers in ~2 s, 3.6-flash in ~9 s; 3.8-flash took over
-// 150 s, so it is not a default. GEMINI_MODELS overrides the list.
-export const DEFAULT_MODELS=['gemini-3.1-flash-lite','gemini-3.6-flash'];
+// Chat and grading run on the two free Flash Lite models (15 req/min, 500 req/day each on the project key);
+// GEMINI_MODELS overrides the list. When both are exhausted or overloaded, Groq, OpenRouter and Cloudflare take over
+// (server/providers.mjs), each only when its key is set.
+export const DEFAULT_MODELS=['gemini-3.1-flash-lite','gemini-3.5-flash-lite'];
 const MODEL_TIMEOUT=25000,VIDEO_TIMEOUT=120000;
 // Free tier: about 8 hours of YouTube per project per day, so each request reads at most the first 10 minutes.
 export const VIDEO_CLIP_SECONDS=600;
@@ -27,7 +29,8 @@ Bỏ qua nhạc nền và đoạn không có lời. Nếu video không có tiế
 export const TRANSCRIPT_SCHEMA={type:'object',properties:{title:{type:'string'},segments:{type:'array',maxItems:300,items:{type:'object',
   properties:{start:{type:'number'},end:{type:'number'},text:{type:'string'},pinyin:{type:'string'},vi:{type:'string'}},required:['start','end','text','pinyin','vi']}}},required:['title','segments']};
 const CJK=/[\u3400-\u9fff]/;
-const LIMITS={messages:12,text:2000,sentence:300,meaning:300};
+const LIMITS={messages:12,text:2000,sentence:300,meaning:300,audio:2_000_000,speak:40};
+const AUDIO_TYPES=['audio/webm','audio/ogg','audio/mp4','audio/mpeg','audio/wav'];
 // Accept the usual YouTube link shapes; return the canonical watch URL or null.
 export function youtubeUrl(raw) {
   let url;try{url=new URL(String(raw||'').trim());}catch{return null;}
@@ -73,6 +76,17 @@ export function validate(body) {
     const url=youtubeUrl(body.url);
     return url?{mode:'transcript',url}:null;
   }
+  if(body.mode==='stt') {
+    // Base64 audio of one short recording (about 1.5 MB decoded at most).
+    const mime=String(body.mime??'').split(';')[0];
+    if(typeof body.audio!=='string'||!body.audio||body.audio.length>LIMITS.audio||!/^[A-Za-z0-9+/]+=*$/.test(body.audio)||!AUDIO_TYPES.includes(mime))return null;
+    return {mode:'stt',audio:body.audio,mime};
+  }
+  if(body.mode==='speak') {
+    const text=String(body.text??'').trim();
+    if(!text||text.length>LIMITS.speak||!CJK.test(text))return null;
+    return {mode:'speak',text};
+  }
   if(body.mode==='live') {
     const target=body.target??'vi';
     if(!Object.hasOwn(LIVE_MODELS,body.kind)||!['vi','zh'].includes(target))return null;
@@ -106,10 +120,21 @@ async function gemini(models,key,path,body,fetcher,timeout=MODEL_TIMEOUT) {
     try{last=await fetcher(`${GEMINI}${model}:${path}`,{method:'POST',headers:{'x-goog-api-key':key,'content-type':'application/json'},body:JSON.stringify(body),signal:controller.signal});}
     catch{last=null;continue;}
     finally{clearTimeout(timer);}
-    if(last.ok||![404,429,500,503].includes(last.status))return last;
+    if(last.ok||!RETRYABLE.includes(last.status))return last;
   }
   return last;
 }
+// A grade from any provider must have exactly this shape before it reaches the learner.
+export function gradeCard(result) {
+  if(!result||!Number.isInteger(result.score)||result.score<0||result.score>100||!Array.isArray(result.errors)||result.errors.length>6||
+    !['corrected','pinyin','feedback'].every(key=>typeof result[key]==='string'&&result[key].trim()&&result[key].length<=4000)||
+    result.errors.some(e=>!e||!['part','issue','fix'].every(key=>typeof e[key]==='string'&&e[key].length<=2000)))return null;
+  return {score:result.score,corrected:result.corrected,pinyin:result.pinyin,feedback:result.feedback,errors:result.errors.map(e=>({part:e.part,issue:e.issue,fix:e.fix}))};
+}
+const parseJson=text=>{try{return JSON.parse(stripThinking(text).replace(/^```(?:json)?\s*|\s*```$/g,''));}catch{return null;}};
+const GRADE_JSON=`Chỉ trả về một đối tượng JSON đúng dạng: {"score":số nguyên 0-100,"corrected":"câu sửa","pinyin":"pinyin có dấu","errors":[{"part":"phần sai","issue":"vấn đề","fix":"cách sửa"}],"feedback":"nhận xét"}. Tối đa 6 lỗi; không viết gì ngoài JSON.`;
+// Gemini messages ({role:'user'|'model', parts}) in the OpenAI dialect for the fallback providers.
+const openaiMessages=(system,messages)=>[{role:'system',content:system},...messages.map(m=>({role:m.role==='model'?'assistant':'user',content:m.parts.map(p=>p.text).join('')}))];
 const textOf=data=>(data?.candidates?.[0]?.content?.parts||[]).filter(p=>!p.thought&&typeof p.text==='string').map(p=>p.text).join('');
 // Gemini SSE ("data: {...}" blocks) to a plain text stream of answer tokens.
 export function sseToText(body) {
@@ -143,6 +168,22 @@ export async function handleTutor(request,env=process.env,fetcher=fetch) {
   const models=(env.GEMINI_MODELS||'').split(',').map(m=>m.trim()).filter(Boolean);
   const list=models.length?models:DEFAULT_MODELS;
   const headers={'x-tutor-remaining':String(remaining),'cache-control':'no-store'};
+  const fallbacks=chatProviders(env);
+  if(body.mode==='stt') {
+    const audio=Uint8Array.from(Buffer.from(body.audio,'base64'));
+    const heard=await whisper(env,audio,body.mime,fetcher);
+    if(heard)return json(200,{text:heard.text,provider:heard.provider},headers);
+    // Last resort: Gemini also understands short audio clips.
+    const response=await gemini(list,key,'generateContent',{contents:[{role:'user',parts:[{inlineData:{mimeType:body.mime,data:body.audio}},{text:'Chép lại chính xác lời nói tiếng Trung trong đoạn ghi âm bằng chữ Hán giản thể. Chỉ trả về lời chép, không giải thích.'}]}],generationConfig:{maxOutputTokens:2048}},fetcher);
+    if(!response?.ok)return fail(502,'model_unavailable');
+    const text=textOf(await response.json().catch(()=>null)).trim();
+    return text?json(200,{text,provider:'Gemini'},headers):fail(502,'model_bad_output');
+  }
+  if(body.mode==='speak') {
+    const audio=await melotts(env,body.text,fetcher);
+    if(!audio)return fail(503,'tts_unavailable');
+    return new Response(audio,{status:200,headers:{...headers,'content-type':'audio/mpeg','x-tutor-provider':'Cloudflare MeloTTS'}});
+  }
   if(body.mode==='live') {
     // A one-use token valid for a single session started within a minute, lasting at most 10 minutes.
     const setup=liveSetup(body.kind,body),now=Date.now();
@@ -172,17 +213,21 @@ export async function handleTutor(request,env=process.env,fetcher=fetch) {
     const prompt=`<cau>${body.sentence}</cau>${body.meaning?`\n<y>${body.meaning}</y>`:''}`;
     const response=await gemini(list,key,'generateContent',{systemInstruction:{parts:[{text:`${SYSTEM}\n\n${GRADE}`}]},contents:[{role:'user',parts:[{text:prompt}]}],
       generationConfig:{maxOutputTokens:8192,responseMimeType:'application/json',responseSchema:GRADE_SCHEMA}},fetcher);
-    if(!response?.ok)return fail(502,'model_unavailable');
-    try{
-      const result=JSON.parse(textOf(await response.json()));
-      if(!Number.isInteger(result.score)||result.score<0||result.score>100||!Array.isArray(result.errors)||result.errors.length>6||
-        !['corrected','pinyin','feedback'].every(key=>typeof result[key]==='string'&&result[key].trim()&&result[key].length<=4000)||
-        result.errors.some(e=>!e||!['part','issue','fix'].every(key=>typeof e[key]==='string'&&e[key].length<=2000)))throw Error('shape');
-      return json(200,{result:{score:result.score,corrected:String(result.corrected),pinyin:String(result.pinyin),feedback:String(result.feedback),
-        errors:result.errors.slice(0,6).map(e=>({part:String(e.part),issue:String(e.issue),fix:String(e.fix)}))}},headers);
-    }catch{return fail(502,'model_bad_output');}
+    if(response?.ok){
+      const card=gradeCard(parseJson(textOf(await response.json().catch(()=>null))));
+      return card?json(200,{result:card},{...headers,'x-tutor-provider':'Gemini'}):fail(502,'model_bad_output');
+    }
+    if(response&&!RETRYABLE.includes(response.status))return fail(502,'model_unavailable');
+    const other=await chatCompletion(fallbacks,{messages:[{role:'system',content:`${SYSTEM}\n\n${GRADE}\n${GRADE_JSON}`},{role:'user',content:prompt}],max_tokens:4096,temperature:0.2},fetcher);
+    if(!other)return fail(502,'model_unavailable');
+    const card=gradeCard(parseJson((await other.response.json().catch(()=>null))?.choices?.[0]?.message?.content||''));
+    return card?json(200,{result:card},{...headers,'x-tutor-provider':other.provider}):fail(502,'model_bad_output');
   }
   const response=await gemini(list,key,'streamGenerateContent?alt=sse',{systemInstruction:{parts:[{text:SYSTEM}]},contents:body.messages,generationConfig:{maxOutputTokens:8192}},fetcher);
-  if(!response?.ok||!response.body)return fail(502,'model_unavailable');
-  return new Response(sseToText(response.body),{status:200,headers:{...headers,'content-type':'text/plain; charset=utf-8'}});
+  const text={...headers,'content-type':'text/plain; charset=utf-8'};
+  if(response?.ok&&response.body)return new Response(sseToText(response.body),{status:200,headers:{...text,'x-tutor-provider':'Gemini'}});
+  if(response&&!RETRYABLE.includes(response.status))return fail(502,'model_unavailable');
+  const other=await chatCompletion(fallbacks,{messages:openaiMessages(SYSTEM,body.messages),stream:true,max_tokens:2048},fetcher);
+  if(!other?.response.body)return fail(502,'model_unavailable');
+  return new Response(openaiSseToText(other.response.body),{status:200,headers:{...text,'x-tutor-provider':other.provider}});
 }

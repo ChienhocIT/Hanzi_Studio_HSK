@@ -467,3 +467,30 @@ test('A late AI subtitle response does not replace a lesson changed while waitin
   await expect(page.locator('#vl-transcript-input')).not.toHaveValue(/旧视频/);
 });
 
+test('Transcription falls back to a Whisper recording when Gemini Live is busy',async({page})=>{
+  await mockCloud(page,'student');await page.addInitScript(fakeLive);
+  const requests=[];
+  await page.route('**/api/tutor',route=>{const body=route.request().postDataJSON();requests.push(body);
+    if(body.mode==='live')return route.fulfill({status:502,contentType:'application/json',body:'{"error":"model_unavailable"}'});
+    return route.fulfill({contentType:'application/json',headers:{'x-tutor-remaining':'26'},body:JSON.stringify({text:'你好，我叫小明。',provider:'Groq Whisper'})});});
+  await page.goto('/index.html#tutor');
+  await page.getByRole('tab',{name:'Luyện nói',exact:true}).click();
+  await page.getByRole('button',{name:'Chép lời',exact:true}).click();
+  await page.getByRole('button',{name:'Bắt đầu nói',exact:true}).click();
+  await expect(page.locator('.voice-note')).toContainText('ghi âm');
+  await page.waitForTimeout(400);
+  await page.getByRole('button',{name:'Dừng và chép lời',exact:true}).click();
+  await expect(page.locator('.voice-line.you')).toContainText('你好，我叫小明。');
+  await expect(page.locator('.voice-note')).toContainText('Groq Whisper');
+  expect(requests[1].mode).toBe('stt');expect(requests[1].mime).toMatch(/^audio\//);expect(requests[1].audio.length).toBeGreaterThan(0);
+});
+test('Devices without a Chinese voice play Cloudflare speech, cached per word',async({page})=>{
+  await mockCloud(page,'student');
+  await page.addInitScript(()=>{window.__played=[];window.__device=[];speechSynthesis.getVoices=()=>[{lang:'en-US',name:'English'}];speechSynthesis.speak=u=>window.__device.push(u.text);HTMLMediaElement.prototype.play=function(){window.__played.push(this.src);return Promise.resolve();};});
+  let calls=0;await page.route('**/api/tutor',route=>{calls++;expect(route.request().postDataJSON()).toEqual({mode:'speak',text:'矮'});return route.fulfill({contentType:'audio/mpeg',body:Buffer.from([0x49,0x44,0x33])});});
+  await page.goto('/index.html#library');
+  const listen=page.locator('#library-rows').getByRole('button',{name:'Nghe 矮',exact:true});
+  await listen.click();await expect.poll(()=>page.evaluate(()=>window.__played.length)).toBe(1);
+  await listen.click();await expect.poll(()=>page.evaluate(()=>window.__played.length)).toBe(2);
+  expect(calls).toBe(1);expect(await page.evaluate(()=>window.__device)).toEqual([]);
+});

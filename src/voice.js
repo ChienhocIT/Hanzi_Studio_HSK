@@ -21,13 +21,14 @@ const ERRORS = {
   tutor_quota_exceeded: 'Bạn đã dùng hết 30 lượt hôm nay. Mỗi phiên luyện nói tính 1 lượt.',
   tutor_rate_limited: 'Bạn bấm hơi nhanh. Chờ vài giây rồi thử lại.',
   not_authenticated: 'Phiên đăng nhập đã hết hạn. Hãy đăng nhập lại.',
-  tutor_not_configured: 'Trợ giảng AI chưa được bật trên máy chủ.'
+  tutor_not_configured: 'Trợ giảng AI chưa được bật trên máy chủ.',
+  model_unavailable: 'Máy chủ AI miễn phí đang bận. Hãy thử lại sau ít phút.'
 };
 export function createVoice(request) {
   let el = null, mode = 'talk', context = null, state = 'idle', log = [], interim = '', note = '';
   let ws = null, micStream = null, micCtx = null, speakerCtx = null, nextAt = 0, sources = new Set(), stopTimer = null;
   // Bumped by every stop: a start() still awaiting the microphone prompt or the token must not resume afterwards.
-  let run = 0;
+  let run = 0, recorder = null;
   const set = (next, message = '') => { state = next; note = message; paint(); };
   function add(who, text) {
     const last = log.at(-1);
@@ -43,8 +44,8 @@ export function createVoice(request) {
   }
   function paint() {
     if (!el) return;
-    const live = state === 'live', busy = state === 'connecting';
-    el.innerHTML = `<div class="voice-modes" role="group" aria-label="Chế độ luyện nói">${Object.entries(MODES).map(([id, m]) => `<button type="button" class="level-chip" data-voice-mode="${id}" aria-pressed="${id === mode}" ${live || busy ? 'disabled' : ''}>${m.label}</button>`).join('')}</div>${context ? `<div class="voice-context"><span>Kịch bản: <strong>${h(context.title)}</strong> (${context.lines} câu). Mây Long sẽ đóng vai cùng bạn.</span><button type="button" class="text-link" data-voice-drop ${live ? 'disabled' : ''}>Bỏ kịch bản</button></div>` : ''}<div class="voice-stage"><button type="button" class="voice-mic${live ? ' is-live' : ''}" data-voice-toggle ${busy ? 'disabled' : ''} aria-pressed="${live}"><span class="ico-mic" aria-hidden="true"></span><span>${live ? 'Dừng' : busy ? 'Đang kết nối...' : 'Bắt đầu nói'}</span></button><p class="voice-note" role="status" aria-live="polite">${h(note || (live ? 'Đang nghe. Bạn cứ nói tự nhiên; nói chen vào để ngắt Mây Long.' : 'Mỗi phiên tối đa 10 phút và tính 1 lượt trong 30 lượt mỗi ngày. Nên dùng tai nghe.'))}</p></div><div class="voice-log" aria-live="polite"></div>`;
+    const live = state === 'live' || state === 'recording', busy = state === 'connecting';
+    el.innerHTML = `<div class="voice-modes" role="group" aria-label="Chế độ luyện nói">${Object.entries(MODES).map(([id, m]) => `<button type="button" class="level-chip" data-voice-mode="${id}" aria-pressed="${id === mode}" ${live || busy ? 'disabled' : ''}>${m.label}</button>`).join('')}</div>${context ? `<div class="voice-context"><span>Kịch bản: <strong>${h(context.title)}</strong> (${context.lines} câu). Mây Long sẽ đóng vai cùng bạn.</span><button type="button" class="text-link" data-voice-drop ${live ? 'disabled' : ''}>Bỏ kịch bản</button></div>` : ''}<div class="voice-stage"><button type="button" class="voice-mic${live ? ' is-live' : ''}" data-voice-toggle ${busy ? 'disabled' : ''} aria-pressed="${live}"><span class="ico-mic" aria-hidden="true"></span><span>${state === 'recording' ? 'Dừng và chép lời' : live ? 'Dừng' : busy ? 'Đang kết nối...' : 'Bắt đầu nói'}</span></button><p class="voice-note" role="status" aria-live="polite">${h(note || (live ? 'Đang nghe. Bạn cứ nói tự nhiên; nói chen vào để ngắt Mây Long.' : 'Mỗi phiên tối đa 10 phút và tính 1 lượt trong 30 lượt mỗi ngày. Nên dùng tai nghe.'))}</p></div><div class="voice-log" aria-live="polite"></div>`;
     paintLog();
   }
   function play(base64) {
@@ -59,6 +60,7 @@ export function createVoice(request) {
   function silence() { for (const s of sources) { try { s.stop(); } catch {} } sources.clear(); nextAt = 0; }
   function teardown() {
     run++; clearTimeout(stopTimer); stopTimer = null;
+    if (recorder) { recorder.ondataavailable = recorder.onstop = null; if (recorder.state !== 'inactive') try { recorder.stop(); } catch {} recorder = null; }
     if (ws) { ws.onclose = ws.onmessage = ws.onerror = null; try { ws.close(); } catch {} ws = null; }
     micStream?.getTracks().forEach(t => t.stop()); micStream = null;
     micCtx?.close().catch(() => {}); micCtx = null;
@@ -93,7 +95,13 @@ export function createVoice(request) {
       if (stale()) { stream.getTracks().forEach(t => t.stop()); return; }
       micStream = stream;
       const [kind, target] = mode.startsWith('translate-') ? ['translate', mode.slice(10)] : [mode, undefined];
-      const session = await (await request({ mode: 'live', kind, target })).json();
+      let session;
+      try { session = await (await request({ mode: 'live', kind, target })).json(); }
+      catch (error) {
+        // Transcription keeps working when Gemini Live is busy: record a clip and send it to Whisper.
+        if (mode === 'transcribe' && error.message === 'model_unavailable' && window.MediaRecorder && !stale()) { record(); return; }
+        throw error;
+      }
       if (stale()) return;
       speakerCtx = new AudioContext({ sampleRate: 24000 });
       micCtx = new AudioContext();
@@ -112,6 +120,27 @@ export function createVoice(request) {
       stopTimer = setTimeout(stop, 600000);
     } catch (error) { if (stale()) return; teardown(); set('idle', ERRORS[error.name] || ERRORS[error.message] || 'Chưa bắt đầu được. Kiểm tra micro, kết nối và thử lại.'); }
   }
+  function record() {
+    const parts = [];
+    recorder = new MediaRecorder(micStream);
+    recorder.ondataavailable = event => { if (event.data.size) parts.push(event.data); };
+    recorder.onstop = () => transcribeClip(new Blob(parts, { type: recorder?.mimeType || 'audio/webm' }));
+    recorder.start();
+    set('recording', 'Gemini Live đang bận nên Mây Long ghi âm. Đọc to rồi bấm "Dừng và chép lời" (tối đa 30 giây).');
+    stopTimer = setTimeout(finishRecording, 30000);
+  }
+  function finishRecording() { if (recorder?.state === 'recording') { clearTimeout(stopTimer); recorder.stop(); } }
+  async function transcribeClip(blob) {
+    const id = run; micStream?.getTracks().forEach(t => t.stop()); micStream = null; recorder = null;
+    set('connecting', 'Đang chép lời...');
+    try {
+      const audio = toBase64(await blob.arrayBuffer());
+      const result = await (await request({ mode: 'stt', audio, mime: blob.type || 'audio/webm' })).json();
+      if (id !== run) return;
+      add('you', result.text || '(không nghe rõ)'); closeTurn();
+      set('idle', `Đã chép lời bằng ${result.provider}.`);
+    } catch (error) { if (id === run) set('idle', ERRORS[error.message] || 'Chưa chép lời được. Hãy thử lại.'); }
+  }
   function stop() {
     if (ws?.readyState === 1) try { ws.send(JSON.stringify({ realtimeInput: { audioStreamEnd: true } })); } catch {}
     teardown(); set('idle', 'Đã kết thúc phiên.');
@@ -120,7 +149,7 @@ export function createVoice(request) {
     const pick = event.target.closest('[data-voice-mode]');
     if (pick && state === 'idle') { mode = pick.dataset.voiceMode; log = []; note = ''; paint(); return; }
     if (event.target.closest('[data-voice-drop]') && state === 'idle') { context = null; paint(); return; }
-    if (event.target.closest('[data-voice-toggle]')) state === 'live' ? stop() : start();
+    if (event.target.closest('[data-voice-toggle]')) state === 'recording' ? finishRecording() : state === 'live' ? stop() : start();
   }
   return {
     mount(target) { if (el) el.removeEventListener('click', onClick); el = target; el.addEventListener('click', onClick); paint(); },
