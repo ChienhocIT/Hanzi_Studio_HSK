@@ -26,6 +26,7 @@ export function richText(text) {
 export function mountTutor(root) {
   if (!root) return { setSession() {} };
   let client = null, profile = null, tab = 'chat', busy = false, left = null;
+  let generation=0,controller=null;
   const messages = [];
   const quota = () => left === null ? '' : `Còn ${left}/30 lượt hôm nay`;
   function shell() {
@@ -45,11 +46,14 @@ export function mountTutor(root) {
   const gradeView = () => `<form class="tutor-form cloud-form" data-tutor-form="grade"><label>Câu tiếng Trung của bạn<textarea name="sentence" rows="2" maxlength="300" required placeholder="我昨天去学校了"></textarea></label><label>Bạn muốn nói gì? (tiếng Việt, không bắt buộc)<input name="meaning" maxlength="300" placeholder="Hôm qua tôi đã đến trường"></label><button class="btn btn-primary" ${busy ? 'disabled' : ''}>Chấm câu</button></form><div id="tutor-result"></div>`;
   const status = (text, error = false) => { const el = root.querySelector('#tutor-status'); if (el) { el.textContent = text; el.classList.toggle('cloud-error', error); } };
   function setLeft(value) { if (value !== null && Number.isFinite(value)) { left = value; const el = root.querySelector('#tutor-quota'); if (el) el.textContent = quota(); } }
-  async function call(payload) {
+  async function call(payload,owner) {
     const { data } = await client.auth.getSession();
+    if(owner!==generation)throw Error('stale_session');
     const token = data.session?.access_token;
     if (!token) throw Error('not_authenticated');
-    const response = await fetch('./api/tutor', { method: 'POST', headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` }, body: JSON.stringify(payload) });
+    controller=new AbortController();
+    const response = await fetch('./api/tutor', { method: 'POST', headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` }, body: JSON.stringify(payload),signal:controller.signal });
+    if(owner!==generation){await response.body?.cancel();throw Error('stale_session');}
     setLeft(Number(response.headers.get('x-tutor-remaining') ?? NaN));
     if (!response.ok) { let code = ''; try { code = (await response.json()).error; } catch {} if (code === 'tutor_quota_exceeded') setLeft(0); throw Error(code || 'request_failed'); }
     return response;
@@ -57,31 +61,34 @@ export function mountTutor(root) {
   const failure = error => status(ERRORS[error.message] || 'Mây Long đang bận. Hãy thử lại sau ít phút.', true);
   async function ask(text) {
     if (busy || !text.trim()) return;
+    const owner=generation;
     busy = true; messages.push({ role: 'user', text: text.trim() }, { role: 'model', text: '' }); render();
     const answer = messages.at(-1);
     try {
-      const response = await call({ mode: 'chat', messages: messages.slice(0, -1) });
+      const response = await call({ mode: 'chat', messages: messages.slice(0, -1) },owner);
       const reader = response.body.getReader(), decoder = new TextDecoder();
       for (;;) {
-        const { value, done } = await reader.read(); if (done) break;
+        const { value, done } = await reader.read();if(owner!==generation){await reader.cancel();return;} if (done) break;
         answer.text += decoder.decode(value, { stream: true });
         const last = root.querySelectorAll('.tutor-msg.from-tutor'); if (last.length) last[last.length - 1].innerHTML = richText(answer.text);
         const log = root.querySelector('.tutor-log'); if (log) log.scrollTop = log.scrollHeight;
       }
-    } catch (error) { messages.splice(-2, 2); busy = false; render(); failure(error); root.querySelector('#tutor-input').value = text; return; }
+    } catch (error) {if(owner!==generation)return; messages.splice(-2, 2); busy = false; render(); failure(error); root.querySelector('#tutor-input').value = text; return; }
     busy = false; render(); root.querySelector('#tutor-input')?.focus();
   }
   async function grade(sentence, meaning) {
     if (busy) return;
+    const owner=generation;
     busy = true; render(); status('Mây Long đang chấm...');
     const form = root.querySelector('[data-tutor-form="grade"]'); form.sentence.value = sentence; form.meaning.value = meaning;
     try {
-      const { result } = await (await call({ mode: 'grade', sentence, meaning })).json();
+      const { result } = await (await call({ mode: 'grade', sentence, meaning },owner)).json();
+      if(owner!==generation)return;
       busy = false; render();
       const again = root.querySelector('[data-tutor-form="grade"]'); again.sentence.value = sentence; again.meaning.value = meaning;
       root.querySelector('#tutor-result').innerHTML = `<article class="tutor-score"><div class="score-ring" style="--score:${Number(result.score) || 0}"><strong>${Number(result.score) || 0}</strong><span>/100</span></div><div><p class="tutor-corrected" lang="zh-Hans">${h(result.corrected)}</p><p lang="zh-Latn" class="panel-sub">${h(result.pinyin)}</p><p>${h(result.feedback)}</p></div></article>${result.errors.length ? `<ul class="tutor-errors">${result.errors.map(e => `<li><strong lang="zh-Hans">${h(e.part)}</strong><span>${h(e.issue)}</span><span>Sửa: <span lang="zh-Hans">${h(e.fix)}</span></span></li>`).join('')}</ul>` : '<p class="tutor-perfect">Câu của bạn không có lỗi. Tuyệt vời!</p>'}`;
       status('');
-    } catch (error) { busy = false; render(); const again = root.querySelector('[data-tutor-form="grade"]'); again.sentence.value = sentence; again.meaning.value = meaning; failure(error); }
+    } catch (error) {if(owner!==generation)return; busy = false; render(); const again = root.querySelector('[data-tutor-form="grade"]'); again.sentence.value = sentence; again.meaning.value = meaning; failure(error); }
   }
   root.addEventListener('submit', event => {
     const form = event.target.closest('[data-tutor-form]'); if (!form) return;
@@ -102,8 +109,9 @@ export function mountTutor(root) {
   return {
     async setSession(nextClient, nextProfile) {
       if (client === nextClient && profile?.id === nextProfile?.id) return;
+      const owner=++generation;controller?.abort();controller=null;busy=false;
       client = nextClient; profile = nextProfile; messages.length = 0; left = null; shell();
-      if (client && profile) { const { data } = await client.rpc('tutor_quota_left'); if (typeof data === 'number') setLeft(data); }
+      if (client && profile) { const { data } = await client.rpc('tutor_quota_left'); if(owner===generation&&typeof data === 'number') setLeft(data); }
     }
   };
 }

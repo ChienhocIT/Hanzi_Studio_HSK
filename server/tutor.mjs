@@ -96,7 +96,9 @@ export async function handleTutor(request,env=process.env,fetcher=fetch) {
     if(!response.ok)return fail(502,'model_unavailable');
     try{
       const result=JSON.parse(textOf(await response.json()));
-      if(!Number.isInteger(result.score)||result.score<0||result.score>100||!Array.isArray(result.errors))throw Error('shape');
+      if(!Number.isInteger(result.score)||result.score<0||result.score>100||!Array.isArray(result.errors)||result.errors.length>6||
+        !['corrected','pinyin','feedback'].every(key=>typeof result[key]==='string'&&result[key].trim()&&result[key].length<=4000)||
+        result.errors.some(e=>!e||!['part','issue','fix'].every(key=>typeof e[key]==='string'&&e[key].length<=2000)))throw Error('shape');
       return json(200,{result:{score:result.score,corrected:String(result.corrected),pinyin:String(result.pinyin),feedback:String(result.feedback),
         errors:result.errors.slice(0,6).map(e=>({part:String(e.part),issue:String(e.issue),fix:String(e.fix)}))}},headers);
     }catch{return fail(502,'model_bad_output');}

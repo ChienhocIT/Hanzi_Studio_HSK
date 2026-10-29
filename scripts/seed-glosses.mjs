@@ -6,15 +6,17 @@ import {pathToFileURL} from 'node:url';
 import {migrationConnection} from './migrate.mjs';
 import {managementClient} from './management-api.mjs';
 import {cedictEntries} from './reference-data.mjs';
-import {pickGlosses} from './cedict-glosses.mjs';
+import {resolveGlosses} from './cedict-glosses.mjs';
 // Attach CC-CEDICT English glosses to the syllabus rows already in vocab_entries. Idempotent: only rows
 // whose glosses changed are written, and review status is never touched.
 export function glossRows(dataset,dictionary) {
-  return dataset.entries.map(e=>({seq:e.seq,gloss:pickGlosses(dictionary.get(e.word),e.pinyin)}));
+  return dataset.entries.map(e=>({seq:e.seq,gloss:resolveGlosses(dictionary,e.word,e.pinyin)}));
 }
 export async function seedGlosses(db,syllabus,source,rows) {
-  await db.query(`insert into public.data_sources(id,title,url,sha256,license,attribution,retrieved_at) values($1,$2,$3,$4,$5,$6,$7) on conflict(id) do nothing`,
+  const registered=await db.query(`insert into public.data_sources as s(id,title,url,sha256,license,attribution,retrieved_at) values($1,$2,$3,$4,$5,$6,$7)
+    on conflict(id) do update set id=excluded.id where s.sha256=excluded.sha256 returning id`,
     [source.id,source.title,source.url,source.sha256,source.license,source.attribution,source.retrievedAt]);
+  if(!registered.rows.length)throw Error('Source content changed. Use a new source ID to preserve reviewed provenance.');
   const changed=await db.query(`update public.vocab_entries v set gloss_en=e.gloss,gloss_source_id=$2
     from jsonb_to_recordset($3::jsonb) as e(seq integer,gloss text[])
     where v.syllabus=$1 and v.seq=e.seq and (v.gloss_en,v.gloss_source_id) is distinct from (e.gloss,$2) returning v.seq`,[syllabus,source.id,JSON.stringify(rows)]);

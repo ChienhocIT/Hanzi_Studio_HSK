@@ -70,4 +70,8 @@ test('Grading returns a validated score card and rejects malformed model output'
   assert.equal(prompt,'<cau>我昨天去学校了</cau>\n<y>Hôm qua tôi đi học</y>');
   const broken=upstream({gemini:()=>Response.json({candidates:[{content:{parts:[{text:'{"score":"cao"}'}]}}]})});
   assert.equal((await handleTutor(post({mode:'grade',sentence:'你好'}),env,broken.fetcher)).status,502);
+  for(const invalid of [{...card,pinyin:undefined},{...card,corrected:null},{...card,errors:[{part:'我'}]}]){
+    const malformed=upstream({gemini:()=>Response.json({candidates:[{content:{parts:[{text:JSON.stringify(invalid)}]}}]})});
+    assert.equal((await handleTutor(post({mode:'grade',sentence:'你好'}),env,malformed.fetcher)).status,502);
+  }
 });

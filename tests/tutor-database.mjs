@@ -35,6 +35,7 @@ export async function exerciseTutor(db) {
     const source={id:'fixture-gloss',title:'Fixture dictionary',url:'https://example.com/dict',sha256:'b'.repeat(64),license:'CC BY-SA 4.0',attribution:'Fixture',retrievedAt:'2026-10-28T00:00:00Z'};
     assert.equal(await seedGlosses(db,'HSK 3.0 (CLEC 2025)',source,[{seq:row.seq,gloss:['to love']}]),1);
     assert.equal(await seedGlosses(db,'HSK 3.0 (CLEC 2025)',source,[{seq:row.seq,gloss:['to love']}]),0);
+    await assert.rejects(seedGlosses(db,'HSK 3.0 (CLEC 2025)',{...source,sha256:'c'.repeat(64)},[{seq:row.seq,gloss:['changed']}]),/Source content changed/);
     const after=(await db.query('select review_status,gloss_en,gloss_source_id from public.vocab_entries where seq=$1',[row.seq])).rows[0];
     assert.deepEqual([after.review_status,after.gloss_en,after.gloss_source_id],[row.review_status,['to love'],'fixture-gloss']);
     await assert.rejects(db.query("update public.vocab_entries set gloss_en=array['1','2','3','4','5','6','7','8','9'] where seq=$1",[row.seq]),/check/);
