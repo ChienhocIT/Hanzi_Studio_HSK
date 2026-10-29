@@ -10,12 +10,30 @@
 | D: lớp học | Tạo lớp/mã tham gia, đóng/mở nhận học viên, giao bài từ học liệu duyệt, tự luận/trắc nghiệm, báo cáo; phòng luyện thi có mã chờ 24 giờ, bắt đầu/kết thúc, giờ server, lưu lựa chọn, chấm khi hết giờ và bảng xếp hạng | Báo cáo kỹ năng, đề bí mật độc lập với bài tập, kiểm thử tải và nghiệm thu cloud thật |
 | E: vận hành | Lockfile, build chỉ xuất public assets, CI, regression tests, service worker tránh cache auth/API | Quan sát lỗi production, backup DB theo lịch/diễn tập, kiểm thử tải, kiểm định accessibility/SEO toàn app, AI gia sư và thanh toán |
 
+## Thư viện theo chặng, luyện nói Live, phụ đề YouTube AI (2026-10-29, tối)
+
+- **Thư viện từ vựng** (mục trên thanh bên): mở thư viện đầy đủ HSK 1–9.
+  - Chọn cấp bằng chip. Cấp mặc định: lựa chọn lần trước (`hanzi-hsk-level`), nếu không có thì cấp đang chọn ở Lộ trình.
+  - Mỗi cấp chia thành chặng: 50 từ (HSK 1–3), 100 từ (HSK 4–6), 200 từ (HSK 7–9). Mỗi chặng hiển thị số từ đã học và đến hạn ôn, có luyện thẻ, danh sách, ôn đến hạn và trắc nghiệm.
+  - Bộ 500 từ HSK 3 nghĩa tiếng Việt vẫn giữ (route `library`), có liên kết sang từng cấp. Lộ trình có nút "Học đủ N từ HSK X theo chặng".
+- **Nút nghe:** thống nhất kiểu `.btn-listen` (icon loa, xanh ngọc, tối thiểu 44px) ở 10 chỗ. Thư viện 500 từ có thêm nút nghe từng từ. Đã kiểm tra tự động: mọi nút gọi `speechSynthesis` với `zh-CN`.
+- **Luyện nói** (tab thứ 3 của Trợ giảng, `src/voice.js`):
+  - Gemini Live qua ephemeral token dùng 1 lần, 10 phút. Cấu hình khóa ở máy chủ, mỗi phiên tính 1 lượt.
+  - 5 chế độ: Hội thoại (`gemini-3.8-live`), Giọng tự nhiên (`gemini-2.5-flash-native-audio-latest`), Việt → Trung và Trung → Việt (`gemini-3.5-live-translate-preview`), Chép lời (`gemini-3.5-transcribe-live`).
+  - Đã chạy thật trên Chrome với micro giả phát giọng tiếng Trung: hội thoại có phản hồi, dịch và chép lời đúng.
+- **Video Lab:**
+  - "✦ Tạo phụ đề bằng AI": gửi link YouTube công khai cho Gemini, nhận phụ đề có thời gian, đổ vào bài luyện điền từ và shadowing.
+  - "Luyện nói với Mây Long": dùng lời thoại làm kịch bản đóng vai.
+  - Phụ đề AI có thể sai; màn hình nhắc người học kiểm tra lại. Lúc thử, gói miễn phí trả lỗi 503 do quá tải.
+- **Từ Codex (giữ lại sau review):** quiz trắc nghiệm nghĩa trong thư viện (`src/vocabulary-quiz.js`, lịch sử trong `syllabusQuizzes`), dò nghĩa CC-CEDICT qua tham chiếu "variant of / see / abbr. for", chống phản hồi cũ khi đổi tài khoản trong trợ giảng và thư viện.
+- Nhà cung cấp AI miễn phí và số đo: [AI-PROVIDERS.md](AI-PROVIDERS.md).
+
 ## Từ vựng HSK 1–9 và Trợ giảng AI (2026-10-29)
 
 - **Từ vựng HSK 1–9** (`#hsk`, `src/syllabus.js`):
   - Màn học riêng cho 11.000 từ của đề cương 2025, có mục trên thanh bên và ô trên trang chủ.
   - Chọn cấp 1–9, tra cứu (gõ không dấu cũng được), nghe, luyện thẻ, **Ôn từ đến hạn**. Lượt ôn đi vào lịch ôn của giáo trình (`clec2025-<序号>`) và đồng bộ theo tài khoản.
-  - Nghĩa tiếng Anh: CC-CEDICT (`gloss_en`), chọn theo cách đọc của đề cương. 10.983/11.000 từ có nghĩa. Chưa có nghĩa tiếng Việt.
+  - Nghĩa tiếng Anh: CC-CEDICT (`gloss_en`), chọn theo cách đọc của đề cương. 10.998/11.000 từ có nghĩa (sau khi dò tham chiếu "variant of/see/abbr. for"; còn thiếu 口哨儿, 精彩纷呈). Chưa có nghĩa tiếng Việt.
   - Chỉ người đăng nhập mới xem được, vì đề cương không ghi giấy phép.
   - Flashcard 500 từ HSK 3 có nghĩa tiếng Việt giữ nguyên.
 - **Trợ giảng AI** (`#tutor`, `src/tutor.js` → `api/tutor.js` → `server/tutor.mjs`):

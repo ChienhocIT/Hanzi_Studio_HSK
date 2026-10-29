@@ -258,6 +258,7 @@ test('Learners study published HSK 3.0 syllabus words and ratings join the on-de
   await page.goto('/index.html#hsk');
   const panel=page.locator('#syllabus-panel');
   await expect(panel.locator('#syllabus-status')).toContainText('HSK 1: 3 mục');
+  await panel.getByRole('button',{name:'Danh sách từ',exact:true}).click();
   await expect(panel.locator('.syllabus-table')).toContainText("you're welcome");
   await expect(panel.locator('.syllabus-table')).toContainText('不客气');await expect(panel.locator('.syllabus-table')).not.toContainText('草稿');
   await expect(panel.locator('.syllabus-table')).not.toContainText('Trạng thái');
@@ -283,6 +284,7 @@ test('Admins publish a syllabus level in one action; signed-out visitors are ask
   const {calls}=await mockCloud(page,'admin',{world});page.on('dialog',d=>d.accept());
   await page.goto('/index.html#hsk');
   const panel=page.locator('#syllabus-panel');
+  await panel.getByRole('button',{name:'Danh sách từ',exact:true}).click();
   await expect(panel.locator('.syllabus-table')).toContainText('Bản nháp');
   await panel.getByText('Duyệt cấp HSK 1 (quản trị viên)').click();
   await panel.getByRole('button',{name:'Xuất bản 3 mục nháp',exact:true}).click();
@@ -352,3 +354,116 @@ test('Signed-out visitors are asked to sign in before using the AI tutor',async(
   await page.goto('/index.html#tutor');
   await expect(page.getByRole('button',{name:'Đăng nhập để dùng trợ giảng',exact:true})).toBeVisible();
 });
+test('The library opens on the learner level and splits it into stages that track progress',async({page})=>{
+  const rows=Array.from({length:120},(_,i)=>({seq:i+1,level:'1',extra_levels:[],word:'字'+(i+1),homograph:null,pinyin:'zì',pos:['名'],pos_extra:[],review_status:'published',source_page:80,gloss_en:['word '+(i+1)]}));
+  rows.push({...rows[0],seq:400,level:'4',word:'经济',pinyin:'jīngjì',gloss_en:['economy']});
+  await mockCloud(page,'student',{world:{items:[],classes:[],assignments:[],submissions:[],questions:[],progress:null,vocab:rows}});
+  await page.addInitScript(()=>{if(!sessionStorage.getItem('seeded')){sessionStorage.setItem('seeded','1');localStorage.setItem('hanzi-studio-curriculum-v4',JSON.stringify({level:'1',progress:{'clec2025-1':{reps:1,interval:1,due:Date.now()-1000},'clec2025-2':{reps:1,interval:1,due:Date.now()+86400000}}}));}});
+  await page.goto('/index.html#home');
+  await page.locator('.sidebar').getByRole('button',{name:/Thư viện từ vựng/}).click();
+  await expect(page).toHaveURL(/#hsk$/);
+  const panel=page.locator('#syllabus-panel');
+  await expect(panel.getByRole('button',{name:'HSK 1',exact:true})).toHaveAttribute('aria-pressed','true');
+  await expect(panel.locator('.stage-tile')).toHaveCount(3);
+  await expect(panel.locator('.stage-tile').first()).toContainText('2/50 đã học');await expect(panel.locator('.stage-tile').first()).toContainText('1 đến hạn');
+  await expect(panel.locator('.stage-tile').last()).toContainText('Từ 101–120');
+  await panel.locator('[data-syl-stage="1"]').click();
+  await expect(panel.locator('.stage-bar')).toContainText('HSK 1 · Chặng 2');await expect(panel.locator('.reference-word')).toHaveText('字51');
+  await expect(panel).toContainText('1 / 50');
+  await panel.getByRole('button',{name:'Nghe',exact:true}).click();
+  await panel.getByRole('button',{name:'← Tất cả chặng',exact:true}).click();await expect(panel.locator('.stage-tile')).toHaveCount(3);
+  // The roadmap sends a learner to the full level in the library, and the choice is remembered.
+  await page.evaluate(()=>nav('path'));
+  await page.getByRole('button',{name:/Học đủ .* từ HSK 1 theo chặng/}).click();
+  await expect(page).toHaveURL(/#hsk$/);
+  await panel.getByRole('button',{name:'HSK 4',exact:true}).click();
+  await expect(panel.locator('.stage-tile')).toHaveCount(1);await expect(panel.locator('.stage-tile')).toContainText('经济');
+  expect(await page.evaluate(()=>localStorage.getItem('hanzi-hsk-level'))).toBe('4');
+  // The original 500-word library links into the full library by level.
+  await page.evaluate(()=>{nav('library');window.__spoken=[];speechSynthesis.speak=u=>window.__spoken.push(u.text);});
+  await page.locator('#library-rows').getByRole('button',{name:'Nghe 矮',exact:true}).click();
+  expect(await page.evaluate(()=>window.__spoken)).toEqual(['矮']);
+  await page.locator('#page-library .level-jump').getByRole('button',{name:'HSK 1',exact:true}).click();
+  await expect(panel.getByRole('button',{name:'HSK 1',exact:true})).toHaveAttribute('aria-pressed','true');
+});
+
+// Fake Gemini Live socket and microphone for voice tests: records what the app sends and answers like the server.
+const fakeLive=()=>{
+  window.__sent=[];
+  window.WebSocket=class{constructor(url){this.url=url;this.readyState=0;window.__socket=this;setTimeout(()=>{this.readyState=1;this.onopen?.();},10);}
+    addEventListener(){} removeEventListener(){}
+    send(data){const m=JSON.parse(data);window.__sent.push(m);const reply=o=>setTimeout(()=>this.onmessage?.({data:JSON.stringify(o)}),10);
+      if(m.setup)reply({setupComplete:{}});
+      if(m.clientContent)reply({serverContent:{outputTranscription:{text:'你好！我们开始吧。'},modelTurn:{parts:[{text:'**internal reasoning**'}]},turnComplete:true}});}
+    close(){this.readyState=3;}};
+  navigator.mediaDevices.getUserMedia=async()=>{const ctx=new AudioContext(),osc=ctx.createOscillator(),dest=ctx.createMediaStreamDestination();osc.connect(dest);osc.start();return dest.stream;};
+};
+test('Video Lab turns a YouTube link into AI subtitles and opens voice role-play on its dialogue',async({page})=>{
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  await mockCloud(page,'student');await page.addInitScript(fakeLive);
+  const requests=[];
+  await page.route('**/api/tutor',route=>{const body=route.request().postDataJSON();requests.push(body);
+    if(body.mode==='transcript')return route.fulfill({contentType:'application/json',headers:{'x-tutor-remaining':'28'},body:JSON.stringify({title:'Chào hỏi',segments:[{start:0.5,end:2,text:'你好！',pinyin:'nǐ hǎo',vi:'Xin chào'},{start:2.2,end:4,text:'你叫什么名字？',pinyin:'',vi:''}]})});
+    return route.fulfill({contentType:'application/json',headers:{'x-tutor-remaining':'27'},body:JSON.stringify({token:'auth_tokens/t',url:'wss://live.example/ws',setup:{model:'models/gemini-3.8-live'},expiresAt:'2030-01-01T00:00:00Z'})});});
+  await page.goto('/index.html#video');
+  await page.locator('#vl-youtube-link').fill('https://youtu.be/dQw4w9WgXcQ');
+  await page.getByRole('button',{name:'✦ Tạo phụ đề bằng AI',exact:true}).click();
+  await expect(page.locator('#vl-transcript-input')).toHaveValue(/00:00.*-->[\s\S]*你叫什么名字/);
+  await expect(page.locator('#video-message')).toContainText('Phụ đề do AI');
+  expect(requests[0]).toEqual({mode:'transcript',url:'https://youtu.be/dQw4w9WgXcQ'});
+  // Edited AI subtitles re-apply as separate timed cues.
+  await expect(page.locator('#vl-transcript-input')).toHaveValue('00:00.5 --> 00:02\n你好！\n\n00:02.2 --> 00:04\n你叫什么名字？');
+  await page.locator('#vl-apply-transcript').click();await expect(page.locator('.vl-line')).toHaveCount(2);
+  await page.getByRole('button',{name:'Luyện nói với Mây Long',exact:true}).click();
+  await expect(page).toHaveURL(/#tutor$/);await expect(page.getByRole('tab',{name:'Luyện nói',exact:true})).toHaveAttribute('aria-selected','true');
+  await expect(page.locator('.voice-context')).toContainText('Chào hỏi');await expect(page.locator('.voice-context')).toContainText('2 câu');
+  await page.getByRole('button',{name:'Bắt đầu nói',exact:true}).click();
+  await expect(page.locator('.voice-line.tutor')).toContainText('你好！我们开始吧。');
+  await expect(page.locator('.voice-log')).not.toContainText('internal reasoning');
+  expect(requests[1]).toEqual({mode:'live',kind:'talk'});
+  const sent=await page.evaluate(()=>window.__sent);
+  expect(sent[0]).toEqual({setup:{model:'models/gemini-3.8-live'}});expect(sent[1].clientContent.turnComplete).toBe(true);
+  expect(sent[1].clientContent.turns[0].parts[0].text).toContain('你好！\n你叫什么名字？');
+  expect(await page.evaluate(()=>window.__socket.url)).toBe('wss://live.example/ws?access_token=auth_tokens%2Ft');
+  await expect(page.locator('#tutor-quota')).toHaveText('Còn 27/30 lượt hôm nay');
+  await page.getByRole('button',{name:'Dừng',exact:true}).click();
+  await expect(page.locator('.voice-note')).toHaveText('Đã kết thúc phiên.');
+  expect(errors).toEqual([]);
+});
+test('Voice practice explains a blocked microphone without spending a message',async({page})=>{
+  await mockCloud(page,'student');
+  await page.addInitScript(()=>{navigator.mediaDevices.getUserMedia=async()=>{throw new DOMException('denied','NotAllowedError');};});
+  let calls=0;await page.route('**/api/tutor',route=>{calls++;return route.abort();});
+  await page.goto('/index.html#tutor');
+  await page.getByRole('tab',{name:'Luyện nói',exact:true}).click();
+  await page.getByRole('button',{name:'Trung → Việt',exact:true}).click();
+  await page.getByRole('button',{name:'Bắt đầu nói',exact:true}).click();
+  await expect(page.locator('.voice-note')).toContainText('chưa cho phép dùng micro');
+  expect(calls).toBe(0);
+});
+test('Leaving the tutor while the microphone prompt is open never starts a hidden session',async({page})=>{
+  await mockCloud(page,'student');await page.addInitScript(fakeLive);
+  await page.addInitScript(()=>{navigator.mediaDevices.getUserMedia=()=>new Promise(resolve=>{window.releaseMic=()=>{const ctx=new AudioContext(),dest=ctx.createMediaStreamDestination();ctx.createOscillator().connect(dest);window.__micStream=dest.stream;resolve(dest.stream);};});});
+  let calls=0;await page.route('**/api/tutor',route=>{calls++;return route.abort();});
+  await page.goto('/index.html#tutor');
+  await page.getByRole('tab',{name:'Luyện nói',exact:true}).click();
+  await page.getByRole('button',{name:'Bắt đầu nói',exact:true}).click();
+  await page.evaluate(()=>nav('home'));
+  await page.evaluate(()=>window.releaseMic());await page.waitForTimeout(300);
+  expect(calls).toBe(0);
+  expect(await page.evaluate(()=>window.__socket)).toBeUndefined();
+  expect(await page.evaluate(()=>window.__micStream.getTracks().every(t=>t.readyState==='ended'))).toBe(true);
+});
+test('A late AI subtitle response does not replace a lesson changed while waiting',async({page})=>{
+  await mockCloud(page,'student');
+  let release;const held=new Promise(r=>release=r);
+  await page.route('**/api/tutor',async route=>{await held;return route.fulfill({contentType:'application/json',body:JSON.stringify({title:'A',segments:[{start:0,end:1,text:'旧视频'}]})});});
+  await page.goto('/index.html#video');
+  await page.locator('#vl-youtube-link').fill('https://youtu.be/dQw4w9WgXcQ');
+  await page.getByRole('button',{name:'✦ Tạo phụ đề bằng AI',exact:true}).click();
+  await page.locator('#vl-youtube-link').fill('https://youtu.be/aaaaaaaaaaa');
+  release();
+  await expect(page.locator('#video-message')).toContainText('Đã bỏ phụ đề AI');
+  await expect(page.locator('#vl-transcript-input')).not.toHaveValue(/旧视频/);
+});
+

@@ -5,12 +5,14 @@ import { h, field, button } from './ui.js';
 import { mountReference } from './reference.js';
 import { mountSyllabus } from './syllabus.js';
 import { mountTutor } from './tutor.js';
+import { mountVideoAI } from './video-ai.js';
 import { mountShell } from './shell.js';
 import { setMood } from './mascot.js';
 
 mountReference(document.getElementById('reference-container'));
 const syllabus = mountSyllabus(document.getElementById('syllabus-container'));
 const tutor = mountTutor(document.getElementById('tutor-panel'));
+const videoAI = mountVideoAI();
 mountShell();
 
 const root = document.getElementById('cloud-panel');
@@ -198,7 +200,7 @@ async function sessionChanged(session) {
     if (switchOwner(localStorage, next?.id || '')) { location.reload(); return; }
     user = next;
     profile = user ? await reply(client.from('profiles').select('*').eq('id',user.id).single()) : null;
-    ready = true; render(); syllabus.setSession(client, profile); tutor.setSession(client, profile);
+    ready = true; render(); syllabus.setSession(client, profile); tutor.setSession(client, profile); videoAI.setSession(client, profile);
     if (user) {
       if (location.hash === '#auth' && !recovery) { setMood('success'); window.nav?.(destination()); }
       await mountWorkspace(document.getElementById('cloud-workspace'), client, user, profile, msg, failure);
@@ -213,7 +215,7 @@ async function sessionChanged(session) {
         schedule();
       } else msg('Chọn bản cloud hoặc bản thiết bị để bắt đầu đồng bộ. “Nhập tiến độ khách” chuyển dữ liệu trước khi đăng nhập.');
     }
-  } catch (error) { ready = true; render(); syllabus.setSession(client, profile); tutor.setSession(client, profile); failure(error); }
+  } catch (error) { ready = true; render(); syllabus.setSession(client, profile); tutor.setSession(client, profile); videoAI.setSession(client, profile); failure(error); }
   finally {
     initializing = false;
     if (pendingSession !== undefined) { const nextSession=pendingSession; pendingSession=undefined; sessionChanged(nextSession); }

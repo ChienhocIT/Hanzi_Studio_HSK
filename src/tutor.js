@@ -1,4 +1,5 @@
 import { h } from './ui.js';
+import { createVoice } from './voice.js';
 // "Trợ giảng AI" page: chat with Mây Long and sentence grading through POST /api/tutor (server/tutor.mjs).
 // The conversation stays in memory only; the server checks the Supabase session and a 30-message daily quota.
 const ERRORS = {
@@ -28,9 +29,11 @@ export function mountTutor(root) {
   let client = null, profile = null, tab = 'chat', busy = false, left = null;
   let generation=0,controller=null;
   const messages = [];
+  // Voice practice shares the quota and session checks of /api/tutor; its token request goes through call().
+  const voice = createVoice(payload => call(payload, generation));
   const quota = () => left === null ? '' : `Còn ${left}/30 lượt hôm nay`;
   function shell() {
-    root.innerHTML = `<div class="tutor-head"><img src="./assets/mascot/learn-online.webp" alt="" width="256" height="256"><div><h1>Trợ giảng AI Mây Long</h1><p>Hỏi về từ vựng, ngữ pháp, phát âm; nhờ chấm câu tiếng Trung của bạn.</p></div><span class="tutor-quota" id="tutor-quota" aria-live="polite">${quota()}</span></div><div id="tutor-body"></div><p class="tutor-note">Mây Long dùng AI (Google Gemini) nên có thể sai, hãy đối chiếu với giáo viên khi cần. Đừng nhập thông tin cá nhân: ở gói miễn phí, Google có thể dùng nội dung trò chuyện để cải thiện dịch vụ. <a href="./privacy.html">Quyền riêng tư</a></p>`;
+    root.innerHTML = `<div class="tutor-head"><img src="./assets/mascot/learn-online.webp" alt="" width="256" height="256"><div><h1>Trợ giảng AI Mây Long</h1><p>Hỏi về từ vựng, ngữ pháp; nhờ chấm câu; luyện nói và phiên dịch bằng giọng nói.</p></div><span class="tutor-quota" id="tutor-quota" aria-live="polite">${quota()}</span></div><div id="tutor-body"></div><p class="tutor-note">Mây Long dùng AI (Google Gemini) nên có thể sai, hãy đối chiếu với giáo viên khi cần. Đừng nhập thông tin cá nhân: ở gói miễn phí, Google có thể dùng nội dung trò chuyện để cải thiện dịch vụ. <a href="./privacy.html">Quyền riêng tư</a></p>`;
     render();
   }
   const body = () => root.querySelector('#tutor-body');
@@ -38,8 +41,9 @@ export function mountTutor(root) {
     if (!body()) return;
     if (!client) { body().innerHTML = window.HANZI_CLOUD_CONFIG?.url ? '<p class="cloud-loading">Đang kiểm tra phiên đăng nhập...</p>' : '<div class="gate"><p>Trợ giảng AI cần máy chủ tài khoản. Tính năng này chưa được kết nối.</p></div>'; return; }
     if (!profile) { body().innerHTML = '<div class="gate"><p>Đăng nhập để trò chuyện với Mây Long và nhờ chấm câu. Mỗi tài khoản có 30 lượt mỗi ngày.</p><button type="button" class="btn btn-primary" data-go="auth" data-auth-view="login">Đăng nhập để dùng trợ giảng</button></div>'; return; }
-    body().innerHTML = `<div class="seg tutor-tabs" role="tablist" aria-label="Chế độ trợ giảng"><button type="button" role="tab" aria-selected="${tab === 'chat'}" data-tutor-tab="chat">Hỏi đáp</button><button type="button" role="tab" aria-selected="${tab === 'grade'}" data-tutor-tab="grade">Chấm câu</button></div>${tab === 'chat' ? chatView() : gradeView()}<p class="tutor-status" id="tutor-status" role="status" aria-live="polite"></p>`;
+    body().innerHTML = `<div class="seg tutor-tabs" role="tablist" aria-label="Chế độ trợ giảng"><button type="button" role="tab" aria-selected="${tab === 'chat'}" data-tutor-tab="chat">Hỏi đáp</button><button type="button" role="tab" aria-selected="${tab === 'grade'}" data-tutor-tab="grade">Chấm câu</button><button type="button" role="tab" aria-selected="${tab === 'voice'}" data-tutor-tab="voice">Luyện nói</button></div>${tab === 'chat' ? chatView() : tab === 'grade' ? gradeView() : '<div class="voice-panel" id="voice-panel"></div>'}<p class="tutor-status" id="tutor-status" role="status" aria-live="polite"></p>`;
     const log = root.querySelector('.tutor-log'); if (log) log.scrollTop = log.scrollHeight;
+    if (tab === 'voice') voice.mount(root.querySelector('#voice-panel')); else voice.unmount();
   }
   const bubble = m => `<div class="tutor-msg ${m.role === 'user' ? 'from-user' : 'from-tutor'}">${m.role === 'user' ? `<p>${h(m.text)}</p>` : richText(m.text) || '<p class="cloud-loading">Mây Long đang suy nghĩ...</p>'}</div>`;
   const chatView = () => `<div class="tutor-log" aria-live="polite">${messages.length ? messages.map(bubble).join('') : `<div class="tutor-empty"><p>Chào bạn! Mình là Mây Long. Bạn muốn hỏi gì về tiếng Trung?</p><div class="tutor-chips">${SUGGESTIONS.map(s => `<button type="button" class="chip" data-tutor-ask="${h(s)}">${h(s)}</button>`).join('')}</div></div>`}</div><form class="tutor-form" data-tutor-form="chat"><label class="sr-only" for="tutor-input">Câu hỏi cho Mây Long</label><textarea id="tutor-input" name="text" rows="2" maxlength="2000" required placeholder="Nhập câu hỏi, ví dụ: 吧 dùng khi nào?" ${busy ? 'disabled' : ''}></textarea><div class="tutor-actions">${messages.length ? '<button type="button" class="btn" data-tutor-clear>Cuộc trò chuyện mới</button>' : ''}<button class="btn btn-primary" ${busy ? 'disabled' : ''}>Gửi</button></div></form>`;
@@ -105,11 +109,15 @@ export function mountTutor(root) {
     const chip = event.target.closest('[data-tutor-ask]'); if (chip) { ask(chip.dataset.tutorAsk); return; }
     if (event.target.closest('[data-tutor-clear]') && !busy) { messages.length = 0; render(); }
   });
+  // Video Lab and other screens open voice practice with a script: {title, text, lines}.
+  window.addEventListener('hanzi:voice-context', event => { const d = event.detail || {}; if (typeof d.text !== 'string' || !d.text.trim()) return; voice.setContext({ title: String(d.title || 'Video').slice(0, 110), text: d.text.slice(0, 4000), lines: Number(d.lines) || 0 }); tab = 'voice'; render(); });
+  // Leaving the tutor page ends a live session so the microphone is released.
+  window.addEventListener('hanzi:route', event => { if (event.detail !== 'tutor') voice.stop(); });
   shell();
   return {
     async setSession(nextClient, nextProfile) {
       if (client === nextClient && profile?.id === nextProfile?.id) return;
-      const owner=++generation;controller?.abort();controller=null;busy=false;
+      const owner=++generation;controller?.abort();controller=null;busy=false;voice.stop();
       client = nextClient; profile = nextProfile; messages.length = 0; left = null; shell();
       if (client && profile) { const { data } = await client.rpc('tutor_quota_left'); if(owner===generation&&typeof data === 'number') setLeft(data); }
     }

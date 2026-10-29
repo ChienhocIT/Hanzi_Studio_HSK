@@ -5,7 +5,16 @@ import {vocabularyQuiz} from './vocabulary-quiz.js';
 // teachers/admins also see drafts. Card ratings join the curriculum SRS through hanzi:reference-rating.
 export const SYLLABUS = 'HSK 3.0 (CLEC 2025)';
 const LEVELS = ['1','2','3','4','5','6','7-9'];
-const PAGE = 30, FETCH = 1000, stateKey = 'hanzi-studio-curriculum-v4';
+const PAGE = 30, FETCH = 1000, stateKey = 'hanzi-studio-curriculum-v4', LEVEL_KEY = 'hanzi-hsk-level';
+// Words per study stage ("chặng"): short stages for beginners, longer ones for the 5,600-word 7–9 band.
+const STAGE = {'1':50,'2':50,'3':50,'4':100,'5':100,'6':100,'7-9':200};
+// Learner's level: last library choice, else the level picked on the HSK roadmap, else HSK 1.
+function initialLevel() {
+  try {
+    const saved = localStorage.getItem(LEVEL_KEY), roadmap = JSON.parse(localStorage.getItem(stateKey) || '{}').level;
+    return [saved, roadmap].find(l => LEVELS.includes(l)) || '1';
+  } catch { return '1'; }
+}
 const STATUS = {draft:'Bản nháp',published:'Đã xuất bản',rejected:'Đã loại'};
 const POS = {名:'danh từ',动:'động từ',形:'tính từ',副:'phó từ',量:'lượng từ',代:'đại từ',介:'giới từ',连:'liên từ',助:'trợ từ',叹:'thán từ',数:'số từ',拟声:'từ tượng thanh',前缀:'tiền tố',后缀:'hậu tố'};
 const plain = text => String(text||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/ü/g,'u').toLowerCase().replace(/[\s'’-]/g,'');
@@ -13,15 +22,17 @@ const reply = async request => { const { data, error } = await request; if (erro
 export const entryId = seq => `clec2025-${seq}`;
 export function mountSyllabus(root) {
   if (!root) return { setSession() {} };
-  let client = null, profile = null, level = '1', query = '', page = 0, position = 0, revealed = false, view = 'list', adminOpen = false;
+  let client = null, profile = null, level = initialLevel(), query = '', page = 0, position = 0, revealed = false, view = 'stages', stage = null, adminOpen = false;
   let sessionEpoch=0,loadEpoch=0,quiz=null;
   const cache = new Map();
   const admin = () => profile?.role === 'admin', staff = () => ['teacher','admin'].includes(profile?.role);
-  root.innerHTML = `<div class="art-hero hsk-hero"><picture class="art-hero-media"><source media="(max-width:700px)" srcset="./assets/illustrations/banner-reading-mobile.webp" width="750" height="900"><img src="./assets/illustrations/banner-reading-desktop.webp" alt="" width="1600" height="600"></picture><div class="art-hero-copy"><h1>Từ vựng HSK 1–9</h1><p>11.000 từ của đề cương HSK 3.0 (2025): tra cứu, nghe, luyện thẻ và ôn đúng lúc.</p></div></div><div class="panel" id="syllabus-panel"><p id="syllabus-status" role="status" aria-live="polite"></p><div id="syllabus-content"></div></div>`;
+  root.innerHTML = `<div class="art-hero hsk-hero"><picture class="art-hero-media"><source media="(max-width:700px)" srcset="./assets/illustrations/banner-reading-mobile.webp" width="750" height="900"><img src="./assets/illustrations/banner-reading-desktop.webp" alt="" width="1600" height="600"></picture><div class="art-hero-copy"><h1>Thư viện từ vựng HSK 1–9</h1><p>11.000 từ của đề cương HSK 3.0 (2025), chia theo cấp và chặng: tra cứu, nghe, luyện thẻ, ôn đúng lúc.</p></div></div><div class="panel" id="syllabus-panel"><p id="syllabus-status" role="status" aria-live="polite"></p><div id="syllabus-content"></div></div>`;
   const status = (text, error = false) => { const el = root.querySelector('#syllabus-status'); el.textContent = text; el.classList.toggle('cloud-error', error); };
   const content = root.querySelector('#syllabus-content');
+  const stageRows = (rows, index) => rows.slice(index * STAGE[level], (index + 1) * STAGE[level]);
   const words = () => {
-    const rows = level === 'all' ? LEVELS.flatMap(l => cache.get(l) || []) : cache.get(level) || [];
+    const all = level === 'all' ? LEVELS.flatMap(l => cache.get(l) || []) : cache.get(level) || [];
+    const rows = stage !== null && level !== 'all' ? stageRows(all, stage) : all;
     const q = plain(query);
     return q ? rows.filter(r => r.word.includes(query.trim()) || plain(r.pinyin).includes(q)) : rows;
   };
@@ -30,6 +41,19 @@ export function mountSyllabus(root) {
   const posText = r => [...r.pos, ...r.pos_extra.map(p => `(${p})`)].map(p => { const key = p.replace(/[()]/g,''); return `<abbr title="${h(POS[key] || key)}">${h(p)}</abbr>`; }).join('、') || '<span class="panel-sub">cụm từ</span>';
   const meaning = r => r.gloss_en?.length ? `<p lang="en" class="panel-sub">${r.gloss_en.map(h).join('; ')}</p>` : '';
   const isDue = r => { const p = progress(r.seq); return Boolean(p && p.due <= Date.now()); };
+  function stageGrid() {
+    const rows = cache.get(level) || [], size = STAGE[level], count = Math.ceil(rows.length / size);
+    let saved = {};
+    try { saved = JSON.parse(localStorage.getItem(stateKey) || '{}').progress || {}; } catch {}
+    const now = Date.now();
+    return `<div class="stage-grid">${Array.from({length: count}, (_, i) => {
+      const part = stageRows(rows, i);
+      const learned = part.filter(r => (Number.parseInt(saved[entryId(r.seq)]?.reps, 10) || 0) > 0).length;
+      const due = part.filter(r => Number(saved[entryId(r.seq)]?.due) <= now).length;
+      const pct = Math.round(learned / part.length * 100);
+      return `<button type="button" class="stage-tile${learned === part.length ? ' is-done' : ''}" data-syl-stage="${i}"><span class="stage-name">Chặng ${i + 1}</span><span class="stage-range">Từ ${i * size + 1}–${i * size + part.length}</span><span class="stage-words" lang="zh-Hans">${part.slice(0, 4).map(r => h(r.word)).join(' · ')}</span><span class="stage-meter" aria-hidden="true"><span style="width:${pct}%"></span></span><span class="stage-foot">${learned}/${part.length} đã học${due ? ` · <strong>${due} đến hạn</strong>` : ''}</span></button>`;
+    }).join('')}</div>`;
+  }
   const label = r => `${h(r.word)}${r.homograph ? `<sup>${r.homograph}</sup>` : ''}`;
   const extra = r => r.extra_levels.length ? ` · nghĩa mở rộng ở HSK ${r.extra_levels.map(h).join(', ')}` : '';
   async function fetchLevel(name,owner,activeClient) {
@@ -65,22 +89,32 @@ export function mountSyllabus(root) {
     const result = root.querySelector('#syllabus-results');
     if (!result) return;
     if(view==='quiz'){renderQuiz(result);return;}
-    const list = view === 'due' ? words().filter(isDue) : words();
     result.innerHTML = adminTools();
+    if (level !== 'all' && stage === null && !query && view === 'stages') {
+      const total = (cache.get(level) || []).length;
+      if (total) result.insertAdjacentHTML('beforeend', `<p class="stage-intro">HSK ${h(level)} có ${total.toLocaleString('vi-VN')} từ, chia ${Math.ceil(total / STAGE[level])} chặng, mỗi chặng ${STAGE[level]} từ. Chọn một chặng để học.</p>${stageGrid()}`);
+      else result.insertAdjacentHTML('beforeend', '<p>Chưa có mục để hiển thị.</p>');
+      return;
+    }
+    if (stage !== null && level !== 'all') {
+      const size = STAGE[level];
+      result.insertAdjacentHTML('beforeend', `<div class="stage-bar"><button type="button" class="btn" data-syl="stages">← Tất cả chặng</button><strong>HSK ${h(level)} · Chặng ${stage + 1}</strong><span class="panel-sub">Từ ${stage * size + 1}–${stage * size + words().length}</span></div>`);
+    }
+    const list = view === 'due' ? words().filter(isDue) : words();
     if (!list.length) { result.insertAdjacentHTML('beforeend', `<p>${view === 'due' ? 'Chưa có từ nào đến hạn ôn ở cấp này. Luyện thẻ và bấm “Đã nhớ” để bắt đầu lịch ôn.' : query ? 'Không có mục phù hợp. Thử chữ Hán hoặc pinyin khác (gõ không dấu cũng được).' : 'Chưa có mục để hiển thị.'}</p>`); return; }
-    if (view === 'cards' || view === 'due') {
+    if (view === 'cards' || view === 'due' || view === 'stages') {
       position = Math.min(position, list.length - 1); const r = list[position], record = progress(r.seq);
-      result.insertAdjacentHTML('beforeend', `<p>${position + 1} / ${list.length.toLocaleString('vi-VN')} · HSK ${h(r.level)}${extra(r)}</p><p class="reference-word" lang="zh-Hans">${label(r)}</p>${revealed ? `<p lang="zh-Latn" class="syllabus-pinyin">${h(r.pinyin)}</p><p>${posText(r)}</p>${meaning(r)}` : '<p>Đọc to từ này, nhớ pinyin và nghĩa, rồi mở đáp án.</p>'}<p>${record?.reps ? `Đã nhớ ${record.reps} lượt. Lần ôn: ${new Date(record.due).toLocaleString('vi-VN')}` : 'Chưa có lượt ghi nhớ.'}</p><div class="cloud-actions"><button type="button" class="btn" data-syl="previous">Thẻ trước</button><button type="button" class="btn" data-syl="reveal">${revealed ? 'Ẩn đáp án' : 'Mở đáp án'}</button><button type="button" class="btn" data-syl="next">Thẻ sau</button><button type="button" class="btn" data-syl="speak">Nghe giọng thiết bị</button>${revealed ? '<button type="button" class="btn" data-syl="again">Cần ôn lại</button><button type="button" class="btn" data-syl="good">Đã nhớ</button>' : ''}</div>`);
+      result.insertAdjacentHTML('beforeend', `<p>${position + 1} / ${list.length.toLocaleString('vi-VN')} · HSK ${h(r.level)}${extra(r)}</p><p class="reference-word" lang="zh-Hans">${label(r)}</p>${revealed ? `<p lang="zh-Latn" class="syllabus-pinyin">${h(r.pinyin)}</p><p>${posText(r)}</p>${meaning(r)}` : '<p>Đọc to từ này, nhớ pinyin và nghĩa, rồi mở đáp án.</p>'}<p>${record?.reps ? `Đã nhớ ${record.reps} lượt. Lần ôn: ${new Date(record.due).toLocaleString('vi-VN')}` : 'Chưa có lượt ghi nhớ.'}</p><div class="cloud-actions"><button type="button" class="btn" data-syl="previous">Thẻ trước</button><button type="button" class="btn" data-syl="reveal">${revealed ? 'Ẩn đáp án' : 'Mở đáp án'}</button><button type="button" class="btn" data-syl="next">Thẻ sau</button><button type="button" class="btn btn-listen" data-syl="speak"><span class="ico-listen" aria-hidden="true"></span>Nghe</button>${revealed ? '<button type="button" class="btn" data-syl="again">Cần ôn lại</button><button type="button" class="btn" data-syl="good">Đã nhớ</button>' : ''}</div>`);
       return;
     }
     const pages = Math.ceil(list.length / PAGE); page = Math.min(page, pages - 1);
-    result.insertAdjacentHTML('beforeend', `<p>Tìm thấy ${list.length.toLocaleString('vi-VN')} mục. Trang ${page + 1}/${pages}.</p><div class="cloud-actions"><button type="button" class="btn" data-syl="prev-page" ${page === 0 ? 'disabled' : ''}>Trang trước</button><button type="button" class="btn" data-syl="next-page" ${page >= pages - 1 ? 'disabled' : ''}>Trang sau</button></div><div class="table-wrap"><table class="syllabus-table"><thead><tr><th scope="col">STT</th><th scope="col">Từ</th><th scope="col">Pinyin</th><th scope="col">Từ loại</th><th scope="col">Cấp</th>${staff() ? '<th scope="col">Trạng thái</th>' : ''}<th scope="col"><span class="sr-only">Nghe</span></th></tr></thead><tbody>${list.slice(page * PAGE, page * PAGE + PAGE).map(r => `<tr><td>${r.seq}</td><td lang="zh-Hans" class="syllabus-word">${label(r)}${meaning(r)}</td><td lang="zh-Latn">${h(r.pinyin)}</td><td>${posText(r)}</td><td>${h(r.level)}${r.extra_levels.length ? ` <small>(+${r.extra_levels.map(h).join(', ')})</small>` : ''}</td>${staff() ? `<td>${h(STATUS[r.review_status] || r.review_status)}<br><small>Trang ${h(r.source_page ?? '?')}</small></td>` : ''}<td><button type="button" class="btn btn-icon" data-syl="say" data-word="${h(r.word)}" aria-label="Nghe ${h(r.word)}">Nghe</button></td></tr>`).join('')}</tbody></table></div>`);
+    result.insertAdjacentHTML('beforeend', `<p>Tìm thấy ${list.length.toLocaleString('vi-VN')} mục. Trang ${page + 1}/${pages}.</p><div class="cloud-actions"><button type="button" class="btn" data-syl="prev-page" ${page === 0 ? 'disabled' : ''}>Trang trước</button><button type="button" class="btn" data-syl="next-page" ${page >= pages - 1 ? 'disabled' : ''}>Trang sau</button></div><div class="table-wrap"><table class="syllabus-table"><thead><tr><th scope="col">STT</th><th scope="col">Từ</th><th scope="col">Pinyin</th><th scope="col">Từ loại</th><th scope="col">Cấp</th>${staff() ? '<th scope="col">Trạng thái</th>' : ''}<th scope="col"><span class="sr-only">Nghe</span></th></tr></thead><tbody>${list.slice(page * PAGE, page * PAGE + PAGE).map(r => `<tr><td>${r.seq}</td><td lang="zh-Hans" class="syllabus-word">${label(r)}${meaning(r)}</td><td lang="zh-Latn">${h(r.pinyin)}</td><td>${posText(r)}</td><td>${h(r.level)}${r.extra_levels.length ? ` <small>(+${r.extra_levels.map(h).join(', ')})</small>` : ''}</td>${staff() ? `<td>${h(STATUS[r.review_status] || r.review_status)}<br><small>Trang ${h(r.source_page ?? '?')}</small></td>` : ''}<td><button type="button" class="btn btn-listen" data-syl="say" data-word="${h(r.word)}" aria-label="Nghe ${h(r.word)}"><span class="ico-listen" aria-hidden="true"></span>Nghe</button></td></tr>`).join('')}</tbody></table></div>`);
   }
   function render() {
-    cache.clear(); position = 0; page = 0; revealed = false; quiz=null;view='list';
+    cache.clear(); position = 0; page = 0; revealed = false; quiz = null; stage = null; view = 'stages';
     if (!client) { content.innerHTML = window.HANZI_CLOUD_CONFIG?.url ? '<p class="cloud-loading">Đang kiểm tra phiên đăng nhập...</p>' : '<p>Danh mục được lưu trên máy chủ đồng bộ. Tính năng này cần quản trị viên kết nối Supabase.</p>'; status(''); return; }
     if (!profile) { content.innerHTML = '<div class="gate"><p>Đăng nhập để tra cứu và luyện 11.000 từ của đề cương HSK 3.0.</p><button type="button" class="btn btn-primary" data-go="auth" data-auth-view="login">Đăng nhập để mở danh mục</button></div>'; status(''); return; }
-    content.innerHTML = `<form id="syllabus-search" class="cloud-form"><label>Cấp độ<select name="level">${[...LEVELS, 'all'].map(l => `<option value="${l}" ${l === level ? 'selected' : ''}>${l === 'all' ? 'Tất cả (1–9)' : `HSK ${l}`}</option>`).join('')}</select></label>${field('Tìm chữ Hán hoặc pinyin','query','search',`value="${h(query)}" maxlength="60"`)}<button class="btn">Tra cứu</button></form><div class="cloud-actions"><button type="button" class="btn" data-syl="list">Danh sách từ</button><button type="button" class="btn" data-syl="cards">Luyện thẻ</button><button type="button" class="btn" data-syl="due">Ôn từ đến hạn</button></div><div id="syllabus-results"></div><p class="panel-sub syllabus-source">Danh mục từ: 《中文水平考试 HSK 考试大纲》, 中外语言交流合作中心 (CLEC), 2025, không ghi giấy phép; chỉ lưu từ, cấp, pinyin, từ loại kèm trích dẫn và số trang, không phải ngân hàng đề thi. Nghĩa tiếng Anh: <a href="https://www.mdbg.net/chinese/dictionary?page=cc-cedict" target="_blank" rel="noopener noreferrer">CC-CEDICT</a> (CC-CEDICT contributors, MDBG), <a href="./data/CC-BY-SA-4.0.txt" target="_blank" rel="noopener noreferrer">CC BY-SA 4.0</a>, chọn theo cách đọc của đề cương. Chưa có nghĩa tiếng Việt.</p>`;
+    content.innerHTML = `<div class="hsk-levels" role="group" aria-label="Chọn cấp HSK">${[...LEVELS, 'all'].map(l => `<button type="button" class="level-chip" data-syl-level="${l}" aria-pressed="${l === level}">${l === 'all' ? 'Tất cả' : `HSK ${l}`}</button>`).join('')}</div><form id="syllabus-search" class="cloud-form syllabus-search">${field('Tìm chữ Hán hoặc pinyin','query','search',`value="${h(query)}" maxlength="60"`)}<button class="btn">Tra cứu</button></form><div class="cloud-actions"><button type="button" class="btn" data-syl="list">Danh sách từ</button><button type="button" class="btn" data-syl="cards">Luyện thẻ</button><button type="button" class="btn" data-syl="due">Ôn từ đến hạn</button><button type="button" class="btn" data-go="library">Bộ HSK 3 nghĩa tiếng Việt</button></div><div id="syllabus-results"></div><p class="panel-sub syllabus-source">Danh mục từ: 《中文水平考试 HSK 考试大纲》, 中外语言交流合作中心 (CLEC), 2025, không ghi giấy phép; chỉ lưu từ, cấp, pinyin, từ loại kèm trích dẫn và số trang, không phải ngân hàng đề thi. Nghĩa tiếng Anh: <a href="https://www.mdbg.net/chinese/dictionary?page=cc-cedict" target="_blank" rel="noopener noreferrer">CC-CEDICT</a> (CC-CEDICT contributors, MDBG), <a href="./data/CC-BY-SA-4.0.txt" target="_blank" rel="noopener noreferrer">CC BY-SA 4.0</a>, chọn theo cách đọc của đề cương. Chưa có nghĩa tiếng Việt.</p>`;
     content.querySelector('[name="query"]').required = false;
     content.querySelector('.cloud-actions').insertAdjacentHTML('beforeend','<button type="button" class="btn" data-syl="quiz">Luyện trắc nghiệm</button>');
     load();
@@ -127,9 +161,13 @@ export function mountSyllabus(root) {
   root.addEventListener('submit', event => {
     if (event.target.id !== 'syllabus-search') return;
     event.preventDefault(); const values = new FormData(event.target);
-    level = values.get('level'); query = values.get('query').trim(); page = 0; position = 0; revealed = false;quiz=null;view='list'; load();
+    query = values.get('query').trim(); page = 0; position = 0; revealed = false; quiz = null; stage = null; view = query ? 'list' : 'stages'; load();
   });
   root.addEventListener('click', async event => {
+    const levelButton = event.target.closest('[data-syl-level]');
+    if (levelButton) { chooseLevel(levelButton.dataset.sylLevel); return; }
+    const stageButton = event.target.closest('[data-syl-stage]');
+    if (stageButton) { stage = Number(stageButton.dataset.sylStage); view = 'cards'; position = 0; revealed = false; page = 0; renderResults(); root.querySelector('#syllabus-results')?.scrollIntoView({block: 'start', behavior: 'smooth'}); return; }
     const button = event.target.closest('[data-syl]'); if (!button) return;
     const action = button.dataset.syl, list = words(), r = list[position];
     if(action==='quiz'){startQuiz();return;}
@@ -141,6 +179,7 @@ export function mountSyllabus(root) {
       return;
     }
     if(action==='quiz-next'){if(quiz&&quiz.answers.length===quiz.index+1){quiz.index++;if(quiz.index===quiz.questions.length)saveQuiz();renderResults();}return;}
+    if (action === 'stages') { stage = null; view = 'stages'; renderResults(); return; }
     if (action === 'list' || action === 'cards' || action === 'due') { view = action; position = 0; revealed = false; renderResults(); return; }
     if (action === 'publish' || action === 'unpublish') { button.disabled = true; await review(action === 'publish' ? 'published' : 'draft'); return; }
     if (action === 'say') { window.speak?.(button.dataset.word); return; }
@@ -159,6 +198,16 @@ export function mountSyllabus(root) {
     }
     renderResults();
   });
+  function chooseLevel(next) {
+    if (![...LEVELS, 'all'].includes(next)) return;
+    level = next; stage = null; quiz = null; query = ''; page = 0; position = 0; revealed = false; view = level === 'all' ? 'list' : 'stages';
+    try { if (level !== 'all') localStorage.setItem(LEVEL_KEY, level); } catch {}
+    root.querySelectorAll('[data-syl-level]').forEach(el => el.setAttribute('aria-pressed', String(el.dataset.sylLevel === level)));
+    const input = root.querySelector('#syllabus-search [name="query"]'); if (input) input.value = '';
+    if (client && profile) load();
+  }
+  // Links elsewhere (roadmap, old HSK 3 library) open the library on a level: data-go="hsk" data-hsk-level="4".
+  document.addEventListener('click', event => { const link = event.target.closest('[data-hsk-level]'); if (link) chooseLevel(link.dataset.hskLevel); }, true);
   render();
   return { setSession(nextClient, nextProfile) { if (client === nextClient && profile?.id === nextProfile?.id && profile?.role === nextProfile?.role) return;sessionEpoch++; client = nextClient; profile = nextProfile; render(); } };
 }
