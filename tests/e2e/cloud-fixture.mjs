@@ -9,6 +9,7 @@ export async function mockCloud(page,role='student',{authenticated=true,userId=i
   const id=userId;
   const calls=[],data=world||{items:[],classes:[],assignments:[],submissions:[],questions:[],progress:null};
   data.liveRooms??=[];
+  data.vocab??=[];
   data.liveDrafts??={};data.liveResults??={};
   const user={id,email:'learner@example.test',aud:'authenticated',role:'authenticated',app_metadata:{provider:'email'},user_metadata:{}};
   const jwt=Buffer.from(JSON.stringify({alg:'HS256',typ:'JWT'})).toString('base64url')+'.'+Buffer.from(JSON.stringify({sub:id,exp:Math.floor(Date.now()/1000)+3600,role:'authenticated'})).toString('base64url')+'.test';
@@ -27,7 +28,13 @@ export async function mockCloud(page,role='student',{authenticated=true,userId=i
     else if(url.pathname.endsWith('/logout'))result={};
     else if(url.pathname.endsWith('/signup'))result={id:'00000000-0000-4000-8000-000000000099',aud:'authenticated',email:body.email,user_metadata:body.data,identities:[{id:'x'}],created_at:new Date().toISOString()};
     else if(url.pathname.endsWith('/user'))result=user;
-    else if(url.pathname.endsWith('/recover'))result={};
+    else if(url.pathname.endsWith('/recover')||url.pathname.endsWith('/resend'))result={};
+    else if(url.pathname.endsWith('/vocab_entries')){
+      // Mirrors RLS: students read published rows only.
+      const level=url.searchParams.get('level')?.replace(/^eq\./,''),offset=Number(url.searchParams.get('offset')||0),limit=Number(url.searchParams.get('limit')||1000);
+      result=data.vocab.filter(v=>v.level===level&&(role!=='student'||v.review_status==='published')).slice(offset,offset+limit);
+    }
+    else if(url.pathname.endsWith('/review_vocab_entries')){const rows=data.vocab.filter(v=>body.entry_seqs.includes(v.seq));rows.forEach(v=>v.review_status=body.decision);result=rows.length;}
     else if(url.pathname.endsWith('/profiles'))result=url.searchParams.get('id')?{id,display_name:'Học viên kiểm thử',role}:[{id,display_name:'Học viên kiểm thử',role}];
     else if(url.pathname.endsWith('/content_items'))result=data.items;
     else if(url.pathname.endsWith('/classes'))result=data.classes;
@@ -82,3 +89,9 @@ export async function mockCloud(page,role='student',{authenticated=true,userId=i
   });
   return {calls,data};
 }
+// Rows shaped like public.vocab_entries for the HSK 3.0 (CLEC 2025) syllabus.
+export const vocab=(status='published')=>[
+  {seq:1,level:'1',extra_levels:['2','4'],word:'好',homograph:null,pinyin:'hǎo',pos:['形'],pos_extra:['副'],review_status:status,source_page:80},
+  {seq:2,level:'1',extra_levels:[],word:'本',homograph:1,pinyin:'běn',pos:['量'],pos_extra:[],review_status:status,source_page:80},
+  {seq:3,level:'1',extra_levels:[],word:'不客气',homograph:null,pinyin:'bú kèqi',pos:[],pos_extra:[],review_status:status,source_page:80}
+];

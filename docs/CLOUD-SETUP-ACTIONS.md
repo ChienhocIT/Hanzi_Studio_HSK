@@ -18,21 +18,27 @@ Supabase integration đã quản lý migration history trên project thật. Bui
 
 Sau đó chạy `npm run check:cloud`; phép kiểm tra public vẫn chưa thay thế nghiệm thu tài khoản thật, dữ liệu cá nhân và policy.
 
-## Google OAuth
+## Cấu hình Auth, Google, SMTP và dữ liệu bằng script (2026-10-29)
 
-Cần chủ dự án xác định tài khoản Google quản lý dự án và email hỗ trợ. Tạo OAuth Web Application trong Google Auth Platform, đặt tên Hanzi Studio, origin theo domain Vercel thực tế và redirect URI chính xác:
+Mọi bước ghi dùng một **Supabase personal access token** đặt trong `.env.local` (Git ignore; build không đưa vào `dist/`). Tạo tại [Account → Access Tokens](https://supabase.com/dashboard/account/tokens), nên đặt hạn dùng ngắn và thu hồi sau khi xong. Token có quyền trên mọi project của tài khoản, không gửi qua chat hay commit. Xem các biến ở `.env.example`.
 
-```text
-https://rpoqcklcmsnrbmhfxdxg.supabase.co/auth/v1/callback
-```
+1. **SMTP.** Chọn nhà cung cấp (ví dụ Resend, Brevo, Amazon SES) và xác minh domain gửi bằng SPF/DKIM theo hướng dẫn của họ. Domain `vercel.app` không thêm DNS được, nên cần domain riêng. Đặt `SMTP_HOST`, `SMTP_PORT` (465/587), `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`. Nếu thiếu SMTP riêng, Supabase chỉ gửi thư tới thành viên project, khoảng 2 thư/giờ, nên học viên thật không nhận được email xác nhận.
+2. **Google.** Trong [Google Auth Platform](https://console.cloud.google.com/auth/clients), tạo OAuth client loại *Web application*:
+   - Authorized JavaScript origins: `https://hanzistudiohsk.vercel.app`
+   - Authorized redirect URIs: `https://rpoqcklcmsnrbmhfxdxg.supabase.co/auth/v1/callback`
+   - Data Access: thêm scope `openid` (email, profile có sẵn). Khi app còn ở chế độ Testing, chỉ tài khoản test được đăng nhập; chuyển sang In production khi phát hành.
 
-Client ID/secret cấu hình trực tiếp trong [Supabase Google provider](https://supabase.com/dashboard/project/rpoqcklcmsnrbmhfxdxg/auth/providers). Secret không đưa vào Git hoặc bundle. Nếu app đang Testing, thêm tài khoản thử đúng email. Consent/publishing theo tài khoản tổ chức của chủ dự án; chưa được thực hiện tự động trong đợt này. [Hướng dẫn chính thức](https://supabase.com/docs/guides/auth/social-login/auth-google).
+   Đặt `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`.
+3. `npm run auth:configure` đọc cấu hình hiện tại và in thay đổi (secret được che), chưa ghi gì. Kiểm tra xong chạy `npm run auth:configure -- --apply`. Script đặt:
+   - Site URL và giữ các redirect đã có, thêm `https://hanzistudiohsk.vercel.app/**`.
+   - Bắt buộc xác nhận email.
+   - SMTP và 6 mẫu email tiếng Việt trong `supabase/email-templates/` (tiêu đề là thẻ `<title>`).
+   - Google provider.
 
-## Email và SMTP
-
-Cần tên miền gửi do chủ dự án sở hữu, email From và tài khoản nhà cung cấp SMTP. Chỉ domain `vercel.app` không cho dự án quyền tự thêm DNS gửi email. Chưa tạo dịch vụ có phí hoặc cam kết thuê bao.
-
-Sau khi có dịch vụ, xác minh domain bằng DNS do nhà cung cấp yêu cầu, cấu hình host/port/user/password trong Supabase Auth SMTP và kiểm tra SPF/DKIM. Các mẫu tiếng Việt sẵn ở `supabase/email-templates/confirmation.html` và `recovery.html`; dùng biến chuẩn `{{ .ConfirmationURL }}`. Chưa đưa mẫu lên dashboard hoặc gửi thư thử. [Supabase SMTP](https://supabase.com/docs/guides/auth/auth-smtp).
+   Nhóm biến nào để trống thì nhóm đó giữ nguyên.
+4. `npm run check:cloud` xác nhận email và Google đã bật. Sau đó thử thật: đăng ký, nhận email, đăng nhập Google, quên mật khẩu.
+5. **Quản trị viên đầu tiên:** đăng ký trên website, bấm link xác nhận, rồi chạy `npm run db:promote-admin -- email@cua-ban.vn`. Từ đó cấp quyền trong tab "Phân quyền".
+6. **11.000 từ HSK 3.0:** `npm run data:import-hsk3` (một lần, tạo `.sources/`), rồi `npm run db:seed-vocabulary`. Lệnh dùng `POSTGRES_URL` nếu có, nếu không thì gửi qua Management API theo lô 1.000 mục. Có thể chạy lại an toàn. Mọi mục vào ở trạng thái nháp. Quản trị viên mở **Kho dữ liệu → Danh mục từ HSK 3.0**, chọn cấp, đối chiếu rồi bấm "Xuất bản" để học viên thấy.
 
 ## Vercel và callback của ứng dụng
 
@@ -40,6 +46,6 @@ Project đích do chủ dự án chỉ định: [minh-chienhoc-it / hanzi_studio
 
 Build nhận `HANZI_SUPABASE_*`, hoặc các cặp biến public `NEXT_PUBLIC_SUPABASE_*`/`SUPABASE_*` từ Marketplace; không sử dụng secret. Với local, `npm run build` và `check:cloud` tự đọc `.env.local`; biến đã đặt trong môi trường có ưu tiên cao hơn tệp.
 
-Chủ dự án cung cấp domain `https://hanzistudiohsk.vercel.app`. Supabase Site URL dùng domain này; Redirect URLs cần `https://hanzistudiohsk.vercel.app/index.html` và localhost cần dùng. Các luồng email/Google trong ứng dụng đưa về `#settings`. Chưa xác nhận đã lưu các cài đặt Auth này trên dashboard. [Redirect allowlist](https://supabase.com/docs/guides/auth/redirect-urls).
+Chủ dự án cung cấp domain `https://hanzistudiohsk.vercel.app`. Supabase Site URL dùng domain này; Redirect URLs cần `https://hanzistudiohsk.vercel.app/index.html` và localhost cần dùng. Các luồng email/Google trong ứng dụng đưa về `/index.html#auth` (mã PKCE nằm ở query `?code=`). Allow list `https://hanzistudiohsk.vercel.app/**` do `auth:configure` thêm bao trùm đường dẫn này. [Redirect allowlist](https://supabase.com/docs/guides/auth/redirect-urls).
 
 Nghiệm thu: đăng ký/xác nhận email, đăng nhập Google, quên mật khẩu, refresh phiên, hai tài khoản, hai thiết bị, đọc/ghi tiến độ đúng quyền, lớp học và phòng thi thật. Chưa có bước nào ở đây được xác nhận production chỉ vì Marketplace báo đã connect.

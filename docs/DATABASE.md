@@ -51,15 +51,15 @@ erDiagram
 
 | Hạng mục | Kết quả đọc lúc 05:37 ngày 2026-10-29 |
 | --- | --- |
-| Migration đã áp dụng | 4 migration nền, cùng `reference_vocabulary` (`0004`). `0005` chưa được push. |
+| Migration đã áp dụng | Đủ 7 migration đến `0006_revoke_demoted_teacher`. Kiểm tra lại lúc 11:55: có `class_roster`, `private.teaches` kiểm tra vai trò, FK cascade. |
 | Số dòng | Tất cả 16 bảng đều 0 dòng |
 | Tài khoản | 0 Auth user, 0 hồ sơ |
-| Danh mục HSK 3.0 (11.000 mục) | Chưa nạp: `vocab_entries` và `data_sources` đều trống |
+| Danh mục HSK 3.0 (11.000 mục) | Chưa nạp lúc 11:55: `vocab_entries` và `data_sources` đều trống. Đã có màn học/duyệt và lệnh nạp qua Management API. |
 | Bộ tham khảo HSK 2.0 (4.997 mục) | Là file tĩnh `data/hsk2-reference.json`, không lưu trong DB |
 | Advisors | Bảo mật: 22 WARN (RPC definer, theo thiết kế), 5 INFO. Hiệu năng: 11 FK thiếu index và 6 initplan, đã sửa trong `0005`. |
 
 Nạp danh mục HSK 3.0 khi đã quyết định về bản quyền (xem `HSK-DATA-SOURCES.md` mục 12):
 1. `npm run data:import-hsk3`
-2. `npm run db:seed-vocabulary` (cần `POSTGRES_URL` của đúng project)
+2. `npm run db:seed-vocabulary`: dùng `POSTGRES_URL` của đúng project, hoặc `SUPABASE_ACCESS_TOKEN` (Management API, theo lô 1.000 mục).
 
-Các mục được nạp ở trạng thái `draft` và chỉ hiển thị cho học viên sau khi quản trị viên duyệt.
+Các mục được nạp ở trạng thái `draft`. Quản trị viên xuất bản theo cấp trong **Kho dữ liệu → Danh mục từ HSK 3.0**; học viên chỉ thấy mục đã xuất bản. Quy trình đầy đủ ở [CLOUD-SETUP-ACTIONS.md](CLOUD-SETUP-ACTIONS.md).

@@ -16,7 +16,7 @@
 - Trang tài khoản `#auth`: đăng nhập, đăng ký có tên hiển thị, quên và đặt lại mật khẩu.
 - Trang lớp học `#classroom`: nội dung hiển thị theo vai trò. Sau khi đăng nhập, học viên về trang tổng quan, giáo viên và quản trị viên vào lớp học.
 - Logo chính Mây Long, icon chuyên mục 3D, font Be Vietnam Pro tự host, chế độ sáng/tối.
-- Danh mục HSK 3.0 trong `vocab_entries` vẫn chưa có màn học hoặc màn duyệt.
+- Danh mục HSK 3.0 trong `vocab_entries` có màn tra cứu, luyện thẻ và xuất bản theo cấp (`src/syllabus.js`). Chưa có nghĩa tiếng Việt; nghĩa tiếng Anh lấy từ bộ tham khảo CC-CEDICT khi trùng chữ.
 
 ## Ranh giới dữ liệu
 

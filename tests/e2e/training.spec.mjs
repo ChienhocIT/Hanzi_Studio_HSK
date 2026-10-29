@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import {id,itemId,classId,assignmentId,key,state,item,mockCloud} from './cloud-fixture.mjs';
+import {id,itemId,classId,assignmentId,key,state,item,mockCloud,vocab} from './cloud-fixture.mjs';
 test('Production package preserves the existing May Long branding assets',async({page})=>{
   const failed=[];page.on('response',response=>{if(response.status()>=400&&response.url().includes('/assets/'))failed.push(response.url());});
   await page.goto('/index.html#home');
@@ -231,4 +231,59 @@ test('Imported Video Lab lessons cannot inject markup through the video ID',asyn
   await page.locator('[data-vl-load="0"]').dispatchEvent('click');
   expect(await page.evaluate(()=>window.__xss)).toBeUndefined();
   await expect(page.locator('#vl-video-player iframe')).toHaveCount(0);expect(errors).toEqual([]);
+});
+test('Learners study published HSK 3.0 syllabus words and ratings join the on-device schedule',async({page})=>{
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  await mockCloud(page,'student',{world:{items:[],classes:[],assignments:[],submissions:[],questions:[],progress:null,vocab:[...vocab(),{...vocab('draft')[0],seq:4,word:'草稿'}]}});
+  // A restored backup can carry markup in progress fields; it must render as a number.
+  await page.addInitScript(()=>{if(!sessionStorage.getItem('seeded')){sessionStorage.setItem('seeded','1');localStorage.setItem('hanzi-studio-curriculum-v4',JSON.stringify({progress:{'clec2025-2':{reps:'<img src=x onerror="window.__xss=1">',due:1}}}));}});
+  await page.goto('/index.html#contenthub');
+  const panel=page.locator('#syllabus-panel');
+  await expect(panel.locator('#syllabus-status')).toContainText('HSK 1: 3 mục');
+  await expect(panel.locator('.syllabus-table')).toContainText('不客气');await expect(panel.locator('.syllabus-table')).not.toContainText('草稿');
+  await expect(panel.locator('.syllabus-table')).not.toContainText('Trạng thái');
+  await panel.getByLabel('Tìm chữ Hán hoặc pinyin',{exact:true}).fill('ben');await panel.getByRole('button',{name:'Tra cứu',exact:true}).click();
+  await expect(panel.locator('tbody tr')).toHaveCount(1);await expect(panel.locator('tbody')).toContainText('本');
+  await panel.getByRole('button',{name:'Luyện thẻ',exact:true}).click();
+  await expect(panel).toContainText('Chưa có lượt ghi nhớ');  await expect(panel.locator('img[src="x"]')).toHaveCount(0);expect(await page.evaluate(()=>window.__xss)).toBeUndefined();
+  await panel.getByRole('button',{name:'Mở đáp án',exact:true}).click();await expect(panel).toContainText('běn');
+  await panel.getByRole('button',{name:'Đã nhớ',exact:true}).click();
+  await expect(panel.locator('#syllabus-status')).toContainText('Đã cập nhật lượt ôn');
+  const record=await page.evaluate(()=>JSON.parse(localStorage.getItem('hanzi-studio-curriculum-v4')).progress['clec2025-2']);
+  expect(record.reps).toBe(1);expect(errors).toEqual([]);
+});
+test('Admins publish a syllabus level in one action; signed-out visitors are asked to sign in',async({page,browser})=>{
+  const world={items:[],classes:[],assignments:[],submissions:[],questions:[],progress:null,vocab:vocab('draft')};
+  const {calls}=await mockCloud(page,'admin',{world});page.on('dialog',d=>d.accept());
+  await page.goto('/index.html#contenthub');
+  const panel=page.locator('#syllabus-panel');
+  await expect(panel.locator('.syllabus-table')).toContainText('Bản nháp');
+  await panel.getByText('Duyệt cấp HSK 1 (quản trị viên)').click();
+  await panel.getByRole('button',{name:'Xuất bản 3 mục nháp',exact:true}).click();
+  await expect(panel.locator('#syllabus-status')).toContainText('Đã xuất bản 3 mục HSK 1');
+  expect(calls.find(c=>c.path.endsWith('/review_vocab_entries')).body).toEqual({entry_syllabus:'HSK 3.0 (CLEC 2025)',entry_seqs:[1,2,3],decision:'published'});
+  await expect(panel.getByRole('button',{name:'Ẩn khỏi học viên',exact:true})).toBeEnabled();
+  const guest=await (await browser.newContext({serviceWorkers:'block'})).newPage();await mockCloud(guest,'student',{authenticated:false});
+  await guest.goto('/index.html#contenthub');
+  await expect(guest.locator('#syllabus-panel').getByRole('button',{name:'Đăng nhập để mở danh mục',exact:true})).toBeVisible();
+});
+test('Unconfirmed accounts get a specific message and can resend the confirmation email',async({page})=>{
+  const {calls}=await mockCloud(page,'student',{authenticated:false});
+  await page.route('https://demo.supabase.co/auth/v1/token**',route=>route.fulfill({status:400,contentType:'application/json',body:JSON.stringify({code:'email_not_confirmed',error_code:'email_not_confirmed',msg:'Email not confirmed'})}));
+  await page.goto('/index.html#auth');
+  await page.getByLabel('Email',{exact:true}).fill('new@example.test');await page.getByLabel('Mật khẩu',{exact:true}).fill('fake-password');
+  await page.getByRole('button',{name:'Đăng nhập',exact:true}).click();
+  await expect(page.locator('#auth-panel [data-cloud-status]')).toContainText('Gửi lại email xác nhận');
+  await page.getByRole('button',{name:'Chưa nhận được email xác nhận?',exact:true}).click();
+  await page.getByLabel('Email',{exact:true}).fill('new@example.test');
+  await page.getByRole('button',{name:'Gửi lại email xác nhận',exact:true}).click();
+  await expect(page.locator('#auth-panel [data-cloud-status]')).toContainText('liên kết mới đã được gửi');
+  const resend=calls.find(c=>c.path.endsWith('/resend'));
+  expect(resend.body.type).toBe('signup');expect(resend.body.email).toBe('new@example.test');
+});
+test('An expired email link explains what happened and is removed from the address bar',async({page})=>{
+  await mockCloud(page,'student',{authenticated:false});
+  await page.goto('/index.html?error=access_denied&error_code=otp_expired&error_description=Email+link+is+invalid+or+has+expired#auth');
+  await expect(page.locator('#auth-panel [data-cloud-status]')).toContainText('đã hết hạn');
+  await expect(page).toHaveURL(/\/index\.html#auth$/);
 });

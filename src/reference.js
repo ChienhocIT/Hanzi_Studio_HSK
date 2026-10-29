@@ -20,7 +20,8 @@ export function mountReference(root) {
   const filtered=()=>corpus.words.filter(w=>(level==='all'||w.level===level)&&(!query||[w.word,...w.entries.flatMap(e=>[e.pinyin,...e.definitions])].join(' ').toLowerCase().includes(query.toLowerCase())));
   const entryHtml=w=>w.entries.length?w.entries.map(entry=>`<div><p lang="zh-Latn">${h(entry.pinyin)}</p><p lang="en">${entry.definitions.map(h).join('; ')}</p></div>`).join(''):'<p>Chưa có nghĩa đối chiếu. Cần biên tập bổ sung.</p>';
   const progress=id=>{
-    try{return JSON.parse(localStorage.getItem(stateKey)||'{}').progress?.[id];}catch{return null;}
+    // Restorable from backups and cloud sync: keep only numbers before they reach HTML.
+    try{const r=JSON.parse(localStorage.getItem(stateKey)||'{}').progress?.[id];return r?{reps:Math.max(0,Number.parseInt(r.reps,10)||0),due:Number(r.due)||0}:null;}catch{return null;}
   };
   function renderResults() {
     const words=filtered();

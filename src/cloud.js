@@ -3,10 +3,12 @@ import { KEYS, OWNER, META, snapshot, archive, applySnapshot, switchOwner, uploa
 import { mountWorkspace } from './workspace.js';
 import { h, field, button } from './ui.js';
 import { mountReference } from './reference.js';
+import { mountSyllabus } from './syllabus.js';
 import { mountShell } from './shell.js';
 import { setMood } from './mascot.js';
 
 mountReference(document.getElementById('reference-container'));
+const syllabus = mountSyllabus(document.getElementById('syllabus-container'));
 mountShell();
 
 const root = document.getElementById('cloud-panel');
@@ -42,15 +44,29 @@ function failure(error) {
     'invalid_answer':'Lựa chọn không hợp lệ. Hãy mở lại bài tập.',
     'progress_owner_changed':'Tài khoản đã đổi trong lúc đồng bộ. Hãy tải lại trang.'
   };
-  const raw = String(error.message || '');
-  msg(known[raw] || (/^(Hãy |Tiến độ |Tài khoản |Không có |Câu hỏi |Bài trắc nghiệm )/.test(raw) ? raw : 'Không thực hiện được. Kiểm tra kết nối, quyền truy cập và thử lại.'), true);
+  // Supabase Auth error codes (error.code, or details.code for errors carried back in a redirect URL).
+  const codes = {
+    invalid_credentials:'Email hoặc mật khẩu không đúng.', email_not_confirmed:'Hãy xác nhận email trước khi đăng nhập. Chưa nhận được email? Bấm “Gửi lại email xác nhận”.',
+    user_already_exists:'Email này đã có tài khoản. Hãy đăng nhập hoặc dùng “Quên mật khẩu?”.', email_exists:'Email này đã có tài khoản. Hãy đăng nhập hoặc dùng “Quên mật khẩu?”.',
+    weak_password:'Mật khẩu quá yếu hoặc quá phổ biến. Hãy chọn mật khẩu khó đoán hơn.', same_password:'Mật khẩu mới phải khác mật khẩu hiện tại.',
+    over_email_send_rate_limit:'Đã gửi quá nhiều email trong thời gian ngắn. Hãy đợi vài phút rồi thử lại.', over_request_rate_limit:'Bạn thao tác quá nhanh. Hãy đợi một lát rồi thử lại.',
+    email_address_not_authorized:'Máy chủ email chưa được cấu hình để gửi tới địa chỉ này. Hãy báo quản trị viên.', email_address_invalid:'Địa chỉ email không hợp lệ.',
+    otp_expired:'Liên kết trong email đã hết hạn hoặc đã được dùng. Hãy gửi lại email.', flow_state_expired:'Phiên đăng nhập đã hết hạn. Hãy thử lại.', flow_state_not_found:'Phiên đăng nhập đã hết hạn. Hãy thử lại.',
+    signup_disabled:'Đăng ký tài khoản đang tạm đóng.', provider_disabled:'Phương thức đăng nhập này chưa được bật.', email_provider_disabled:'Đăng ký bằng email đang tạm đóng.'
+  };
+  // A confirmation or reset link opened in a different browser has no PKCE verifier; the email itself is already confirmed.
+  if (error.name === 'AuthPKCECodeVerifierMissingError') { msg('Liên kết được mở ở trình duyệt khác nơi bạn gửi yêu cầu. Nếu là email xác nhận, tài khoản đã được xác nhận: hãy đăng nhập. Nếu là đặt lại mật khẩu, hãy gửi lại yêu cầu từ trình duyệt này.', true); return; }
+  const raw = String(error.message || ''), code = error.code || error.details?.code;
+  msg(codes[code] || known[raw] || (/^(Hãy |Tiến độ |Tài khoản |Không có |Câu hỏi |Bài trắc nghiệm )/.test(raw) ? raw : 'Không thực hiện được. Kiểm tra kết nối, quyền truy cập và thử lại.'), true);
 }
 const AUTH_COPY = {
   login:['Chào mừng trở lại','Đăng nhập để đồng bộ tiến độ và vào lớp học.'],
   signup:['Tạo tài khoản học viên','Tiến độ đang học trên thiết bị này vẫn được giữ lại.'],
   forgot:['Quên mật khẩu','Nhập email đã đăng ký, chúng tôi gửi liên kết đặt lại mật khẩu.'],
-  reset:['Đặt mật khẩu mới','Chọn mật khẩu có ít nhất 8 ký tự.']
+  reset:['Đặt mật khẩu mới','Chọn mật khẩu có ít nhất 8 ký tự.'],
+  resend:['Gửi lại email xác nhận','Nhập email đã đăng ký. Liên kết mới thay cho liên kết cũ.']
 };
+const confirmRedirect = () => location.origin + '/index.html#auth';
 const passwordField = (label, autocomplete, hint = '') => `<div class="pw-field"><label>${label}<input name="password" type="password" required minlength="8" maxlength="128" autocomplete="${autocomplete}"></label><button type="button" class="pw-toggle" data-pw-toggle aria-label="Hiện mật khẩu" aria-pressed="false">Hiện</button>${hint ? `<span class="hint">${hint}</span>` : ''}</div>`;
 const destination = () => !profile || profile.role === 'student' ? 'home' : 'classroom';
 function renderAuth() {
@@ -66,9 +82,10 @@ function renderAuth() {
   const email = field('Email','email','email','autocomplete="email" maxlength="254"');
   const google = `<div class="auth-divider">hoặc</div>${button('Đăng nhập Google','google')}`;
   const forms = {
-    login: `<form class="auth-form" data-account="login">${email}${passwordField('Mật khẩu','current-password')}<div class="auth-row"><button type="button" class="text-link" data-auth-view="forgot">Quên mật khẩu?</button></div><button class="btn btn-primary">Đăng nhập</button></form>${google}`,
+    login: `<form class="auth-form" data-account="login">${email}${passwordField('Mật khẩu','current-password')}<div class="auth-row"><button type="button" class="text-link" data-auth-view="forgot">Quên mật khẩu?</button></div><button class="btn btn-primary">Đăng nhập</button></form>${google}<div class="auth-row" style="justify-content:center;margin-top:12px"><button type="button" class="text-link" data-auth-view="resend">Chưa nhận được email xác nhận?</button></div>`,
     signup: `<form class="auth-form" data-account="signup">${field('Tên hiển thị','display_name','text','autocomplete="nickname" maxlength="100"')}${email}${passwordField('Mật khẩu','new-password','Ít nhất 8 ký tự.')}<button class="btn btn-primary">Tạo tài khoản</button></form>${google}<p class="auth-fineprint">Tài khoản mới có quyền học viên. Quyền giáo viên do quản trị viên cấp.</p>`,
     forgot: `<form class="auth-form" data-account="forgot">${email}<button class="btn btn-primary">Gửi liên kết đặt lại</button></form><div class="auth-row" style="justify-content:flex-start;margin-top:12px"><button type="button" class="text-link" data-auth-view="login">Quay lại đăng nhập</button></div>`,
+    resend: `<form class="auth-form" data-account="resend">${email}<button class="btn btn-primary">Gửi lại email xác nhận</button></form><div class="auth-row" style="justify-content:flex-start;margin-top:12px"><button type="button" class="text-link" data-auth-view="login">Quay lại đăng nhập</button></div>`,
     reset: `<form class="auth-form" data-account="password">${passwordField('Mật khẩu mới','new-password','Ít nhất 8 ký tự.')}<button class="btn btn-primary">Lưu mật khẩu</button></form>`
   };
   authRoot.innerHTML = `<h1>${title}</h1><p class="auth-intro">${intro}</p>${tabs}${forms[view]}<p class="auth-status" data-cloud-status role="status" aria-live="polite"></p>`;
@@ -179,7 +196,7 @@ async function sessionChanged(session) {
     if (switchOwner(localStorage, next?.id || '')) { location.reload(); return; }
     user = next;
     profile = user ? await reply(client.from('profiles').select('*').eq('id',user.id).single()) : null;
-    ready = true; render();
+    ready = true; render(); syllabus.setSession(client, profile);
     if (user) {
       if (location.hash === '#auth' && !recovery) { setMood('success'); window.nav?.(destination()); }
       await mountWorkspace(document.getElementById('cloud-workspace'), client, user, profile, msg, failure);
@@ -194,7 +211,7 @@ async function sessionChanged(session) {
         schedule();
       } else msg('Chọn bản cloud hoặc bản thiết bị để bắt đầu đồng bộ. “Nhập tiến độ khách” chuyển dữ liệu trước khi đăng nhập.');
     }
-  } catch (error) { ready = true; render(); failure(error); }
+  } catch (error) { ready = true; render(); syllabus.setSession(client, profile); failure(error); }
   finally {
     initializing = false;
     if (pendingSession !== undefined) { const nextSession=pendingSession; pendingSession=undefined; sessionChanged(nextSession); }
@@ -210,10 +227,13 @@ async function onSubmit(event) {
     switch (form.dataset.account) {
       case 'login': await reply(client.auth.signInWithPassword({email:values.email,password:values.password})); form.reset(); break;
       case 'signup':
-        await reply(client.auth.signUp({email:values.email,password:values.password,options:{emailRedirectTo:location.origin+'/index.html#auth',data:{display_name:values.display_name.trim()}}}));
-        form.reset(); msg('Đã gửi yêu cầu tạo tài khoản. Mở email xác nhận rồi đăng nhập.'); setMood('excited','Kiểm tra hộp thư để xác nhận nhé!'); break;
+        await reply(client.auth.signUp({email:values.email,password:values.password,options:{emailRedirectTo:confirmRedirect(),data:{display_name:values.display_name.trim()}}}));
+        form.reset(); msg('Đã gửi yêu cầu tạo tài khoản. Mở email xác nhận (kiểm tra cả thư mục Spam) rồi đăng nhập trên trình duyệt này.'); setMood('excited','Kiểm tra hộp thư để xác nhận nhé!'); break;
+      case 'resend':
+        await reply(client.auth.resend({type:'signup',email:values.email,options:{emailRedirectTo:confirmRedirect()}}));
+        msg('Nếu email đã đăng ký và chưa xác nhận, liên kết mới đã được gửi. Kiểm tra cả thư mục Spam.'); setMood('happy'); break;
       case 'forgot':
-        await reply(client.auth.resetPasswordForEmail(values.email,{redirectTo:location.origin+'/index.html#auth'}));
+        await reply(client.auth.resetPasswordForEmail(values.email,{redirectTo:confirmRedirect()}));
         msg('Nếu email đã đăng ký, bạn sẽ nhận được hướng dẫn đặt lại mật khẩu.'); setMood('happy'); break;
       case 'password': await reply(client.auth.updateUser({password:values.password})); recovery=false; if (root.contains(form)) form.remove(); renderAuth(); msg('Đã đổi mật khẩu.'); setMood('success'); break;
       case 'name': await reply(client.rpc('update_display_name',{name:values.name})); profile.display_name=values.name; msg('Đã lưu tên hiển thị.'); break;
@@ -237,7 +257,7 @@ async function onClick(event) {
         const link=document.createElement('a');link.href=url;link.download=`HanziStudio_phuc-hoi_${remote?'cloud':'thiet-bi'}.json`;link.click();setTimeout(()=>URL.revokeObjectURL(url),5000);
         msg('Đã xuất bản phục hồi. Tệp chứa dữ liệu học cá nhân, hãy giữ ở nơi an toàn.');break;
       }
-      case 'google': await reply(client.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+'/index.html#auth'}})); break;
+      case 'google': await reply(client.auth.signInWithOAuth({provider:'google',options:{redirectTo:confirmRedirect()}})); break;
       case 'password': passwordForm(); break;
       case 'logout': await reply(client.auth.signOut({scope:'local'})); break;
       case 'sync': if (!localStorage.getItem(META)) msg('Hãy chọn bản cloud hoặc bản thiết bị để bắt đầu.',true); else await sync(); break;
@@ -279,7 +299,16 @@ if (config.url && config.key) {
     // Run database requests after Supabase releases its auth lock.
     setTimeout(()=>{sessionChanged(session);if(recovery&&ready&&user){passwordForm();renderAuth();window.nav?.('auth');}},0);
   });
-  client.auth.getSession().then(({data,error})=>{if(error)failure(error);else sessionChanged(data.session);});
+  // initialize() reports what getSession() swallows: an expired email link or a PKCE code opened in another browser.
+  Promise.all([client.auth.initialize(),client.auth.getSession()]).then(async([init,{data,error}])=>{
+    const problem=init?.error||error;
+    if(problem){
+      const url=new URL(location.href);['code','error','error_code','error_description'].forEach(k=>url.searchParams.delete(k));
+      history.replaceState(history.state,'',url.pathname+url.search+(/error/.test(location.hash)?'#auth':location.hash));
+    }
+    await sessionChanged(data?.session||null);
+    if(problem){window.nav?.('auth');failure(problem);}
+  });
   fetch(config.url+'/auth/v1/settings',{headers:{apikey:config.key},signal:AbortSignal.timeout(10000)}).then(async response=>{
     if(!response.ok)throw Error('Auth settings unavailable');
     const settings=await response.json();googleEnabled=settings.external?.google===true;updateGoogleButton();

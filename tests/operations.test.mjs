@@ -1,0 +1,62 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {authPayload,mask} from '../scripts/configure-auth.mjs';
+import {managementTarget,managementClient} from '../scripts/management-api.mjs';
+import {seedVocabulary} from '../scripts/seed-vocabulary.mjs';
+const project={HANZI_SUPABASE_URL:'https://rpoqcklcmsnrbmhfxdxg.supabase.co',HANZI_SUPABASE_PUBLISHABLE_KEY:'sb_publishable_fixture'};
+const token='sbp_'+'a'.repeat(40);
+const smtp={SMTP_HOST:'smtp.resend.com',SMTP_USER:'resend',SMTP_PASS:'secret-pass',SMTP_FROM:'no-reply@hanzi.example'};
+test('Auth payload keeps dashboard redirects, requires email confirmation and leaves unset providers alone',()=>{
+  const {payload,smtp:hasSmtp,google}=authPayload({},{uri_allow_list:'https://preview.example/**'});
+  assert.equal(payload.site_url,'https://hanzistudiohsk.vercel.app');
+  assert.equal(payload.uri_allow_list,'https://preview.example/**,https://hanzistudiohsk.vercel.app/**');
+  assert.equal(payload.mailer_autoconfirm,false);
+  assert.equal(hasSmtp,false);assert.equal(google,false);
+  assert.ok(!('smtp_host' in payload)&&!('external_google_enabled' in payload)&&!('mailer_subjects_confirmation' in payload));
+});
+test('SMTP settings are all-or-nothing, validated, and bring the Vietnamese templates',()=>{
+  assert.throws(()=>authPayload({SMTP_HOST:'smtp.resend.com'}),/SMTP thiếu: SMTP_USER, SMTP_PASS, SMTP_FROM/);
+  assert.throws(()=>authPayload({...smtp,SMTP_FROM:'Hanzi'}),/SMTP_FROM/);
+  assert.throws(()=>authPayload({...smtp,SMTP_PORT:'8080'}),/SMTP_PORT/);
+  const {payload}=authPayload({...smtp,SMTP_PORT:'465'});
+  assert.equal(payload.smtp_port,'465');assert.equal(payload.smtp_sender_name,'Hanzi Studio');assert.equal(payload.rate_limit_email_sent,30);
+  assert.match(payload.mailer_subjects_confirmation,/Xác nhận email/);
+  assert.match(payload.mailer_templates_confirmation_content,/\{\{ \.ConfirmationURL \}\}/);
+  assert.match(payload.mailer_templates_reauthentication_content,/\{\{ \.Token \}\}/);
+  for(const name of ['confirmation','recovery','magic_link','email_change','invite','reauthentication'])assert.ok(payload[`mailer_subjects_${name}`]&&payload[`mailer_templates_${name}_content`].includes('lang="vi"'),name);
+  assert.match(payload.mailer_templates_confirmation_content,/cùng trình duyệt/);
+  const shown=mask(payload);
+  assert.equal(shown.smtp_pass,'••••');assert.match(shown.mailer_templates_recovery_content,/^<HTML \d+ ký tự>$/);
+  assert.ok(!JSON.stringify(shown).includes('secret-pass'));
+});
+test('Google needs a web client ID and secret; the site origin must be HTTPS without a path',()=>{
+  assert.throws(()=>authPayload({GOOGLE_CLIENT_ID:'123-abc.apps.googleusercontent.com'}),/GOOGLE_CLIENT_SECRET/);
+  assert.throws(()=>authPayload({GOOGLE_CLIENT_ID:'my-app',GOOGLE_CLIENT_SECRET:'x'}),/apps\.googleusercontent\.com/);
+  const {payload}=authPayload({GOOGLE_CLIENT_ID:'123-abc.apps.googleusercontent.com',GOOGLE_CLIENT_SECRET:'GOCSPX-x'});
+  assert.equal(payload.external_google_enabled,true);assert.equal(mask(payload).external_google_secret,'••••');
+  assert.throws(()=>authPayload({HANZI_SITE_URL:'http://hanzi.example'}),/HTTPS/);
+  assert.throws(()=>authPayload({HANZI_SITE_URL:'https://hanzi.example/app'}),/không có đường dẫn/);
+});
+test('Management API client targets the configured project and never accepts other token kinds',async()=>{
+  assert.throws(()=>managementTarget(project),/SUPABASE_ACCESS_TOKEN/);
+  assert.throws(()=>managementTarget({...project,SUPABASE_ACCESS_TOKEN:'sb_secret_abc'}),/sbp_/);
+  assert.equal(managementTarget({...project,SUPABASE_ACCESS_TOKEN:token}).ref,'rpoqcklcmsnrbmhfxdxg');
+  const seen=[];
+  const api=managementClient({...project,SUPABASE_ACCESS_TOKEN:token},async(url,init)=>{seen.push({url,init});return new Response('[{"n":1}]',{status:201});});
+  assert.deepEqual((await api.database.query('select $1::int n',[1])).rows,[{n:1}]);
+  assert.equal(seen[0].url,'https://api.supabase.com/v1/projects/rpoqcklcmsnrbmhfxdxg/database/query');
+  assert.equal(seen[0].init.headers.authorization,'Bearer '+token);
+  assert.deepEqual(JSON.parse(seen[0].init.body),{query:'select $1::int n',parameters:[1]});
+  const failing=managementClient({...project,SUPABASE_ACCESS_TOKEN:token},async()=>new Response('{"message":"bad"}',{status:401}));
+  await assert.rejects(failing.request('GET','/config/auth'),/HTTP 401/);
+});
+test('Seeding through a non-atomic connection skips transaction statements',async()=>{
+  const statements=[];
+  const db={atomic:false,query:async(sql)=>{statements.push(sql.trim().split(/\s+/)[0].toLowerCase());
+    if(/^select sha256/.test(sql))return {rows:[{sha256:'f'.repeat(64)}]};
+    if(/returning \(xmax=0\)/.test(sql))return {rows:[{inserted:true}]};
+    return {rows:[]};}};
+  const dataset={format:'hanzi-vocabulary-v1',syllabus:'HSK 3.0 (CLEC 2025)',source:{id:'clec-test',sha256:'f'.repeat(64)},entries:[{seq:1,level:'1',extraLevels:[],word:'好',homograph:null,pinyin:'hǎo',pos:['形'],posExtra:[],page:80}]};
+  assert.deepEqual(await seedVocabulary(db,dataset),{inserted:1,updated:0,keptReviewed:[]});
+  assert.ok(!statements.some(s=>['begin','commit','rollback'].includes(s)));
+});
