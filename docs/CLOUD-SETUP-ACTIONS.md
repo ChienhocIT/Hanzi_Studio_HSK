@@ -26,10 +26,19 @@ Sau đó chạy `npm run check:cloud`; phép kiểm tra public vẫn chưa thay 
 - Bật Google provider. Endpoint `/auth/v1/settings` đã báo `google: true`.
 - Nạp 11.000 mục HSK 3.0 ở trạng thái nháp.
 
+- **SMTP (16:18):** Gmail app password, kèm 6 mẫu email tiếng Việt. Thư thử `/recover` gửi thành công (HTTP 200, log không lỗi).
+  - Mật khẩu ứng dụng đầu tiên bị Google vô hiệu hóa vài phút sau khi máy chủ Supabase đăng nhập (lỗi `535 BadCredentials`), phải tạo mật khẩu mới.
+  - Gmail cá nhân có thể chặn lại đăng nhập từ máy chủ cloud. Nên chuyển sang domain riêng và Resend/Brevo.
+- **Quản trị viên đầu tiên:** tài khoản Google của chủ dự án, cấp bằng `db:promote-admin`.
+
 **Còn chờ:**
-- SMTP riêng (Gmail app password).
-- Đưa Google OAuth app ra khỏi chế độ Testing. Mục Branding cần privacy policy `https://hanzistudiohsk.vercel.app/privacy.html` và terms `https://hanzistudiohsk.vercel.app/terms.html`.
-- Tạo quản trị viên đầu tiên.
+- Đưa Google OAuth app ra khỏi chế độ Testing: gỡ logo (logo bắt buộc phải qua xét duyệt), điền privacy `https://hanzistudiohsk.vercel.app/privacy.html` và terms `https://hanzistudiohsk.vercel.app/terms.html`, rồi bấm Publish.
+- Quản trị viên xuất bản danh mục HSK 3.0 theo cấp.
+- Thu hồi `SUPABASE_ACCESS_TOKEN` khi không cần dùng nữa.
+
+**Lưu ý khi chẩn đoán:**
+- Đăng ký lại bằng email đã có tài khoản (kể cả tài khoản Google) sẽ không gửi thư. Log ghi `user_repeated_signup`.
+- Log Auth đọc qua `GET /v1/projects/{ref}/analytics/endpoints/logs?sql=...`, bảng `logs`. Endpoint `logs.all` đã bị gỡ.
 
 Mọi bước ghi dùng một **Supabase personal access token** đặt trong `.env.local` (Git ignore; build không đưa vào `dist/`). Tạo tại [Account → Access Tokens](https://supabase.com/dashboard/account/tokens), nên đặt hạn dùng ngắn và thu hồi sau khi xong. Token có quyền trên mọi project của tài khoản, không gửi qua chat hay commit. Xem các biến ở `.env.example`.
 
