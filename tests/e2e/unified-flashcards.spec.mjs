@@ -77,6 +77,10 @@ test('Reference and roadmap cards share the same controls, keep source histories
   await page.evaluate(()=>nav('path'));const path=page.locator('#v4-path');
   await path.locator('.classic-study').getByRole('button',{name:/Mở đáp án/}).click();expect(await ratingNames(path.locator('.rating button'))).toEqual(ratings);
   expect(await templateShape(path.locator('.study-layout'))).toEqual(await templateShape(page.locator('#page-study .study-layout')));
+  const example=await page.evaluate(()=>{const [zh,py]=exampleParts(DECK[0].ex);return {zh,py,vi:DECK[0].exvi};});
+  await expect(path.locator('#hs-card-example-zh')).toHaveText(example.zh);
+  await expect(path.locator('#hs-card-example-py')).toHaveText(example.py);
+  await expect(path.locator('#hs-card-example-vi')).toHaveText(example.vi);
   const before=await path.locator('.reference-word').textContent();
   await page.evaluate(()=>{const original=Storage.prototype.setItem;Storage.prototype.setItem=function(key,value){if(key==='hanzi-studio-curriculum-v4')throw new DOMException('full','QuotaExceededError');return original.call(this,key,value);};});
   await path.getByRole('button',{name:'Khó nhớ',exact:true}).click();await expect(path.locator('.reference-word')).toHaveText(before);

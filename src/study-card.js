@@ -22,7 +22,7 @@ function cloneOriginalLayout() {
   return originalTemplate.content.firstElementChild.cloneNode(true);
 }
 
-export function renderStudyCard({namespace,word,homograph=null,reading='',answerHtml,partHtml='',examplesHtml='',exampleText='',exampleTranslation='',examplesId='',position,total,record,revealed,source=''}) {
+export function renderStudyCard({namespace,word,homograph=null,reading='',answerHtml,partHtml='',examplesHtml='',exampleText='',exampleReading='',exampleTranslation='',examplesId='',position,total,record,revealed,source=''}) {
   const layout = cloneOriginalLayout();
   const get = id => layout.querySelector('#'+id);
   const action = (element, name) => element.setAttribute('data-'+namespace, namespace === 'hs' ? ({reveal:'flip',previous:'prev'}[name] || name) : name);
@@ -45,6 +45,7 @@ export function renderStudyCard({namespace,word,homograph=null,reading='',answer
   const examples=get('card-example-zh');examples.innerHTML=examplesHtml||'<p class="panel-sub">Chưa có ví dụ đã duyệt cho mục này.</p>';
   if(exampleText)examples.textContent=exampleText;
   for (const id of ['card-example-py','card-example-vi']) {get(id).textContent='';get(id).hidden=true;}
+  if(exampleReading){get('card-example-py').textContent=exampleReading;get('card-example-py').hidden=false;}
   if(exampleTranslation){get('card-example-vi').textContent=exampleTranslation;get('card-example-vi').hidden=false;}
   const card=get('flashcard');card.classList.toggle('flipped',revealed);card.dataset.studyFlip='';action(card,'reveal');
   card.querySelectorAll('.card-face').forEach((face,i)=>{const hidden=i===0?revealed:!revealed;face.setAttribute('aria-hidden',String(hidden));face.inert=hidden;});
