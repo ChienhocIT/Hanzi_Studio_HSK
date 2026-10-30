@@ -47,7 +47,7 @@ Giữ màu tím, font Be Vietnam Pro, nhận diện và cấu trúc điều hư�
 1. Duyệt hàng đợi báo câu và câu nháp định kỳ. Chỉ xuất bản khi người có chuyên môn xác nhận; không nhập lại để xóa lịch sử duyệt.
 2. Khi cập nhật nguồn, chạy các lệnh prepare, đối chiếu hash/giấy phép/count rồi review diff dữ liệu. Không tự nâng dependency hoặc gom toàn bộ kho nét vào precache.
 3. Giữ hợp đồng giữa hai engine SRS, curriculum và cloud snapshots. Chưa có lý do đổi toàn bộ framework hoặc gộp lịch ôn; tiếp tục giữ test tài khoản/storage mỗi lần sửa luồng học.
-4. Shell HTML/CSS và tải module toàn ứng dụng vẫn là nợ hiệu năng. Đo production phát hiện `defer` hạ ưu tiên tải các script khởi tạo, nên giữ thứ tự/chế độ thực thi ban đầu và preload `app.js` với ưu tiên cao. Chỉ tách tải theo route khi đo chỉ ra lợi ích rõ ràng. Lighthouse local từ máy dev không nén không đại diện cho CDN production.
+4. Shell HTML/CSS và tải module toàn ứng dụng vẫn là nợ hiệu năng. Đo production phát hiện `defer` hạ ưu tiên tải các script khởi tạo, nên giữ thứ tự/chế độ thực thi ban đầu và preload `app.js` với ưu tiên cao. Select và tiêu đề được render ngay trong HTML, tránh thay tám chip bằng select sau khi cloud bundle tải xong rồi mới đưa chữ trên thẻ vào viewport. Select chỉ mở tương tác sau khi listener sẵn sàng. Chỉ tách tải theo route khi đo chỉ ra lợi ích rõ ràng. Lighthouse local từ máy dev không nén không đại diện cho CDN production.
 5. Khi đổi nguồn audio, kiểm tra lại tác giả, license, URL, hash và nội dung khớp câu trước khi nhập; số lượng 20 là trần pilot, không phải chỉ tiêu buộc phải lấp bằng tài sản thiếu quyền.
 
 ## Kiểm chứng bản phát hành
