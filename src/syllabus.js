@@ -3,7 +3,7 @@ import {vocabularyQuiz} from './vocabulary-quiz.js';
 import {mountVocabReports} from './vocab-reports.js';
 import {exampleAudio,mountExampleAudio} from './example-audio.js';
 import {mountExampleReview} from './example-review.js';
-import {renderStudyCard,refreshStudyCard,focusStudyCard,mountStudyKeyboard,studyRatings,recordStudyRating,resetStudySession} from './study-card.js';
+import {renderStudyCard,preserveStudyFocus,setStudyRevealed,refreshStudyCard,focusStudyCard,mountStudyKeyboard,studyRatings,recordStudyRating,resetStudySession,createStudyControls,matchesStudyMode,isStudyBookmarked,toggleStudyBookmark} from './study-card.js';
 // HSK 1–9 study screen over the 2025 CLEC syllabus list in vocab_entries, with CC-CEDICT English glosses.
 // Only served to signed-in accounts (redistribution rights are unclear); learners see published rows,
 // teachers/admins also see drafts. Card ratings join the curriculum SRS through hanzi:reference-rating.
@@ -34,7 +34,8 @@ export function mountSyllabus(root) {
   mountExampleAudio(root);
   mountStudyKeyboard(root);
   let shownCard = null, resumeSeq = null, cardMode = 'all';
-  const cardRows=()=>words().filter(r=>{const p=progress(r.seq);if(view==='due'||cardMode==='due')return isDue(r);if(cardMode==='new')return !p;if(cardMode==='learning')return p&&p.reps<2&&p.lastRating!=='easy';if(cardMode==='mastered')return p&&(p.reps>=2||p.lastRating==='easy');return true;});
+  const controls=createStudyControls();
+  const cardRows=()=>controls.order(words().filter(r=>matchesStudyMode(progress(r.seq),view==='due'?'due':cardMode,isStudyBookmarked(entryId(r.seq)))),r=>r.seq);
   function rememberLocation() {
     if(!LEVELS.includes(level)||!['cards','due'].includes(view)||shownCard===null)return;
     const detail={level,stage,seq:shownCard,saved:false};
@@ -49,7 +50,7 @@ export function mountSyllabus(root) {
     }catch{}
   }
   const admin = () => profile?.role === 'admin', staff = () => ['teacher','admin'].includes(profile?.role);
-  root.innerHTML = `<div class="art-hero hsk-hero"><picture class="art-hero-media"><source media="(max-width:700px)" srcset="./assets/illustrations/banner-reading-mobile.webp" width="750" height="900"><img src="./assets/illustrations/banner-reading-desktop.webp" alt="" width="1600" height="600"></picture><div class="art-hero-copy"><h1>Thư viện từ vựng HSK 1–9</h1><p>11.000 từ của đề cương HSK 3.0 (2025), chia theo cấp và chặng: tra cứu, nghe, luyện thẻ, ôn đúng lúc.</p></div></div><div class="panel" id="syllabus-panel"><p id="syllabus-status" role="status" aria-live="polite"></p><div id="syllabus-content"></div></div>`;
+  root.innerHTML = `<div class="art-hero hsk-hero"><picture class="art-hero-media"><source media="(max-width:700px)" srcset="./assets/illustrations/banner-reading-mobile.webp" width="750" height="900"><img src="./assets/illustrations/banner-reading-desktop.webp" alt="" width="1600" height="600"></picture><div class="art-hero-copy"><h1>Thư viện từ vựng HSK 1–9</h1><p>11.000 từ của đề cương HSK 3.0 (2025), chia theo cấp và chặng: tra cứu, nghe, luyện thẻ, ôn đúng lúc.</p></div></div><div class="panel" id="syllabus-panel"><div id="syllabus-content"></div><p id="syllabus-status" role="status" aria-live="polite"></p></div>`;
   const status = (text, error = false) => { const el = root.querySelector('#syllabus-status'); el.textContent = text; el.classList.toggle('cloud-error', error); };
   const content = root.querySelector('#syllabus-content');
   const stageRows = (rows, index) => rows.slice(index * STAGE[level], (index + 1) * STAGE[level]);
@@ -62,7 +63,7 @@ export function mountSyllabus(root) {
   };
   // Progress is restorable from backups and cloud sync, so treat it as untrusted and keep only numbers.
   const progress = seq => { try { const r = JSON.parse(localStorage.getItem(stateKey) || '{}').progress?.[entryId(seq)]; return r ? {reps: Math.max(0, Number.parseInt(r.reps, 10) || 0), due: Number(r.due) || 0,lastRating:studyRatings.includes(r.lastRating)?r.lastRating:null} : null; } catch { return null; } };
-  const posText = r => [...r.pos, ...r.pos_extra.map(p => `(${p})`)].map(p => { const key = p.replace(/[()]/g,''); return `<abbr title="${h(POS[key] || key)}">${h(p)}</abbr>`; }).join('、') || '<span class="panel-sub">cụm từ</span>';
+  const posText = (r,localized=false) => [...r.pos, ...r.pos_extra.map(p => `(${p})`)].map(p => { const key = p.replace(/[()]/g,''); return `<abbr title="${h(localized?p:POS[key] || key)}">${h(localized?POS[key]||p:p)}</abbr>`; }).join('、') || '<span class="panel-sub">cụm từ</span>';
   const meaning = r => r.gloss_en?.length ? `<p lang="en" class="panel-sub">${r.gloss_en.map(h).join('; ')}</p>` : '';
   const isDue = r => { const p = progress(r.seq); return Boolean(p && p.due <= Date.now()); };
   function stageGrid() {
@@ -140,7 +141,8 @@ export function mountSyllabus(root) {
     const count = s => rows.filter(r => r.review_status === s).length;
     return `<details class="syllabus-admin" ${adminOpen ? 'open' : ''}><summary>Duyệt cấp HSK ${h(level)} (quản trị viên)</summary><p>${Object.keys(STATUS).map(s => `${STATUS[s]}: ${count(s).toLocaleString('vi-VN')}`).join(' · ')}. Học viên chỉ thấy mục đã xuất bản. Hãy đối chiếu với đề cương (cột “Trang”) trước khi xuất bản.</p><div class="cloud-actions"><button type="button" class="btn" data-syl="publish" ${count('draft') ? '' : 'disabled'}>Xuất bản ${count('draft').toLocaleString('vi-VN')} mục nháp</button><button type="button" class="btn" data-syl="unpublish" ${count('published') ? '' : 'disabled'}>Ẩn khỏi học viên</button></div></details>`;
   }
-  function renderResults() {
+  function renderResults() { preserveStudyFocus(root,renderResultsContent); }
+  function renderResultsContent() {
     const result = root.querySelector('#syllabus-results');
     if (!result) return;
     root.classList.toggle('has-study-card',['cards','due'].includes(view));
@@ -159,14 +161,13 @@ export function mountSyllabus(root) {
       result.insertAdjacentHTML('beforeend', `<div class="stage-bar"><button type="button" class="btn" data-syl="stages">← Tất cả chặng</button><strong>HSK ${h(level)} · Chặng ${stage + 1}</strong><span class="panel-sub">Từ ${stage * size + 1}–${stage * size + words().length}</span></div>`);
     }
     const list = ['cards','due'].includes(view) ? cardRows() : words();
-    if(['cards','due'].includes(view)){
-      const all=cache.get(level)||[],count=level==='all'?0:Math.ceil(all.length/STAGE[level]);
-      result.insertAdjacentHTML('beforeend',`<div class="study-tools study-card-filters"><div class="field-select"><label for="syllabus-study-stage">Bộ từ</label><select id="syllabus-study-stage" data-syl-stage-select><option value="all" ${stage===null?'selected':''}>Tất cả từ của cấp</option>${Array.from({length:count},(_,i)=>`<option value="${i}" ${stage===i?'selected':''}>Chặng ${i+1} · Từ ${i*STAGE[level]+1}-${Math.min((i+1)*STAGE[level],all.length)}</option>`).join('')}</select></div><div class="field-select"><label for="syllabus-study-mode">Chế độ</label><select id="syllabus-study-mode" data-syl-mode>${[['all','Tất cả thẻ'],['new','Chưa học'],['learning','Đang học'],['mastered','Đã nhớ'],['due','Đến hạn ôn']].map(([id,text])=>`<option value="${id}" ${(view==='due'?'due':cardMode)===id?'selected':''}>${text}</option>`).join('')}</select></div></div>`);
-    }
-    if (!list.length) { result.insertAdjacentHTML('beforeend', `<p>${(view === 'due'||cardMode==='due') ? 'Chưa có từ nào đến hạn ôn ở cấp này. Luyện thẻ và bấm “Đã nhớ” để bắt đầu lịch ôn.' : query ? 'Không có mục phù hợp. Thử chữ Hán hoặc pinyin khác (gõ không dấu cũng được).' : 'Chưa có mục để hiển thị.'}</p>`); return; }
+    const all=level==='all'?words():cache.get(level)||[],count=level==='all'?0:Math.ceil(all.length/STAGE[level]);
+    const stageOptions=[{value:'all',label:'Tất cả '+all.length.toLocaleString('vi-VN')+' từ'},...Array.from({length:count},(_,i)=>({value:String(i),label:'Chặng '+(i+1)+' · Từ '+(i*STAGE[level]+1)+'–'+Math.min((i+1)*STAGE[level],all.length)}))];
+    const cardOptions={namespace:'syl',controls,stageOptions,stage:stage??'all',mode:view==='due'?'due':cardMode,source:'HSK '+level};
+    if (!list.length) { if(['cards','due'].includes(view))result.insertAdjacentHTML('beforeend',renderStudyCard(cardOptions));else result.insertAdjacentHTML('beforeend','<p>Không có mục phù hợp. Thử bộ lọc hoặc từ khóa khác.</p>');return; }
     if (view === 'cards' || view === 'due' || view === 'stages') {
       position = Math.min(position, list.length - 1); const r = list[position], record = progress(r.seq); shownCard = r.seq;
-      result.insertAdjacentHTML('beforeend', renderStudyCard({namespace:'syl',word:r.word,homograph:r.homograph,reading:r.pinyin,answerHtml:meaning(r)||'<p>Chưa có nghĩa đối chiếu. Cần biên tập bổ sung.</p>',partHtml:posText(r),position,total:list.length,record,revealed,source:'HSK '+r.level,examplesId:'syllabus-card-examples',examplesHtml:revealed?exampleList(r):''}));
+      result.insertAdjacentHTML('beforeend', renderStudyCard({...cardOptions,bookmarked:isStudyBookmarked(entryId(r.seq)),word:r.word,homograph:r.homograph,reading:r.pinyin,answerHtml:meaning(r)||'<p>Chưa có nghĩa đối chiếu. Cần biên tập bổ sung.</p>',partHtml:posText(r,true),position,total:list.length,record,revealed,source:'HSK '+r.level,examplesId:'syllabus-card-examples',examplesHtml:revealed?exampleList(r):''}));
       return;
     }
     const pages = Math.ceil(list.length / PAGE); page = Math.min(page, pages - 1);
@@ -180,8 +181,9 @@ export function mountSyllabus(root) {
     content.querySelector('[name="query"]').required = false;
     const source=root.querySelector('.syllabus-source'),details=document.createElement('details');
     details.className='syllabus-source-details';details.innerHTML='<summary>Nguồn học liệu và giấy phép</summary>';source.before(details);details.appendChild(source);
-    content.insertAdjacentHTML('afterbegin','<div class="study-primary"><button type="button" class="btn" data-syl="stages">Chọn chặng</button><button type="button" class="btn" data-syl="due">Ôn đến hạn</button><button type="button" class="btn" data-syl="tools" aria-expanded="false">Tra cứu và quiz</button></div><button type="button" class="btn" data-syl="reload" hidden>Thử tải lại bộ thẻ</button>');
+    content.insertAdjacentHTML('afterbegin','<div class="study-primary"><button type="button" class="btn" data-syl="tools" aria-expanded="false">Tra cứu và quiz</button></div><button type="button" class="btn" data-syl="reload" hidden>Thử tải lại bộ thẻ</button>');
     content.querySelector('.cloud-actions').insertAdjacentHTML('beforeend','<button type="button" class="btn" data-syl="quiz">Luyện trắc nghiệm</button><button type="button" class="btn" data-syl="quiz-pinyin">Luyện pinyin</button>');
+    root.querySelector('#syllabus-results').after(root.querySelector('.study-primary'));
     if(location.hash==='#study'){view='cards';cardMode='all';restoreLocation();}
     load();
   }
@@ -273,6 +275,7 @@ export function mountSyllabus(root) {
       return;
     }
     if(action==='quiz-next'){if(quiz&&quiz.answers.length===quiz.index+1){quiz.index++;if(quiz.index===quiz.questions.length)saveQuiz();renderResults();(root.querySelector('[data-syl="quiz-answer"]')||root.querySelector('#syllabus-results h3'))?.focus();}return;}
+    if(action==='reset'){stage=null;cardMode='all';view='cards';position=0;revealed=false;renderResults();return;}
     if (action === 'stages') { stage = null; view = 'stages'; renderResults(); return; }
     if (action === 'list' || action === 'cards' || action === 'due') { cardMode='all';view = action; position = 0; revealed = false; renderResults(); return; }
     if (action === 'publish' || action === 'unpublish') { button.disabled = true; await review(action === 'publish' ? 'published' : 'draft'); return; }
@@ -295,7 +298,10 @@ export function mountSyllabus(root) {
     if (action === 'prev-page') page--; if (action === 'next-page') page++;
     if (!r && !action.endsWith('page')) return;
     if (action === 'next' || action === 'previous') { position = (position + (action === 'next' ? 1 : list.length - 1)) % list.length; revealed = false; }
-    if (action === 'reveal') revealed = !revealed;
+    if (action === 'reveal') { revealed=!revealed;const box=root.querySelector('#syllabus-card-examples');if(revealed)box.innerHTML=exampleList(r)||'<p class="panel-sub">Chưa có ví dụ đã duyệt cho mục này.</p>';setStudyRevealed(root,revealed);focusStudyCard(root,true);return; }
+    if(action==='reverse'){controls.reversed=!controls.reversed;revealed=false;renderResults();return;}
+    if(action==='shuffle'){controls.shuffle();position=0;revealed=false;renderResults();return;}
+    if(action==='bookmark'){if(toggleStudyBookmark(entryId(r.seq)))renderResults();return;}
     if (action === 'speak') { window.speak?.(r.word); return; }
     if (studyRatings.includes(action)) {
       if (!revealed) return;
@@ -308,12 +314,12 @@ export function mountSyllabus(root) {
     }
     renderResults();
     if(['previous','next',...studyRatings].includes(action)){rememberLocation();focusStudyCard(root);}
-    if(action==='reveal')focusStudyCard(root,true);
+
   });
   function chooseLevel(next, nextView, resume=false) {
     if (![...LEVELS, 'all'].includes(next)) return;
     if(resume&&next===level&&cache.has(next)&&['cards','due'].includes(view))return;
-    rememberLocation();
+    rememberLocation();controls.reset();
     resumeSeq=null;
     cardMode='all';level = next; stage = null; quiz = null; query = ''; page = 0; position = 0; revealed = false; view = ['due', 'cards', 'list'].includes(nextView) ? nextView : level === 'all' ? 'list' : 'stages';
     try { if (level !== 'all') localStorage.setItem(LEVEL_KEY, level); } catch {}
@@ -325,5 +331,5 @@ export function mountSyllabus(root) {
   // Links elsewhere (roadmap, old HSK 3 library) open the library on a level: data-go="hsk" data-hsk-level="4".
   document.addEventListener('click', event => { const link = event.target.closest('[data-hsk-level]'); if (link) chooseLevel(link.dataset.hskLevel, link.dataset.hskView); }, true);
   render();
-  return { openLevel: chooseLevel, get level() { return level; }, setSession(nextClient, nextProfile) { if (client === nextClient && profile?.id === nextProfile?.id && profile?.role === nextProfile?.role) return;sessionEpoch++;resetStudySession('syl'); reports.reset();exampleReview.reset();examples.clear(); client = nextClient; profile = nextProfile; render(); } };
+  return { openLevel: chooseLevel, get level() { return level; }, setSession(nextClient, nextProfile) { if (client === nextClient && profile?.id === nextProfile?.id && profile?.role === nextProfile?.role) return;sessionEpoch++;controls.reset();resetStudySession('syl'); reports.reset();exampleReview.reset();examples.clear(); client = nextClient; profile = nextProfile; render(); } };
 }

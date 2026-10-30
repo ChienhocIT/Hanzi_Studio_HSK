@@ -18,7 +18,7 @@ export async function mockCloud(page,role='student',{authenticated=true,userId=i
     localStorage.setItem('hanzi-cloud-owner',id);
     localStorage.setItem('sb-demo-auth-token',JSON.stringify(session));
   },{id,session});
-  await page.route('**/cloud-config.js',route=>route.fulfill({contentType:'application/javascript',body:'window.HANZI_CLOUD_CONFIG={url:"https://demo.supabase.co",key:"sb_publishable_fixture"}'}));
+  await page.route('**/cloud-config.js*',route=>route.fulfill({contentType:'application/javascript',body:'window.HANZI_CLOUD_CONFIG={url:"https://demo.supabase.co",key:"sb_publishable_fixture"}'}));
   await page.route('https://demo.supabase.co/**',async route=>{
     const req=route.request(),url=new URL(req.url()),body=req.postDataJSON();
     calls.push({path:url.pathname,body});
@@ -94,7 +94,7 @@ export async function mockCloud(page,role='student',{authenticated=true,userId=i
     else {status=400;result={message:'unexpected_mock_request'};}
     await route.fulfill({status,contentType:'application/json',body:JSON.stringify(result)});
   });
-  return {calls,data};
+  return {calls,data,session};
 }
 // Rows shaped like public.vocab_entries for the HSK 3.0 (CLEC 2025) syllabus.
 export const vocab=(status='published')=>[

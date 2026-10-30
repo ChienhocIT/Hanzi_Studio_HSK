@@ -71,10 +71,11 @@ test('Due card audio and ratings target the visible word rather than the first w
   await page.evaluate(()=>{window.spoken=[];window.speak=text=>window.spoken.push(text);});
   await panel.getByRole('button',{name:'Ôn từ đến hạn',exact:true}).click();
   await expect(panel.locator('.reference-word')).toHaveText('学生');
-  await panel.getByRole('button',{name:'Nghe',exact:true}).click();
+  await panel.getByRole('button',{name:'Phát âm tiếng Trung',exact:true}).click();
   expect(await page.evaluate(()=>window.spoken)).toEqual(['学生']);
   await panel.getByRole('button',{name:/Mở đáp án/}).click();
   await panel.getByRole('button',{name:'Đã nhớ',exact:true}).click();
-  await expect(panel).toContainText('Chưa có từ nào đến hạn ôn');
+  await expect(panel.locator('#syl-study-empty')).toBeVisible();
+  await expect(panel.getByLabel('Chế độ',{exact:true})).toHaveValue('due');
   const saved=await stored(page);expect(saved.progress['clec2025-2'].reps).toBe(2);expect(saved.progress['clec2025-1']).toBeUndefined();
 });

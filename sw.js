@@ -5,11 +5,14 @@ self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(
 self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key.startsWith('hanzi-studio-')&&key!==CACHE).map(key=>caches.delete(key)))));self.clients.claim()});
 self.addEventListener('fetch',event=>{
   const url=new URL(event.request.url);
-  if(event.request.method!=='GET'||url.origin!==location.origin||url.pathname.startsWith('/api/')||url.search)return;
+  if(event.request.method!=='GET'||url.origin!==location.origin||url.pathname.startsWith('/api/'))return;
+  // Serve only this build's versioned assets from this cache. Newer shells fetch their own assets.
+  if(url.search&&([...url.searchParams.keys()].some(key=>key!=='v')||url.searchParams.get('v')!==CACHE.slice('hanzi-studio-'.length)))return;
   // Private API responses and auth callback URLs must never enter the offline cache.
   if(event.request.mode==='navigate'){
     event.respondWith(fetch(event.request).catch(()=>caches.match('./index.html')));return;
   }
   if(!CORE.some(path=>new URL(path,self.location.href).pathname===url.pathname))return;
-  event.respondWith(caches.open(CACHE).then(async cache=>await cache.match(event.request)||fetch(event.request)));
+  const canonical=new URL(url);canonical.search='';
+  event.respondWith(caches.open(CACHE).then(async cache=>await cache.match(canonical.href)||fetch(event.request)));
 });

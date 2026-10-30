@@ -43,7 +43,7 @@ test('A narrow vocabulary search cannot produce an ambiguous quiz',async({page})
   await expect(panel.locator('[data-syl="quiz-answer"]')).toHaveCount(0);
 });
 async function harness(page) {
-  await page.goto('/privacy.html');await page.setContent('<main id="fixture"></main>');await page.evaluate(async()=>{const html=await fetch('/index.html').then(r=>r.text()),doc=new DOMParser().parseFromString(html,'text/html'),holder=document.createElement('div');holder.id='page-study';holder.hidden=true;holder.append(doc.querySelector('#page-study .study-layout'));document.body.append(holder);});await page.addScriptTag({content:component});
+  await page.goto('/privacy.html');await page.setContent('<main id="fixture"></main>');await page.evaluate(async()=>{const html=await fetch('/index.html').then(r=>r.text()),doc=new DOMParser().parseFromString(html,'text/html'),holder=document.createElement('div');holder.id='page-study';holder.hidden=true;holder.append(doc.querySelector('#page-study > .study-workspace'));document.body.append(holder);});await page.addScriptTag({content:component});
 }
 test('A delayed staff vocabulary response cannot populate another account cache',async({page})=>{
   await harness(page);

@@ -31,6 +31,10 @@
         if(!keys.includes(key)||typeof value!=='string'||value.length>7*1024*1024)throw Error('Dữ liệu sao lưu không hợp lệ');
         const object=JSON.parse(value);
         if(!object||typeof object!=='object'||Array.isArray(object))throw Error('Dữ liệu nhóm '+key+' sai định dạng');
+        const record=value=>value&&typeof value==='object'&&!Array.isArray(value);
+        if(key===keys[0]&&(object.v!==1||!record(object.records)||!Array.isArray(object.bookmarks)||!Array.isArray(object.events)||!Array.isArray(object.quizHistory)||!record(object.settings)))throw Error('Tiến độ HSK 3 sai cấu trúc');
+        if(key===keys[1]&&(!record(object.progress)||!Array.isArray(object.injected)||!Array.isArray(object.importLog)))throw Error('Lộ trình sai cấu trúc');
+        if(key===keys[2]&&(!Array.isArray(object.lessons)||!record(object.stats)))throw Error('Dữ liệu video sai cấu trúc');
         staging[key]=value;
       }
       const confirmed=window.confirm('Khôi phục '+Object.keys(staging).length+' nhóm dữ liệu? Điều này sẽ thay thế dữ liệu học trên thiết bị hiện tại và tải lại trang. Nên xuất bản sao lưu hiện tại trước.');

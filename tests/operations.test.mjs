@@ -21,7 +21,8 @@ test('SMTP settings are all-or-nothing, validated, and bring the Vietnamese temp
   const {payload}=authPayload({...smtp,SMTP_PORT:'465'});
   assert.equal(payload.smtp_port,'465');assert.equal(payload.smtp_sender_name,'Hanzi Studio');assert.equal(payload.rate_limit_email_sent,30);
   assert.match(payload.mailer_subjects_confirmation,/Xác nhận email/);
-  assert.match(payload.mailer_templates_confirmation_content,/\{\{ \.ConfirmationURL \}\}/);
+  assert.match(payload.mailer_templates_confirmation_content,/token_hash=\{\{ \.TokenHash \}\}&amp;type=email#auth/);
+  assert.match(payload.mailer_templates_recovery_content,/token_hash=\{\{ \.TokenHash \}\}&amp;type=recovery#auth/);
   assert.match(payload.mailer_templates_reauthentication_content,/\{\{ \.Token \}\}/);
   for(const name of ['confirmation','recovery','magic_link','email_change','invite','reauthentication'])assert.ok(payload[`mailer_subjects_${name}`]&&payload[`mailer_templates_${name}_content`].includes('lang="vi"'),name);
   assert.match(payload.mailer_templates_confirmation_content,/cùng trình duyệt/);

@@ -222,9 +222,9 @@ test('Sign-up sends the display name and teachers land in their classroom after 
   await page.getByLabel('Mật khẩu',{exact:true}).fill('fake-password');
   await page.getByRole('button',{name:'Hiện mật khẩu',exact:true}).click();await expect(page.getByLabel('Mật khẩu',{exact:true})).toHaveAttribute('type','text');
   await page.getByRole('button',{name:'Tạo tài khoản',exact:true}).click();
-  await expect(page.locator('#auth-panel [data-cloud-status]')).toContainText('Mở email xác nhận');
+  await expect(page.locator('#auth-panel [data-cloud-status]')).toContainText('Kiểm tra email');
   expect(calls.find(x=>x.path.endsWith('/signup')).body.data.display_name).toBe('Cô Lan');
-  await page.getByRole('tab',{name:'Đăng nhập',exact:true}).click();
+  await page.getByRole('button',{name:'Tôi đã xác nhận · Đăng nhập',exact:true}).click();
   await page.getByLabel('Email',{exact:true}).fill('lan@example.test');await page.getByLabel('Mật khẩu',{exact:true}).fill('fake-password');
   await page.getByRole('button',{name:'Đăng nhập',exact:true}).click();
   await expect(page).toHaveURL(/#classroom$/);await expect(page.locator('#classroom-role')).toHaveText('Giáo viên');
@@ -291,9 +291,12 @@ test('Admins publish a syllabus level in one action; signed-out visitors are ask
   await expect(panel.locator('#syllabus-status')).toContainText('Đã xuất bản 3 mục HSK 1');
   expect(calls.find(c=>c.path.endsWith('/review_vocab_entries')).body).toEqual({entry_syllabus:'HSK 3.0 (CLEC 2025)',entry_seqs:[1,2,3],decision:'published'});
   await expect(panel.getByRole('button',{name:'Ẩn khỏi học viên',exact:true})).toBeEnabled();
-  const guest=await (await browser.newContext({serviceWorkers:'block'})).newPage();await mockCloud(guest,'student',{authenticated:false});
-  await guest.goto('/index.html#hsk');
-  await expect(guest.locator('#syllabus-panel').getByRole('button',{name:'Đăng nhập để mở danh mục',exact:true})).toBeVisible();
+  const guestContext=await browser.newContext({serviceWorkers:'block'});
+  try{
+    const guest=await guestContext.newPage();await mockCloud(guest,'student',{authenticated:false});
+    await guest.goto('/index.html#hsk',{waitUntil:'domcontentloaded'});
+    await expect(guest.locator('#syllabus-panel').getByRole('button',{name:'Đăng nhập để mở danh mục',exact:true})).toBeVisible();
+  }finally{await guestContext.close();}
 });
 test('Unconfirmed accounts get a specific message and can resend the confirmation email',async({page})=>{
   const {calls}=await mockCloud(page,'student',{authenticated:false});
@@ -370,7 +373,7 @@ test('The library opens on the learner level and splits it into stages that trac
   await panel.locator('[data-syl-stage="1"]').click();
   await expect(panel.locator('.stage-bar')).toContainText('HSK 1 · Chặng 2');await expect(panel.locator('.reference-word')).toHaveText('字51');
   await expect(panel).toContainText('1 / 50');
-  await panel.getByRole('button',{name:'Nghe',exact:true}).click();
+  await panel.getByRole('button',{name:'Phát âm tiếng Trung',exact:true}).click();
   await panel.getByRole('button',{name:'← Tất cả chặng',exact:true}).click();await expect(panel.locator('.stage-tile')).toHaveCount(3);
   // The roadmap sends a learner to the full level in the library, and the choice is remembered.
   await page.evaluate(()=>nav('path'));

@@ -50,9 +50,9 @@ test('Four keyboard ratings save distinct schedules only for the active CLEC dec
   await expect(page.locator('#syl-session-total')).toHaveText('4');
   await expect(page.locator('#syl-session-correct')).toHaveText('2');
   await expect(page.locator('#syl-session-hard')).toHaveText('2');
-  await page.locator('#page-study .study-card-filters').getByLabel('Chế độ',{exact:true}).selectOption('due');
-  await expect(page.locator('#page-study [data-study-source="syl"]')).toHaveCount(0);
-  await page.locator('#page-study .study-card-filters').getByLabel('Chế độ',{exact:true}).selectOption('learning');
+  await page.locator('#study-syllabus-slot .study-workspace .tool-left').getByLabel('Chế độ',{exact:true}).selectOption('due');
+  await expect(page.locator('#syl-study-empty')).toBeVisible();
+  await page.locator('#study-syllabus-slot .study-workspace .tool-left').getByLabel('Chế độ',{exact:true}).selectOption('learning');
   await expect(page.locator('#page-study .reference-word')).toHaveText('好');
 });
 
@@ -102,7 +102,7 @@ test('Library word links, library groups and smart review return to the original
 test('A chapter chosen in the flashcard selector resumes its own location across decks',async({page})=>{
   const data=world();data.vocab=[...data.vocab.filter(r=>r.level!=='1'),...Array.from({length:60},(_,i)=>({...bank[0],seq:i+1,word:'字'+(i+1)}))];
   await mockCloud(page,'student',{world:data});await page.goto('/index.html#study');const picker=page.getByLabel('Bộ thẻ đang học');await picker.selectOption('1');
-  const filters=page.locator('.study-card-filters');await filters.getByLabel('Bộ từ',{exact:true}).selectOption('1');await expect(page.locator('#page-study .reference-word')).toHaveText('字51');
+  const filters=page.locator('#study-syllabus-slot .study-workspace .tool-left');await filters.getByLabel('Bộ từ',{exact:true}).selectOption('1');await expect(page.locator('#page-study .reference-word')).toHaveText('字51');
   await page.locator('#page-study').getByRole('button',{name:'Thẻ sau',exact:true}).click();
   await picker.selectOption('2');await picker.selectOption('1');await expect(filters.getByLabel('Bộ từ',{exact:true})).toHaveValue('1');await expect(page.locator('#page-study .reference-word')).toHaveText('字52');
 });

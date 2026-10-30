@@ -3,9 +3,8 @@ const $ = id => document.getElementById(id);
 export function mountFlashcardDecks(syllabus) {
   let deck = 'hsk3';
   try { const saved = localStorage.getItem(KEY); if (DECKS.includes(saved)) deck = saved; } catch {}
-  const strokes=document.createElement('button');strokes.type='button';strokes.className='btn';strokes.id='study-strokes';strokes.dataset.strokes='';strokes.textContent='Nét chữ';
+  const strokes=$('study-strokes');
   strokes.addEventListener('click',()=>{strokes.dataset.strokes=$('study-active').classList.contains('hidden')?'':$('card-back-hanzi').textContent;});
-  document.querySelector('#page-study .tool-right').appendChild(strokes);
   function place(route) {
     const container = $('syllabus-container'), target = route === 'study' && deck !== 'hsk3' ? $('study-syllabus-slot') : $('page-hsk');
     if (container && target && container.parentElement !== target) target.appendChild(container);

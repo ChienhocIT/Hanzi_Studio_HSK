@@ -1,5 +1,7 @@
 # Flashcard: UX, học liệu và bảo trì
 
+**Cập nhật 2026-10-31:** đánh giá trước chỉ so DOM đã bỏ sót CSS ép cỡ chữ và toolbar khác nhau. Đợt bảo trì mới dùng toàn bộ workspace gốc, so computed styles trên các nguồn, giữ DOM khi lật và kiểm tra trực quan. Xem [phát hiện, kiểm chứng và ảnh](PROJECT-MAINTENANCE-2026-10-31.md); các số đo/phát hành bên dưới thuộc các bản lịch sử được ghi rõ.
+
 Đối chiếu ngày **2026-10-30**, nền `7db4c6b`. Người dùng chọn **chuyển nhanh giữa từng bộ riêng biệt**. Không trộn lịch SRS của bộ 500 từ nghĩa Việt với danh mục CLEC 2025.
 
 ## Thiết kế và luồng học

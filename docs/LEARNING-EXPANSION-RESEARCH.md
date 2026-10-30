@@ -1,5 +1,9 @@
 # Nghiên cứu mở rộng học liệu và luyện tập
 
+## Bảo trì 2026-10-31
+
+Review nền `0095fb4` xác định clone DOM trước đó chưa đủ: CSS cũ vẫn làm lệch cỡ chữ và toolbar chưa thống nhất. Bản sửa dùng cả workspace gốc, so computed styles và hành vi của mọi nguồn; đồng thời sửa đăng ký/xác nhận email, timeout, reset mật khẩu, cache PWA và lỗi lưu dữ liệu/audio theo phiên. Kết quả local: 64 unit, 99 browser scenarios và 108 kiểm tra route/layout. Phạm vi, ảnh và giới hạn nghiệm thu Gmail thật: [báo cáo bảo trì](PROJECT-MAINTENANCE-2026-10-31.md).
+
 Đối chiếu ngày **2026-10-29**, với mã nguồn nền `68b2289`. Đây là nghiên cứu và tiêu chí triển khai; tài liệu này không xác nhận một tính năng mới đã chạy trên production, không nhập thêm dữ liệu và không sử dụng API trả phí.
 
 ## Cập nhật triển khai 2026-10-30

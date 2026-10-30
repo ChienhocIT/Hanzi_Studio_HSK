@@ -1,5 +1,11 @@
 # Kết nối project cloud hiện tại
 
+## Luồng xác nhận mới — 2026-10-31
+
+Frontend bổ sung deadline Auth 15 giây, giữ input khi lỗi, màn kiểm tra hộp thư/gửi lại và hỗ trợ link `TokenHash` qua `verifyOtp` sau thao tác xác nhận. Link cũ PKCE vẫn có hướng xử lý. Hai mẫu `confirmation.html`/`recovery.html` phải áp dụng **sau** frontend hỗ trợ link mới; không thay Google provider, redirect hoặc quyền tài khoản cùng bản vá SMTP. Reset giữ đúng màn qua reload khi đổi chủ tiến độ.
+
+Credential SMTP gốc trong `.env.local` đã được Gmail chấp nhận ở bước xác thực, không gửi thư. Không dùng giá trị secret do GET config trả về để đăng nhập SMTP hoặc coi đó là bằng chứng mật khẩu thật. Nhận thư trong Gmail và xác nhận liên kết thật vẫn cần kiểm tra riêng. Chi tiết kết quả local và ảnh: [báo cáo bảo trì](PROJECT-MAINTENANCE-2026-10-31.md).
+
 ## Đã kiểm tra thật
 
 Project API đúng: **https://rpoqcklcmsnrbmhfxdxg.supabase.co**. URL đuôi `.supabase.com` trước đó không phân giải DNS. URL/publishable key do chủ dự án cung cấp nằm trong `config/public-cloud.json` cho build Production; `.env.local` phục vụ local vẫn bị Git ignore. Không dùng secret/service-role ở trình duyệt.

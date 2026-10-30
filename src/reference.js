@@ -1,5 +1,5 @@
 import {h,field} from './ui.js';
-import {renderStudyCard,focusStudyCard,mountStudyKeyboard,studyRatings,recordStudyRating} from './study-card.js';
+import {renderStudyCard,setStudyRevealed,preserveStudyFocus,createStudyControls,matchesStudyMode,isStudyBookmarked,toggleStudyBookmark,focusStudyCard,mountStudyKeyboard,studyRatings,recordStudyRating} from './study-card.js';
 let corpus;
 let pending;
 export async function loadReference(fetcher=fetch) {
@@ -15,25 +15,31 @@ export async function loadReference(fetcher=fetch) {
 const stateKey='hanzi-studio-curriculum-v4';
 export function mountReference(root) {
   mountStudyKeyboard(root);
-  let level='1',query='',page=0,position=0,revealed=false,view='list';
+  let level='1',query='',page=0,position=0,revealed=false,view='list',stage='all',mode='all';
+  const controls=createStudyControls();
   root.innerHTML=`<div class="panel" id="reference-panel"><h3>Từ vựng tham khảo HSK 2.0</h3><p>Danh sách cộng đồng HSK 1-6, nghĩa tiếng Anh từ CC-CEDICT. Tách riêng với học liệu HSK 3 đang có; chưa được giáo viên duyệt theo đề cương hiện hành.</p><button type="button" class="btn" data-ref="load">Mở bộ từ tham khảo</button><p id="reference-status" role="status"></p><div id="reference-content"></div></div>`;
   const status=text=>root.querySelector('#reference-status').textContent=text;
   const content=root.querySelector('#reference-content');
-  const filtered=()=>corpus.words.filter(w=>(level==='all'||w.level===level)&&(!query||[w.word,...w.entries.flatMap(e=>[e.pinyin,...e.definitions])].join(' ').toLowerCase().includes(query.toLowerCase())));
+  const available=()=>corpus.words.filter(w=>(level==='all'||w.level===level)&&(!query||[w.word,...w.entries.flatMap(e=>[e.pinyin,...e.definitions])].join(' ').toLowerCase().includes(query.toLowerCase())));
+  const filtered=()=>{let rows=available();if(view!=='cards')return rows;if(stage!=='all')rows=rows.slice(Number(stage)*100,(Number(stage)+1)*100);return controls.order(rows.filter(w=>matchesStudyMode(progress(w.id),mode,isStudyBookmarked(w.id))),w=>w.id);};
   const entryHtml=w=>w.entries.length?w.entries.map(entry=>`<div><p lang="zh-Latn">${h(entry.pinyin)}</p><p lang="en">${entry.definitions.map(h).join('; ')}</p></div>`).join(''):'<p>Chưa có nghĩa đối chiếu. Cần biên tập bổ sung.</p>';
   const progress=id=>{
     // Restorable from backups and cloud sync: keep only numbers before they reach HTML.
     try{const r=JSON.parse(localStorage.getItem(stateKey)||'{}').progress?.[id];return r?{reps:Math.max(0,Number.parseInt(r.reps,10)||0),due:Number(r.due)||0,lastRating:studyRatings.includes(r.lastRating)?r.lastRating:null}:null;}catch{return null;}
   };
-  function renderResults() {
+  function renderResults() { preserveStudyFocus(root,renderResultsContent); }
+  function renderResultsContent() {
     const words=filtered();
     const result=root.querySelector('#reference-results');
     if(!result)return;
-    if(!words.length){result.innerHTML='<p>Không có mục phù hợp. Thử cấp độ hoặc từ khóa khác.</p>';return;}
+    if(!words.length&&view!=='cards'){result.innerHTML='<p>Không có mục phù hợp. Thử cấp độ hoặc từ khóa khác.</p>';return;}
     if(view==='cards') {
+      const all=available(),stageOptions=[{value:'all',label:'Tất cả '+all.length.toLocaleString('vi-VN')+' từ'},...Array.from({length:Math.ceil(all.length/100)},(_,i)=>({value:String(i),label:'Chặng '+(i+1)+' · Từ '+(i*100+1)+'–'+Math.min((i+1)*100,all.length)}))];
+      const options={namespace:'ref',controls,stageOptions,stage,mode,source:'HSK '+level+' (tham khảo)'};
+      if(!words.length){result.innerHTML=renderStudyCard(options);return;}
       position=Math.min(position,words.length-1);const word=words[position];
       const record=progress(word.id);
-      result.innerHTML=renderStudyCard({namespace:'ref',word:word.word,answerHtml:entryHtml(word).replaceAll('<p lang="zh-Latn">','<p class="card-back-py" lang="zh-Latn">'),position,total:words.length,record,revealed,source:'HSK '+word.level+' (tham khảo)'});
+      result.innerHTML=renderStudyCard({...options,bookmarked:isStudyBookmarked(word.id),word:word.word,answerHtml:entryHtml(word).replaceAll('<p lang="zh-Latn">','<p class="card-back-py" lang="zh-Latn">'),position,total:words.length,record,revealed,source:'HSK '+word.level+' (tham khảo)'});
     } else {
       const pages=Math.ceil(words.length/25);page=Math.min(page,pages-1);
       result.innerHTML=`<p>Tìm thấy ${words.length.toLocaleString('vi-VN')} mục. Trang ${page+1}/${pages}.</p><div class="cloud-actions"><button type="button" class="btn" data-ref="prev-page" ${page===0?'disabled':''}>Trang trước</button><button type="button" class="btn" data-ref="next-page" ${page>=pages-1?'disabled':''}>Trang sau</button></div><div class="cloud-list">${words.slice(page*25,page*25+25).map(word=>`<article><h4 lang="zh-Hans">${h(word.word)} <small>HSK ${h(word.level)}</small></h4>${entryHtml(word)}</article>`).join('')}</div>`;
@@ -48,7 +54,12 @@ export function mountReference(root) {
   }
   root.addEventListener('submit',event=>{
     if(event.target.id!=='reference-search')return;
-    event.preventDefault();const values=new FormData(event.target);level=values.get('level');query=values.get('query').trim();page=0;position=0;revealed=false;renderResults();
+    event.preventDefault();const values=new FormData(event.target);level=values.get('level');query=values.get('query').trim();page=0;position=0;revealed=false;stage='all';mode='all';controls.reset();renderResults();
+  });
+  root.addEventListener('change',event=>{
+    if(event.target.matches('[data-ref-stage-select]'))stage=event.target.value;
+    else if(event.target.matches('[data-ref-mode]'))mode=event.target.value;else return;
+    position=0;revealed=false;renderResults();
   });
   root.addEventListener('click',async event=>{
     const button=event.target.closest('[data-ref]');if(!button)return;
@@ -58,12 +69,16 @@ export function mountReference(root) {
       button.disabled=true;status('Đang tải bộ từ tham khảo...');
       try{await loadReference();render();button.remove();}catch(error){status(error.message);button.disabled=false;}return;
     }
+    if(action==='reset'){stage='all';mode='all';position=0;revealed=false;renderResults();return;}
     const words=filtered(),word=words[position];
     if(action==='list'||action==='cards'){view=action;renderResults();return;}
     if(action==='prev-page')page--;if(action==='next-page')page++;
     if(!word)return;
     if(action==='next'||action==='previous'){position=(position+(action==='next'?1:words.length-1))%words.length;revealed=false;}
-    if(action==='reveal')revealed=!revealed;
+    if(action==='reveal'){revealed=!revealed;setStudyRevealed(root,revealed);focusStudyCard(root,true);return;}
+    if(action==='reverse'){controls.reversed=!controls.reversed;revealed=false;renderResults();return;}
+    if(action==='shuffle'){controls.shuffle();position=0;revealed=false;renderResults();return;}
+    if(action==='bookmark'){if(toggleStudyBookmark(word.id))renderResults();return;}
     if(action==='speak') {if(typeof window.speak==='function')window.speak(word.word);return;}
     if(studyRatings.includes(action)) {
       if(!revealed)return;
@@ -73,9 +88,9 @@ export function mountReference(root) {
       if(!detail.saved){status('Không lưu được lượt ôn. Giữ thẻ hiện tại và kiểm tra dung lượng thiết bị.');return;}
       recordStudyRating('ref',action);
       status('Đã cập nhật lượt ôn tham khảo trên thiết bị. Đồng bộ theo tài khoản nếu bạn đã bật đồng bộ.');
-      position=(position+1)%words.length;revealed=false;
+      if(mode==='all')position=(position+1)%words.length;revealed=false;
     }
     renderResults();
-    focusStudyCard(root,action==='reveal');
+    focusStudyCard(root);
   });
 }
