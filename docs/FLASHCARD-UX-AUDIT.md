@@ -4,12 +4,31 @@
 
 ## Thiết kế và luồng học
 
-Giữ màu tím, font Be Vietnam Pro, nhận diện và cấu trúc điều hướng hiện có. Đây là màn học cần tập trung: một thẻ chính, một bước mở đáp án, hai mức đánh giá; công cụ tra cứu/quiz và giải thích nguồn nằm ở phần mở rộng. Mức biến thể 4/10, chuyển động 2/10, mật độ 4/10. Dùng JavaScript/CSS hiện có, native select/button/dialog; không thêm framework.
+Giữ màu tím, font Be Vietnam Pro, nhận diện và cấu trúc điều hướng hiện có. Mẫu chuẩn là thẻ HSK 3 nghĩa Việt trong ảnh người dùng: mặt trước/mặt sau, pinyin, nghĩa, ví dụ, tiến độ, điều hướng và bốn mức **Chưa nhớ / Khó nhớ / Đã nhớ / Rất dễ**. Mức biến thể 3/10, chuyển động 2/10, mật độ 4/10. Dùng JavaScript/CSS hiện có, native select/button/dialog.
 
 - Bộ chọn cố định phía trên cho tám bộ; giữ lựa chọn khi tải lại. CLEC lưu vị trí từng cấp/chặng trong curriculum để đi cùng backup/sync. Bộ Việt giữ vị trí khi chuyển qua lại trong phiên.
-- Chọn chặng → nhớ đáp án → mở thẻ → nghe/xem nét → tự đánh giá. Quiz vẫn tách khỏi SRS.
+- Trang Flashcard chọn cấp là mở thẻ ngay; chọn chặng và chế độ bằng select. Thư viện vẫn có lưới chặng. Luồng học: nhớ đáp án → mở thẻ → nghe/xem nét → tự đánh giá. Quiz vẫn tách khỏi SRS.
 - Bàn phím chỉ tác động lên bộ đang hiện; nút native nhận Space đúng một lần. Trường nhập và dialog không kích hoạt phím học.
 - Nút đánh giá nằm trong vùng nhìn trên màn hình nhỏ; bộ lọc không bị ép thành ô quá hẹp. Giữ cả giao diện sáng/tối và reduced motion.
+
+## Đồng bộ mẫu thẻ theo HSK 3 (nền e851178)
+
+Đợt trước mới đồng bộ bộ chọn, còn CLEC dùng thẻ gọn hai mức nên chưa đáp ứng yêu cầu cùng format. Đợt này dùng [renderer chung](../src/study-card.js) cho CLEC, tham khảo và Lộ trình; bộ Việt dùng cùng bộ CSS `.classic-study` với markup tĩnh để giữ tốc độ hiển thị ban đầu.
+
+| Điểm vào | Kết quả |
+| --- | --- |
+| `#study`, bộ Việt 500 từ | Giữ mẫu chuẩn và bốn mức, nâng tương phản chữ ở cả hai theme |
+| `#study`, CLEC 1-6 và 7-9 | Mở thẻ trực tiếp, chọn chặng/chế độ, cùng mặt trước/mặt sau và bốn mức |
+| `#hsk`, luyện thẻ hoặc ôn đến hạn | Cùng renderer; giữ tra cứu, quiz, hàng đợi biên tập và attribution |
+| `#contenthub`, HSK 2.0 tham khảo | Cùng renderer; giữ các cách đọc/nghĩa Anh và nhãn nguồn tham khảo |
+| `#path`, dữ liệu trên máy/đã nhập | Cùng renderer; giữ nhãn mẫu/chưa duyệt, ví dụ của bộ Việt khi có |
+| `#library` và `#review` của bộ Việt | Mở từ/nhóm từ/ôn đến hạn sẽ chọn lại đúng bộ Việt dù trước đó đang chọn CLEC |
+
+Phím Space và mũi tên thống nhất; 1-4 tương ứng bốn mức. Mặt ẩn có `inert`/`aria-hidden`, chỉ mặt hiện nhận focus; tải câu ví dụ chỉ thay vùng ví dụ. Đổi bộ chưa có cache che thẻ cũ và hiện khung tải cùng kích thước. Mục chưa có ví dụ đã duyệt ghi rõ trạng thái, không tạo ví dụ/ nghĩa Việt thay cho dữ liệu thiếu.
+
+Lịch sử và ID nguồn giữ riêng. Với curriculum/reference, hai mức cũ giữ công thức: `again` hẹn 10 phút, `good` khởi đầu 1 ngày rồi nhân 2,2 làm tròn lên. Thêm `hard` khởi đầu 1 ngày rồi nhân 1,3, `easy` khởi đầu 4 ngày rồi nhân 3. `lastRating` là trường tùy chọn trong snapshot; tiến độ cũ vẫn đọc được. Lưu thất bại giữ thẻ hiện tại và hoàn tác bản ghi, kể cả thẻ Lộ trình.
+
+Kiểm tra đợt đồng bộ: 59 unit tests, 80 browser scenarios (7 regression mới), cùng ảnh desktop/mobile dọc/ngang, sáng/tối và reduced motion. Tương phản bốn nút đạt từ 5,39:1 ở light và 6,15:1 ở dark. Lighthouse accessibility local đạt 100. Review 13 file mã/test theo OCR rules, 0 bỏ qua; tài liệu kiểm tra riêng. Các số đo production ở phần phát hành bên dưới thuộc bản trước; bản đồng bộ cần đối chiếu bundle và CI đúng commit khi phát hành.
 
 ## Phát hiện và xử lý
 

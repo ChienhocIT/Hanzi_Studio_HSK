@@ -4,6 +4,8 @@
 
 ## Cập nhật triển khai 2026-10-30
 
+Đợt đồng bộ theo ảnh mẫu HSK 3 (nền `e851178`): CLEC 1-9, HSK 2.0 tham khảo và thẻ Lộ trình dùng cùng format hai mặt, pinyin/nghĩa/ví dụ, thanh tiến độ, nút trước/sau và bốn mức đánh giá. Trang Flashcard chọn cấp là mở thẻ, có select chặng/chế độ; các liên kết từ thư viện Việt và ôn tập chọn lại đúng nguồn. Lịch sử từng nguồn giữ riêng. Chi tiết phạm vi, công thức lịch ôn và kiểm chứng 59 unit / 80 browser scenarios: [audit đồng bộ thẻ](FLASHCARD-UX-AUDIT.md#đồng-bộ-mẫu-thẻ-theo-hsk-3-nền-e851178).
+
 Đợt hoàn thiện Flashcard bổ sung chuyển nhanh tám bộ riêng, khôi phục vị trí CLEC, báo câu quiz/hàng đợi biên tập, 50 ký tự offline có hash và pilot 50 cặp câu ở nháp. Pipeline audio đã có nhưng snapshot hiện tại không có bản ghi đạt giấy phép CC0/CC BY; không tự xuất bản học liệu chưa duyệt. Chi tiết UX, kiểm thử và bảo trì: [FLASHCARD-UX-AUDIT.md](FLASHCARD-UX-AUDIT.md).
 
 Đã kiểm chứng bản mã `9adb263` trên production: bundle/luồng học khớp, đủ 11 migration, 50 câu pilot còn ở nháp, RLS chặn truy cập ẩn danh. Kiểm thử tự động: 59 unit, 51 nhóm database và 73 browser flows; Lighthouse production: hiệu năng 99, accessibility 100, LCP 1,4 giây. Phần kỹ thuật đã triển khai; duyệt sư phạm 50 câu/hai nghĩa thiếu, nghiệm thu bút/cảm ứng thật và tìm audio đủ quyền vẫn là bước nội dung/thiết bị riêng.

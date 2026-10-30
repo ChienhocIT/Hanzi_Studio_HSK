@@ -504,8 +504,6 @@ test('Flashcards switch between the HSK 3 deck and HSK 1–9 levels, and review 
   await expect(page.locator('#study-active')).toBeVisible();
   await page.getByLabel('Bộ thẻ đang học').selectOption('1');
   await expect(page.locator('#study-active')).toBeHidden();
-  await expect(page.locator('#page-study .stage-tile')).toHaveCount(2);
-  await page.locator('#page-study [data-syl-stage="0"]').click();
   await expect(page.locator('#page-study .reference-word')).toHaveText('字1');
   await page.reload();
   await expect(page.getByLabel('Bộ thẻ đang học')).toHaveValue('1');

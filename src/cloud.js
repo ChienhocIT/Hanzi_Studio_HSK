@@ -11,6 +11,12 @@ import { mountStrokes } from './strokes.js';
 import { mountFlashcardDecks } from './flashcard-decks.js';
 import { mountShell } from './shell.js';
 import { setMood } from './mascot.js';
+import {renderStudyCard,focusStudyCard,mountStudyKeyboard} from './study-card.js';
+
+// Bridge the existing curriculum script to the same renderer used by the library modules.
+window.HanziStudyCards={render:renderStudyCard,focus:focusStudyCard};
+mountStudyKeyboard(document.getElementById('v4-path'));
+if(location.hash==='#path')window.hsRenderPath?.();
 
 mountReference(document.getElementById('reference-container'));
 const syllabus = mountSyllabus(document.getElementById('syllabus-container'));

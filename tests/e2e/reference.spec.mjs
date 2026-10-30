@@ -10,8 +10,8 @@ test('Reference bank loads separately, searches licensed data and saves card rat
   await panel.getByRole('button',{name:'Tra cứu',exact:true}).click();
   await expect(page.locator('#reference-results')).toContainText('dad');
   await panel.getByRole('button',{name:'Luyện thẻ tham khảo',exact:true}).click();
-  await expect(page.locator('#reference-results')).toContainText('Tự nhớ nghĩa');
-  await panel.getByRole('button',{name:'Mở nghĩa',exact:true}).click();
+  await expect(page.locator('#reference-results')).toContainText('Mở đáp án');
+  await panel.getByRole('button',{name:/Mở đáp án/}).click();
   await expect(page.locator('#reference-results')).toContainText('dad');
   await panel.getByRole('button',{name:'Đã nhớ',exact:true}).click();
   const record=await page.evaluate(()=>JSON.parse(localStorage.getItem('hanzi-studio-curriculum-v4')).progress['wiktionary-hsk2-1-爸爸']);
@@ -36,7 +36,7 @@ test('A full localStorage does not claim the rating was saved or advance the ref
   const panel=page.locator('#reference-panel');
   await panel.getByRole('button',{name:'Luyện thẻ tham khảo',exact:true}).click();
   const word=await page.locator('.reference-word').textContent();
-  await panel.getByRole('button',{name:'Mở nghĩa',exact:true}).click();
+  await panel.getByRole('button',{name:/Mở đáp án/}).click();
   await page.evaluate(()=>{const original=Storage.prototype.setItem;Storage.prototype.setItem=function(key,value){if(key==='hanzi-studio-curriculum-v4')throw new DOMException('quota','QuotaExceededError');return original.call(this,key,value);};});
   await panel.getByRole('button',{name:'Đã nhớ',exact:true}).click();
   await expect(page.locator('#reference-status')).toContainText('Không lưu được lượt ôn');

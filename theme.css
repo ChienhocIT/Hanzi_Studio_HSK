@@ -445,20 +445,55 @@ body.public-mode .body{max-width:none;padding:0}
 #study-syllabus-slot .show-study-tools #syllabus-content>.cloud-actions{display:flex}
 .syllabus-source-details{margin-top:20px;color:var(--muted);font-size:13px;line-height:1.7}
 .syllabus-source-details summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:700;text-decoration:underline}
-.syllabus-study-card{max-width:740px;margin:12px auto;background:var(--paper);border:1px solid var(--stroke);border-radius:20px;padding:20px;box-shadow:var(--shadow)}
-.study-card-meta{display:flex;justify-content:space-between;gap:12px;font-size:13px;color:var(--muted)}
-.syllabus-flip{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;border:0;background:transparent;color:var(--txt);width:100%;min-height:220px;padding:24px 12px;cursor:pointer;border-radius:14px}
-.syllabus-flip .reference-word{font-size:clamp(56px,7vw,88px);line-height:1.25;margin:0;overflow-wrap:anywhere}
-.study-flip-hint{font-size:14px;color:var(--muted)}
-.syllabus-answer{text-align:center;font-size:18px;margin:0 0 20px}
-.syllabus-answer p{margin:8px 0}
-.study-card-controls{display:grid;grid-template-columns:44px 1fr 1fr 44px;gap:8px;align-items:center}
-.study-card-controls .btn{padding-inline:10px;min-width:44px;min-height:44px;justify-content:center}
-.study-card-rating{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
-.study-card-rating .btn{justify-content:center;min-height:48px}
-.study-card-rating kbd{margin-left:8px}
-.study-card-schedule{text-align:center;margin:14px 0 0;font-size:13px}
-#syllabus-card-examples{max-width:740px;margin:0 auto}
+.classic-study.syllabus-study-card{max-width:none;margin:16px 0;background:transparent;border:0;padding:0;box-shadow:none}
+.study-card-skeleton{min-height:330px;display:grid;place-items:center;margin:16px 0;background:var(--paper);border:1px solid var(--stroke);border-radius:25px;color:var(--muted)}
+.classic-study .study-card-meta{display:flex;justify-content:space-between;gap:12px;color:var(--muted);font-size:13px}
+.classic-study .flashcard{height:330px;min-height:330px;scroll-margin-block:210px 110px}
+.classic-study .flip-stage{margin-top:12px}
+.classic-study .card-face[aria-hidden="true"]{visibility:hidden}
+.classic-study .card-head,.classic-study .card-hint,.classic-study .nav-arrows span{color:var(--muted)}
+.classic-study .card-head{gap:12px;min-height:24px;letter-spacing:1px}
+.classic-study .card-head>span:last-child{overflow-wrap:anywhere;text-align:right}
+.classic-study .study-face-button{border:0;padding:0;background:transparent;color:inherit;display:flex;flex-direction:column;width:100%;flex:1;min-height:0;cursor:pointer;border-radius:12px;font:inherit}
+.classic-study .study-face-button .card-head,.classic-study .study-face-button .card-center,.classic-study .study-face-button .card-hint{width:100%}
+.classic-study .study-face-button:focus-visible,.classic-study .study-back-toggle:focus-visible{outline:3px solid var(--primary);outline-offset:4px}
+.classic-study .study-back-toggle{border:0;background:transparent;color:inherit;padding:8px 0;min-height:44px;text-align:left;cursor:pointer;font:inherit;letter-spacing:inherit}
+.classic-study .card-center{justify-content:safe center;width:100%;overflow-wrap:anywhere}
+.classic-study .card-meaning{font-size:clamp(17px,2.2vw,26px);line-height:1.5;width:100%}
+.classic-study .card-meaning p{margin:6px 0}
+.classic-study .card-meaning>p.panel-sub{font-size:inherit;color:var(--txt)}
+.classic-study .study-flip-caption{margin-left:8px;font-weight:500;letter-spacing:0;text-transform:none}
+.classic-study .card-head{text-transform:uppercase}
+.study-card-filters{flex-wrap:wrap;gap:16px}
+.study-card-filters .field-select{display:grid;gap:6px;min-width:180px}
+.study-card-filters select{min-height:44px}
+.classic-study .reference-word{margin:0}
+.classic-study .card-back-hanzi{font-size:clamp(33px,4.1vw,55px)}
+.classic-study .card-hanzi{font-size:clamp(60px,7vw,101px)}
+.classic-study .card-hanzi.mid{font-size:clamp(43px,6vw,83px)}
+.classic-study .card-hanzi.long{font-size:clamp(32px,5vw,62px)}
+.classic-study .card-back-py{margin:8px 0;font-size:18px}
+.classic-study .example-section{width:100%;margin-top:18px;font-size:16px;font-weight:400}
+.classic-study .example-label,.classic-study .example-py,.classic-study .example-vi{color:var(--muted);font-size:13px}
+.classic-study .study-card-tools{display:flex;justify-content:flex-end;gap:8px;margin-bottom:16px}
+.classic-study .study-card-tools .btn{min-height:44px}
+.classic-study .nav-arrows{margin-top:12px}
+.classic-study .nav-arrow{min-width:44px;min-height:44px}
+.classic-study .rating{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:16px}
+.classic-study .rating[hidden]{display:none!important}
+.classic-study .rate-btn{min-height:48px;font-size:13px}
+.classic-study{--rating-red-text:#a52e43;--rating-orange-text:#9b4a12;--rating-teal-text:#126f60}
+[data-theme="dark"] .classic-study{--rating-red-text:var(--red);--rating-orange-text:var(--orange);--rating-teal-text:var(--teal)}
+.classic-study .rate-btn.again{color:var(--rating-red-text)}
+.classic-study .rate-btn.hard{color:var(--rating-orange-text)}
+.classic-study .rate-btn.good{color:var(--primary-strong)}
+.classic-study .rate-btn.easy{color:var(--rating-teal-text)}
+.classic-study .status-pip.learning{color:var(--rating-orange-text)}
+.classic-study .status-pip.mastered{color:var(--rating-teal-text)}
+.classic-study .rate-btn:hover{border-color:currentColor}
+.classic-study .rate-btn:active{filter:brightness(.95)}
+.classic-study .study-card-schedule{text-align:center;margin:12px 0;color:var(--muted);font-size:13px}
+.has-study-card #syllabus-panel{background:transparent;border:0;box-shadow:none;padding:0}
 #syllabus-results .cloud-form:has([data-syl="quiz-answer"]){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 #syllabus-results [data-syl="quiz-answer"]{justify-content:center;min-height:48px}
 @media(max-width:767px){
@@ -468,9 +503,6 @@ body.public-mode .body{max-width:none;padding:0}
  #page-study .rating{display:grid;grid-template-columns:1fr 1fr}
  #page-study .rate-btn{min-height:48px}
  #study-deck-note{margin-left:0}
- .syllabus-study-card{padding:16px}
- .syllabus-flip{min-height:180px}
- .study-card-rating kbd{display:none}
  #study-syllabus-slot #syllabus-panel{padding:16px}
 }
 @media(prefers-reduced-motion:reduce){#page-study .flashcard-inner{transition:none}#page-study .thin-progress div{transition:none}}
@@ -498,3 +530,15 @@ body.public-mode .body{max-width:none;padding:0}
  #page-study .page-heading{margin-bottom:8px}
  #page-study .page-heading h2{font-size:18px;margin-bottom:8px}
 }
+
+@media(max-width:767px){
+ .classic-study .flashcard,#page-study .classic-study .flashcard{height:330px;min-height:330px}
+ .classic-study .card-face{padding:16px}
+ .classic-study .rating{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .classic-study .card-meaning{font-size:19px}
+ .classic-study .card-head{font-size:11px;letter-spacing:.4px}
+ #page-study .study-card-filters,.study-card-filters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+ .study-card-filters .field-select{min-width:0}
+ .study-card-filters select{width:100%;max-width:100%}
+}
+@media(prefers-reduced-motion:reduce){.classic-study .flashcard-inner{transition:none}}

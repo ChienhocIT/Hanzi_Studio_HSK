@@ -6,11 +6,11 @@ const world={vocab:bank,items:[],classes:[],assignments:[],submissions:[],questi
 test('Switching decks and reloading resumes each level without duplicate level controls',async({page})=>{
   await mockCloud(page,'student',{world:structuredClone(world)});
   await page.goto('/index.html#study');const picker=page.getByLabel('Bộ thẻ đang học'),study=page.locator('#page-study');
-  await picker.selectOption('1');await study.locator('[data-syl-stage="0"]').click();
+  await picker.selectOption('1');
   await expect(study.locator('.hsk-levels')).toBeHidden();
   await study.getByRole('button',{name:'Thẻ sau',exact:true}).click();
   await expect(study.locator('.reference-word')).toHaveText('字2');
-  await picker.selectOption('2');await study.locator('[data-syl-stage="0"]').click();
+  await picker.selectOption('2');
   await expect(study.locator('.reference-word')).toHaveText('词1');
   await picker.selectOption('1');await expect(study.locator('.reference-word')).toHaveText('字2');
   await page.reload();await expect(picker).toHaveValue('1');await expect(study.locator('.reference-word')).toHaveText('字2');
@@ -21,7 +21,7 @@ test('Switching decks and reloading resumes each level without duplicate level c
 test('Study keyboard shortcuts affect only the visible deck and native buttons flip once',async({page})=>{
   await mockCloud(page,'student',{world:structuredClone(world)});
   await page.goto('/index.html#study');await page.getByLabel('Bộ thẻ đang học').selectOption('1');
-  await page.locator('#page-study [data-syl-stage="0"]').click();
+
   const flip=page.locator('#page-study [data-syl="reveal"]');
   await page.locator('body').click({position:{x:2,y:300}});await page.keyboard.press('Space');
   await expect(flip).toHaveAttribute('aria-pressed','true');await expect(page.locator('#flashcard')).not.toHaveClass(/flipped/);
@@ -42,7 +42,7 @@ test('A deck load error has an explicit retry action',async({page})=>{
   await page.route('**/rest/v1/vocab_entries?**',route=>{if(!online)return route.fulfill({status:400,json:{message:'offline'}});return route.fallback();});
   await page.goto('/index.html#study');await page.getByLabel('Bộ thẻ đang học').selectOption('1');
   const retry=page.getByRole('button',{name:'Thử tải lại bộ thẻ',exact:true});await expect(retry).toBeVisible();online=true;await retry.click();
-  await expect(page.locator('#page-study .stage-tile')).toHaveCount(2);await expect(retry).toBeHidden();
+  await expect(page.locator('#page-study .reference-word')).toHaveText('字1');await expect(retry).toBeHidden();
 });
 test('Bundled stroke data is hash checked, retries corruption and needs no CDN for the pilot character',async({page})=>{
   const manifest=JSON.parse(await readFile('data/strokes/manifest.json','utf8')),entry=manifest.characters['矮'],bytes=await readFile('data/strokes/'+entry.file);
@@ -56,7 +56,7 @@ test('Bundled stroke data is hash checked, retries corruption and needs no CDN f
 });
 test('Flashcard controls fit small screens, landscape and both themes with reduced motion',async({page})=>{
   await mockCloud(page,'student',{world:structuredClone(world)});await page.emulateMedia({reducedMotion:'reduce'});
-  await page.goto('/index.html#study');await page.getByLabel('Bộ thẻ đang học').selectOption('1');await page.locator('#page-study [data-syl-stage="0"]').click();
+  await page.goto('/index.html#study');await page.getByLabel('Bộ thẻ đang học').selectOption('1');
   for(const [name,width,height]of [['phone',375,812],['landscape',812,375],['desktop',1366,768]]){
     await page.setViewportSize({width,height});
     for(const theme of ['light','dark']){
@@ -71,7 +71,7 @@ test('Flashcard controls fit small screens, landscape and both themes with reduc
 
 test('Revealing a mobile card keeps its rating above the bottom navigation',async({page})=>{
  await page.setViewportSize({width:375,height:812});await mockCloud(page,'student',{world:structuredClone(world)});
- await page.goto('/index.html#study');await page.getByLabel('Bộ thẻ đang học').selectOption('1');await page.locator('#page-study [data-syl-stage="0"]').click();
+ await page.goto('/index.html#study');await page.getByLabel('Bộ thẻ đang học').selectOption('1');
  await page.locator('#page-study [data-syl="reveal"]').click();
  const box=await page.getByRole('button',{name:'Đã nhớ',exact:true}).boundingBox();
  expect(box.y).toBeGreaterThanOrEqual(70);expect(box.y+box.height).toBeLessThanOrEqual(742);

@@ -1,4 +1,5 @@
 import {h,field} from './ui.js';
+import {renderStudyCard,focusStudyCard,mountStudyKeyboard,studyRatings} from './study-card.js';
 let corpus;
 let pending;
 export async function loadReference(fetcher=fetch) {
@@ -13,6 +14,7 @@ export async function loadReference(fetcher=fetch) {
 }
 const stateKey='hanzi-studio-curriculum-v4';
 export function mountReference(root) {
+  mountStudyKeyboard(root);
   let level='1',query='',page=0,position=0,revealed=false,view='list';
   root.innerHTML=`<div class="panel" id="reference-panel"><h3>Từ vựng tham khảo HSK 2.0</h3><p>Danh sách cộng đồng HSK 1-6, nghĩa tiếng Anh từ CC-CEDICT. Tách riêng với học liệu HSK 3 đang có; chưa được giáo viên duyệt theo đề cương hiện hành.</p><button type="button" class="btn" data-ref="load">Mở bộ từ tham khảo</button><p id="reference-status" role="status"></p><div id="reference-content"></div></div>`;
   const status=text=>root.querySelector('#reference-status').textContent=text;
@@ -21,7 +23,7 @@ export function mountReference(root) {
   const entryHtml=w=>w.entries.length?w.entries.map(entry=>`<div><p lang="zh-Latn">${h(entry.pinyin)}</p><p lang="en">${entry.definitions.map(h).join('; ')}</p></div>`).join(''):'<p>Chưa có nghĩa đối chiếu. Cần biên tập bổ sung.</p>';
   const progress=id=>{
     // Restorable from backups and cloud sync: keep only numbers before they reach HTML.
-    try{const r=JSON.parse(localStorage.getItem(stateKey)||'{}').progress?.[id];return r?{reps:Math.max(0,Number.parseInt(r.reps,10)||0),due:Number(r.due)||0}:null;}catch{return null;}
+    try{const r=JSON.parse(localStorage.getItem(stateKey)||'{}').progress?.[id];return r?{reps:Math.max(0,Number.parseInt(r.reps,10)||0),due:Number(r.due)||0,lastRating:studyRatings.includes(r.lastRating)?r.lastRating:null}:null;}catch{return null;}
   };
   function renderResults() {
     const words=filtered();
@@ -31,7 +33,7 @@ export function mountReference(root) {
     if(view==='cards') {
       position=Math.min(position,words.length-1);const word=words[position];
       const record=progress(word.id);
-      result.innerHTML=`<p>${position+1} / ${words.length} mục. HSK ${h(word.level)} (tham khảo)</p><p class="reference-word" lang="zh-Hans">${h(word.word)}</p>${revealed?entryHtml(word):'<p>Tự nhớ nghĩa, sau đó mở nghĩa để đối chiếu.</p>'}<p>${record?.reps?`Đã nhớ ${record.reps} lượt. Lần ôn: ${new Date(record.due).toLocaleString('vi-VN')}`:'Chưa có lượt ghi nhớ.'}</p><div class="cloud-actions"><button type="button" class="btn" data-ref="previous">Thẻ trước</button><button type="button" class="btn" data-ref="reveal">${revealed?'Ẩn nghĩa':'Mở nghĩa'}</button><button type="button" class="btn" data-ref="next">Thẻ sau</button><button type="button" class="btn" data-ref="speak">Nghe giọng thiết bị</button>${revealed?'<button type="button" class="btn" data-ref="again">Cần ôn lại</button><button type="button" class="btn" data-ref="good">Đã nhớ</button>':''}</div>`;
+      result.innerHTML=renderStudyCard({namespace:'ref',word:word.word,answerHtml:entryHtml(word).replaceAll('<p lang="zh-Latn">','<p class="card-back-py" lang="zh-Latn">'),position,total:words.length,record,revealed,source:'HSK '+word.level+' (tham khảo)'});
     } else {
       const pages=Math.ceil(words.length/25);page=Math.min(page,pages-1);
       result.innerHTML=`<p>Tìm thấy ${words.length.toLocaleString('vi-VN')} mục. Trang ${page+1}/${pages}.</p><div class="cloud-actions"><button type="button" class="btn" data-ref="prev-page" ${page===0?'disabled':''}>Trang trước</button><button type="button" class="btn" data-ref="next-page" ${page>=pages-1?'disabled':''}>Trang sau</button></div><div class="cloud-list">${words.slice(page*25,page*25+25).map(word=>`<article><h4 lang="zh-Hans">${h(word.word)} <small>HSK ${h(word.level)}</small></h4>${entryHtml(word)}</article>`).join('')}</div>`;
@@ -62,7 +64,7 @@ export function mountReference(root) {
     if(action==='next'||action==='previous'){position=(position+(action==='next'?1:words.length-1))%words.length;revealed=false;}
     if(action==='reveal')revealed=!revealed;
     if(action==='speak') {if(typeof window.speak==='function')window.speak(word.word);return;}
-    if(action==='good'||action==='again') {
+    if(studyRatings.includes(action)) {
       if(!revealed)return;
       if(!word.entries.length){status('Mục này chưa có nghĩa đối chiếu. Cần biên tập trước khi ghi nhận ôn tập.');return;}
       const detail={id:word.id,rating:action,saved:false};
@@ -72,5 +74,6 @@ export function mountReference(root) {
       position=(position+1)%words.length;revealed=false;
     }
     renderResults();
+    focusStudyCard(root,action==='reveal');
   });
 }

@@ -28,18 +28,18 @@ export function mountFlashcardDecks(syllabus) {
     deck = next;
     try { localStorage.setItem(KEY, deck); } catch {}
     apply(); place('study');
-    if (deck !== 'hsk3') syllabus.openLevel(deck,undefined,true);
+    if (deck !== 'hsk3') syllabus.openLevel(deck,'cards',true);
   }
   $('study-deck-select').addEventListener('change',event=>choose(event.target.value));
   window.addEventListener('hanzi:legacy-study',()=>choose('hsk3'));
   window.addEventListener('hanzi:route', event => {
     place(event.detail);
-    if (event.detail === 'study' && deck !== 'hsk3' && syllabus.level !== deck) syllabus.openLevel(deck,undefined,true);
+    if (event.detail === 'study' && deck !== 'hsk3' && syllabus.level !== deck) syllabus.openLevel(deck,'cards',true);
     if (event.detail === 'review') reviewCard();
   });
   apply();
   $('study-deck-select').disabled=false;
   $('study-deck-select').removeAttribute('aria-busy');
-  if (location.hash === '#study') {place('study');if(deck!=='hsk3')syllabus.openLevel(deck,undefined,true);}
+  if (location.hash === '#study') {place('study');if(deck!=='hsk3')syllabus.openLevel(deck,'cards',true);}
   if (location.hash === '#review') reviewCard();
 }
