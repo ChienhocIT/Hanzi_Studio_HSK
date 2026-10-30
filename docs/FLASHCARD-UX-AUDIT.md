@@ -47,5 +47,11 @@ Giữ màu tím, font Be Vietnam Pro, nhận diện và cấu trúc điều hư�
 1. Duyệt hàng đợi báo câu và câu nháp định kỳ. Chỉ xuất bản khi người có chuyên môn xác nhận; không nhập lại để xóa lịch sử duyệt.
 2. Khi cập nhật nguồn, chạy các lệnh prepare, đối chiếu hash/giấy phép/count rồi review diff dữ liệu. Không tự nâng dependency hoặc gom toàn bộ kho nét vào precache.
 3. Giữ hợp đồng giữa hai engine SRS, curriculum và cloud snapshots. Chưa có lý do đổi toàn bộ framework hoặc gộp lịch ôn; tiếp tục giữ test tài khoản/storage mỗi lần sửa luồng học.
-4. Shell HTML/CSS và tải module toàn ứng dụng vẫn là nợ hiệu năng. Đã dùng `defer` đúng thứ tự script; chỉ tách tải theo route khi đo trên bản phát hành chỉ ra lợi ích rõ ràng. Lighthouse local từ máy dev không nén không đại diện cho CDN production.
+4. Shell HTML/CSS và tải module toàn ứng dụng vẫn là nợ hiệu năng. Đo production phát hiện `defer` hạ ưu tiên tải các script khởi tạo, nên giữ thứ tự/chế độ thực thi ban đầu và preload `app.js` với ưu tiên cao. Chỉ tách tải theo route khi đo chỉ ra lợi ích rõ ràng. Lighthouse local từ máy dev không nén không đại diện cho CDN production.
 5. Khi đổi nguồn audio, kiểm tra lại tác giả, license, URL, hash và nội dung khớp câu trước khi nhập; số lượng 20 là trần pilot, không phải chỉ tiêu buộc phải lấp bằng tài sản thiếu quyền.
+
+## Kiểm chứng bản phát hành
+
+`c6d43d2` đã có trên `main` và nhánh worktree. [CI main](https://github.com/ChienhocIT/Hanzi_Studio_HSK/actions/runs/41001262979) chạy đúng SHA, đạt 59 unit / 51 nhóm database / 73 browser flows. Vercel đã phát hành, bundle khớp SHA-256 `97c373702c9b7e7412339126a78beeee87c9b2fb43b8595da97386ea698facb9`; smoke trên domain production qua chọn tám bộ, đánh giá SRS riêng, chuyển bộ/reload giữ vị trí, nút đánh giá mobile và nét chữ thật đóng gói. Các API tài khoản/AI trong smoke dùng fixture, không ghi tiến độ người thật.
+
+Lighthouse production ở bản này: accessibility **100**, performance **81**, LCP **4,3 giây**, CLS **0,001** (một lần đo mạng mobile mô phỏng). Đây là lý do bỏ thử nghiệm `defer` và thêm preload ở bản tiếp theo; không coi CI xanh là bằng chứng đạt mục tiêu hiệu năng. Hai bố cục trước/sau có phần tử LCP khác nhau, cần đọc trace cùng điểm số.
