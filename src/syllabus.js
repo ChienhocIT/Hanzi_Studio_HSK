@@ -3,7 +3,7 @@ import {vocabularyQuiz} from './vocabulary-quiz.js';
 import {mountVocabReports} from './vocab-reports.js';
 import {exampleAudio,mountExampleAudio} from './example-audio.js';
 import {mountExampleReview} from './example-review.js';
-import {renderStudyCard,focusStudyCard,mountStudyKeyboard,studyRatings} from './study-card.js';
+import {renderStudyCard,refreshStudyCard,focusStudyCard,mountStudyKeyboard,studyRatings,recordStudyRating,resetStudySession} from './study-card.js';
 // HSK 1–9 study screen over the 2025 CLEC syllabus list in vocab_entries, with CC-CEDICT English glosses.
 // Only served to signed-in accounts (redistribution rights are unclear); learners see published rows,
 // teachers/admins also see drafts. Card ratings join the curriculum SRS through hanzi:reference-rating.
@@ -98,7 +98,7 @@ export function mountSyllabus(root) {
     examples.set(seq, rows);
     if (shownCard === seq && revealed) {
       const box=root.querySelector('#syllabus-card-examples'),row=words().find(r=>r.seq===seq);
-      if(box&&row)box.innerHTML=exampleList(row)||'<p class="panel-sub">Chưa có ví dụ đã duyệt cho mục này.</p>';
+      if(box&&row){box.innerHTML=exampleList(row)||'<p class="panel-sub">Chưa có ví dụ đã duyệt cho mục này.</p>';refreshStudyCard(root);}
     }
   }
   async function fetchLevel(name,owner,activeClient) {
@@ -247,6 +247,7 @@ export function mountSyllabus(root) {
     const stageButton = event.target.closest('[data-syl-stage]');
     if (stageButton) { stage = Number(stageButton.dataset.sylStage); view = 'cards'; position = 0; revealed = false; page = 0; renderResults();rememberLocation();root.querySelector('.syllabus-study-card')?.scrollIntoView({block:'start',behavior:'instant'});root.querySelector('[data-syl="reveal"]')?.focus({preventScroll:true});return; }
     const button = event.target.closest('[data-syl]'); if (!button) return;
+    if(button.dataset.syl==='reveal'&&event.target.closest('a,button,audio,input,select,textarea')&&!event.target.matches('[data-study-flip]'))return;
     const action = button.dataset.syl, list = ['cards','due'].includes(view) ? cardRows() : words(), r = list[position];
     if(action==='reload'){load();return;}
     if(action==='report'&&quiz?.questions[quiz.index]){const q=quiz.questions[quiz.index];q.kind=quiz.kind;reports.open(q);return;}
@@ -301,6 +302,7 @@ export function mountSyllabus(root) {
       const detail = {id: entryId(r.seq), rating: action, saved: false};
       window.dispatchEvent(new CustomEvent('hanzi:reference-rating', {detail}));
       if (!detail.saved) { status('Không lưu được lượt ôn. Kiểm tra dung lượng thiết bị.', true); return; }
+      recordStudyRating('syl',action);
       status('Đã cập nhật lượt ôn trên thiết bị. Đồng bộ theo tài khoản nếu bạn đã bật đồng bộ.');
       if(view!=='due'&&cardMode==='all')position=(position+1)%list.length;revealed=false;
     }
@@ -323,5 +325,5 @@ export function mountSyllabus(root) {
   // Links elsewhere (roadmap, old HSK 3 library) open the library on a level: data-go="hsk" data-hsk-level="4".
   document.addEventListener('click', event => { const link = event.target.closest('[data-hsk-level]'); if (link) chooseLevel(link.dataset.hskLevel, link.dataset.hskView); }, true);
   render();
-  return { openLevel: chooseLevel, get level() { return level; }, setSession(nextClient, nextProfile) { if (client === nextClient && profile?.id === nextProfile?.id && profile?.role === nextProfile?.role) return;sessionEpoch++; reports.reset();exampleReview.reset();examples.clear(); client = nextClient; profile = nextProfile; render(); } };
+  return { openLevel: chooseLevel, get level() { return level; }, setSession(nextClient, nextProfile) { if (client === nextClient && profile?.id === nextProfile?.id && profile?.role === nextProfile?.role) return;sessionEpoch++;resetStudySession('syl'); reports.reset();exampleReview.reset();examples.clear(); client = nextClient; profile = nextProfile; render(); } };
 }

@@ -4,6 +4,8 @@
 
 ## Cập nhật triển khai 2026-10-30
 
+Điều chỉnh theo yêu cầu dùng nguyên template ban đầu (nền `af3db7c`): renderer lấy trực tiếp `#page-study .study-layout` của HSK 3 trong `index.html`, rồi thay dữ liệu và gắn hành động theo nguồn. CLEC, tham khảo và Lộ trình không còn duy trì HTML thẻ riêng. Giữ nguyên hai mặt, ký hiệu nút, cách bấm toàn thẻ, điều hướng và cột thống kê/phím tắt; lịch sử từng nguồn tiếp tục độc lập. Kiểm tra so cấu trúc DOM trước/sau khi lật để ngăn lệch template; chi tiết tại [audit template gốc](FLASHCARD-UX-AUDIT.md#dùng-trực-tiếp-template-hsk-3-gốc-nền-af3db7c).
+
 Đợt đồng bộ theo ảnh mẫu HSK 3 (nền `e851178`): CLEC 1-9, HSK 2.0 tham khảo và thẻ Lộ trình dùng cùng format hai mặt, pinyin/nghĩa/ví dụ, thanh tiến độ, nút trước/sau và bốn mức đánh giá. Trang Flashcard chọn cấp là mở thẻ, có select chặng/chế độ; các liên kết từ thư viện Việt và ôn tập chọn lại đúng nguồn. Lịch sử từng nguồn giữ riêng. Chi tiết phạm vi, công thức lịch ôn và kiểm chứng 59 unit / 80 browser scenarios: [audit đồng bộ thẻ](FLASHCARD-UX-AUDIT.md#đồng-bộ-mẫu-thẻ-theo-hsk-3-nền-e851178).
 
 Đợt hoàn thiện Flashcard bổ sung chuyển nhanh tám bộ riêng, khôi phục vị trí CLEC, báo câu quiz/hàng đợi biên tập, 50 ký tự offline có hash và pilot 50 cặp câu ở nháp. Pipeline audio đã có nhưng snapshot hiện tại không có bản ghi đạt giấy phép CC0/CC BY; không tự xuất bản học liệu chưa duyệt. Chi tiết UX, kiểm thử và bảo trì: [FLASHCARD-UX-AUDIT.md](FLASHCARD-UX-AUDIT.md).

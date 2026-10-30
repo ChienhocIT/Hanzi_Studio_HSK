@@ -43,7 +43,7 @@ test('A narrow vocabulary search cannot produce an ambiguous quiz',async({page})
   await expect(panel.locator('[data-syl="quiz-answer"]')).toHaveCount(0);
 });
 async function harness(page) {
-  await page.goto('/privacy.html');await page.setContent('<main id="fixture"></main>');await page.addScriptTag({content:component});
+  await page.goto('/privacy.html');await page.setContent('<main id="fixture"></main>');await page.evaluate(async()=>{const html=await fetch('/index.html').then(r=>r.text()),doc=new DOMParser().parseFromString(html,'text/html'),holder=document.createElement('div');holder.id='page-study';holder.hidden=true;holder.append(doc.querySelector('#page-study .study-layout'));document.body.append(holder);});await page.addScriptTag({content:component});
 }
 test('A delayed staff vocabulary response cannot populate another account cache',async({page})=>{
   await harness(page);
@@ -104,6 +104,12 @@ test('Library cards show only reviewed Tatoeba examples to learners, credited pe
   await expect(list.getByRole('link',{name:'#7'})).toHaveAttribute('href','https://tatoeba.org/vi/sentences/show/7');
   await expect(list.getByRole('button',{name:'Duyệt'})).toHaveCount(0);
   await expect(list.getByRole('button',{name:'Nghe câu 你好！'})).toBeVisible();
+  await expect(panel.locator('.flashcard')).toHaveAttribute('role','group');
+  await list.getByRole('link',{name:'#7'}).evaluate(link=>link.addEventListener('click',event=>event.preventDefault(),{once:true}));
+  await list.getByRole('link',{name:'#7'}).click();
+  await expect(panel.locator('.flashcard')).toHaveClass(/flipped/);
+  await panel.getByRole('button',{name:/Ẩn đáp án/}).focus();await page.keyboard.press('Space');
+  await expect(panel.locator('.flashcard')).not.toHaveClass(/flipped/);
 });
 test('Administrators review each example sentence on the card',async({page})=>{
   const {data,calls}=await mockCloud(page,'admin',{world:{vocab:vocab(),examples:[example(8,'好不好？','Được không?','draft')],items:[],classes:[],assignments:[],submissions:[],questions:[],progress:null}});

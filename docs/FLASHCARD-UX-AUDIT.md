@@ -30,6 +30,17 @@ Lịch sử và ID nguồn giữ riêng. Với curriculum/reference, hai mức c
 
 Kiểm tra đợt đồng bộ: 59 unit tests, 80 browser scenarios (7 regression mới), cùng ảnh desktop/mobile dọc/ngang, sáng/tối và reduced motion. Tương phản bốn nút đạt từ 5,39:1 ở light và 6,15:1 ở dark. Lighthouse accessibility local đạt 100. Review 13 file mã/test theo OCR rules, 0 bỏ qua; tài liệu kiểm tra riêng. Các số đo production ở phần phát hành bên dưới thuộc bản trước; bản đồng bộ cần đối chiếu bundle và CI đúng commit khi phát hành.
 
+## Dùng trực tiếp template HSK 3 gốc (nền af3db7c)
+
+Bản đồng bộ trước dựng HTML tương tự nên chưa đúng yêu cầu dùng nguyên mẫu ban đầu. `src/study-card.js` hiện tạo template từ chính `#page-study .study-layout` trong `index.html`; mỗi nguồn chỉ thay nội dung, ID và hành động. Thay đổi template gốc sẽ áp dụng cho mọi bộ khi tải trang, không cần sửa một bản HTML thẻ thứ hai.
+
+- CLEC 1–6, 7–9, HSK 2.0 tham khảo và Lộ trình giữ nguyên cấu trúc hai mặt, ký hiệu trên bốn nút, nút mũi tên và cột thống kê/phím tắt. Cột phụ ẩn khi vùng chứa hẹp giống bố cục mobile của mẫu gốc.
+- Bấm toàn thẻ lật qua/lại; liên kết nguồn, audio và nút duyệt trong ví dụ không làm lật thẻ. Với mặt có tương tác bên trong, gợi ý sẵn có ở chân thẻ nhận bàn phím để tránh lồng nút. Phím trên audio/video giữ thao tác phát của trình duyệt.
+- Thống kê phiên chỉ tăng sau khi lưu thành công; SRS/backup và ID nguồn giữ nguyên. Không sao chép tiến độ của bộ Việt sang CLEC.
+- Nội dung dài cuộn từ đầu trong thẻ, không cắt mất chữ Hán phía trên. Font, màu, bo góc và bố cục lấy từ mẫu gốc.
+
+Regression so cấu trúc DOM của `.study-layout` với mẫu gốc cho cả bảy bộ CLEC, trước/sau khi lật, và các điểm vào tham khảo/Lộ trình. Nội dung thay đổi theo từ và trạng thái ẩn/hiện được tách khỏi phép so; nút, lớp bố cục và cấu trúc còn lại phải khớp. Kiểm tra bổ sung lật lại, thống kê lưu thành công/thất bại và liên kết trong ví dụ. Ảnh kiểm tra desktop/mobile sáng/tối dùng API giả; không gọi provider thật.
+
 ## Phát hiện và xử lý
 
 | Mức | Phát hiện trước thay đổi | Kết quả |

@@ -6,11 +6,13 @@ const words=['好','学生','水','书'];
 const bank=levels.flatMap((level,l)=>words.map((word,i)=>({...vocab()[0],seq:l*100+1+i,level,word,homograph:null,pinyin:['hǎo','xuésheng','shuǐ','shū'][i],gloss_en:[['good; well','student','water','book'][i]]})));
 const world=()=>({vocab:structuredClone(bank),items:[],classes:[],assignments:[],submissions:[],questions:[],progress:null});
 const ratings=['Chưa nhớ','Khó nhớ','Đã nhớ','Rất dễ'];
+const ratingNames=locator=>locator.evaluateAll(buttons=>buttons.map(b=>b.getAttribute('aria-label')));
+const templateShape=locator=>locator.evaluate(root=>{const dataSlots=new Set(['study-counter','study-progress','study-card-status','front-label','card-index','card-front','card-back-hanzi','card-back-py','card-back-vi','card-part','card-example-zh','card-example-py','card-example-vi','study-nav-label','session-total','session-correct','session-hard']);const dynamic=new Set(['flipped','hidden','learning','mastered','reference-word','study-card-rating','long','mid']);const shape=node=>{const id=node.id?.replace(/^(syl|ref|hs)-/,'');const classes=[...node.classList].filter(c=>!dynamic.has(c)).sort();if(dataSlots.has(id)||id==='syllabus-card-examples')return [node.tagName,classes,'DATA'];return [node.tagName,classes,[...node.children].map(shape)];};return shape(root);});
 
 test('Every CLEC deck uses the HSK 3 card format with four ratings and a concealed back',async({page})=>{
   await mockCloud(page,'student',{world:world()});await page.emulateMedia({reducedMotion:'reduce'});
   await page.goto('/index.html#study');
-  const original=await page.locator('#flashcard .card-face').first().evaluate(el=>({radius:getComputedStyle(el).borderRadius,paper:getComputedStyle(el).backgroundColor}));
+  const original=await templateShape(page.locator('#page-study .study-layout'));
   const study=page.locator('#page-study');
   for(const level of levels){
     await page.getByLabel('Bộ thẻ đang học').selectOption(level);
@@ -18,13 +20,16 @@ test('Every CLEC deck uses the HSK 3 card format with four ratings and a conceal
     await expect(card.locator('.reference-word')).toHaveText('好');
     await expect(card.locator('.card-face.reverse')).toHaveAttribute('inert','');
     await expect(card.getByRole('button',{name:'Đã nhớ',exact:true})).toHaveCount(0);
-    expect(await card.locator('.card-face').first().evaluate(el=>({radius:getComputedStyle(el).borderRadius,paper:getComputedStyle(el).backgroundColor}))).toEqual(original);
+    expect(await templateShape(card.locator('.study-layout'))).toEqual(original);
     await card.getByRole('button',{name:/Mở đáp án/}).click();
     await expect(card.locator('.flashcard')).toHaveClass(/flipped/);
     await expect(card.locator('.card-back-py')).toHaveText('hǎo');
     await expect(card.locator('.card-meaning')).toContainText('good; well');
-    await expect(card.locator('.rating button')).toHaveText(ratings);
+    expect(await ratingNames(card.locator('.rating button'))).toEqual(ratings);
+    expect(await templateShape(card.locator('.study-layout'))).toEqual(original);
     await expect(card.locator('.example-section')).toContainText('Chưa có ví dụ đã duyệt');
+    await card.getByRole('button',{name:/Ẩn đáp án/}).click();
+    await expect(card.locator('.flashcard')).not.toHaveClass(/flipped/);
   }
   expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('hanzi-studio-curriculum-v4')).progress)).toEqual({});
 });
@@ -42,6 +47,9 @@ test('Four keyboard ratings save distinct schedules only for the active CLEC dec
     expect(saved.curriculum['clec2025-'+(i+1)].lastRating).toBe(rating);
     expect(saved.curriculum['clec2025-'+(i+1)].interval).toBe([0,1,1,4][i]);
   }
+  await expect(page.locator('#syl-session-total')).toHaveText('4');
+  await expect(page.locator('#syl-session-correct')).toHaveText('2');
+  await expect(page.locator('#syl-session-hard')).toHaveText('2');
   await page.locator('#page-study .study-card-filters').getByLabel('Chế độ',{exact:true}).selectOption('due');
   await expect(page.locator('#page-study [data-study-source="syl"]')).toHaveCount(0);
   await page.locator('#page-study .study-card-filters').getByLabel('Chế độ',{exact:true}).selectOption('learning');
@@ -56,16 +64,19 @@ test('A failed hard rating keeps the current CLEC card, history and answer',asyn
   await expect(page.locator('#syllabus-status')).toContainText('Không lưu được lượt ôn');await expect(page.locator('#page-study .reference-word')).toHaveText('好');
   await expect(page.locator('#page-study .flashcard.flipped')).toBeVisible();
   expect(await page.evaluate(()=>hs30State.progress)).toEqual({});
+  await expect(page.locator('#syl-session-total')).toHaveText('0');
 });
 
 test('Reference and roadmap cards share the same controls, keep source histories and roll back failed saves',async({page})=>{
   await page.goto('/index.html#contenthub');await page.getByRole('button',{name:'Mở bộ từ tham khảo',exact:true}).click();
   const ref=page.locator('#reference-panel');await ref.getByRole('button',{name:'Luyện thẻ tham khảo',exact:true}).click();
+  expect(await templateShape(ref.locator('.study-layout'))).toEqual(await templateShape(page.locator('#page-study .study-layout')));
   const id=await ref.locator('.reference-word').textContent();await ref.getByRole('button',{name:/Mở đáp án/}).click();
-  await expect(ref.locator('.rating button')).toHaveText(ratings);await ref.getByRole('button',{name:'Rất dễ',exact:true}).click();
+  expect(await ratingNames(ref.locator('.rating button'))).toEqual(ratings);await ref.getByRole('button',{name:'Rất dễ',exact:true}).click();
   expect(await page.evaluate(word=>hs30State.progress['wiktionary-hsk2-1-'+word].lastRating,id)).toBe('easy');
   await page.evaluate(()=>nav('path'));const path=page.locator('#v4-path');
-  await path.locator('.classic-study').getByRole('button',{name:/Mở đáp án/}).click();await expect(path.locator('.rating button')).toHaveText(ratings);
+  await path.locator('.classic-study').getByRole('button',{name:/Mở đáp án/}).click();expect(await ratingNames(path.locator('.rating button'))).toEqual(ratings);
+  expect(await templateShape(path.locator('.study-layout'))).toEqual(await templateShape(page.locator('#page-study .study-layout')));
   const before=await path.locator('.reference-word').textContent();
   await page.evaluate(()=>{const original=Storage.prototype.setItem;Storage.prototype.setItem=function(key,value){if(key==='hanzi-studio-curriculum-v4')throw new DOMException('full','QuotaExceededError');return original.call(this,key,value);};});
   await path.getByRole('button',{name:'Khó nhớ',exact:true}).click();await expect(path.locator('.reference-word')).toHaveText(before);

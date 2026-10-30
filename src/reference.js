@@ -1,5 +1,5 @@
 import {h,field} from './ui.js';
-import {renderStudyCard,focusStudyCard,mountStudyKeyboard,studyRatings} from './study-card.js';
+import {renderStudyCard,focusStudyCard,mountStudyKeyboard,studyRatings,recordStudyRating} from './study-card.js';
 let corpus;
 let pending;
 export async function loadReference(fetcher=fetch) {
@@ -53,6 +53,7 @@ export function mountReference(root) {
   root.addEventListener('click',async event=>{
     const button=event.target.closest('[data-ref]');if(!button)return;
     const action=button.dataset.ref;
+    if(action==='reveal'&&event.target.closest('a,button,audio,input,select,textarea')&&!event.target.matches('[data-study-flip]'))return;
     if(action==='load') {
       button.disabled=true;status('Đang tải bộ từ tham khảo...');
       try{await loadReference();render();button.remove();}catch(error){status(error.message);button.disabled=false;}return;
@@ -70,6 +71,7 @@ export function mountReference(root) {
       const detail={id:word.id,rating:action,saved:false};
       window.dispatchEvent(new CustomEvent('hanzi:reference-rating',{detail}));
       if(!detail.saved){status('Không lưu được lượt ôn. Giữ thẻ hiện tại và kiểm tra dung lượng thiết bị.');return;}
+      recordStudyRating('ref',action);
       status('Đã cập nhật lượt ôn tham khảo trên thiết bị. Đồng bộ theo tài khoản nếu bạn đã bật đồng bộ.');
       position=(position+1)%words.length;revealed=false;
     }

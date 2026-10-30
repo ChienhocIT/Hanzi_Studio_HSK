@@ -265,7 +265,7 @@ test('Learners study published HSK 3.0 syllabus words and ratings join the on-de
   await panel.getByLabel('Tìm chữ Hán hoặc pinyin',{exact:true}).fill('ben');await panel.getByRole('button',{name:'Tra cứu',exact:true}).click();
   await expect(panel.locator('tbody tr')).toHaveCount(1);await expect(panel.locator('tbody')).toContainText('本');
   await panel.getByRole('button',{name:'Luyện thẻ',exact:true}).click();
-  await expect(panel.locator('.study-card-meta')).toContainText('Đang học');await expect(panel.locator('img[src="x"]')).toHaveCount(0);expect(await page.evaluate(()=>window.__xss)).toBeUndefined();
+  await expect(panel.locator('.study-info')).toContainText('Đang học');await expect(panel.locator('img[src="x"]')).toHaveCount(0);expect(await page.evaluate(()=>window.__xss)).toBeUndefined();
   await panel.getByRole('button',{name:/Mở đáp án/}).click();await expect(panel).toContainText('běn');
   await panel.getByRole('button',{name:'Đã nhớ',exact:true}).click();
   await expect(panel.locator('#syllabus-status')).toContainText('Đã cập nhật lượt ôn');

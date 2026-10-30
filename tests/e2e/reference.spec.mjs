@@ -10,7 +10,7 @@ test('Reference bank loads separately, searches licensed data and saves card rat
   await panel.getByRole('button',{name:'Tra cứu',exact:true}).click();
   await expect(page.locator('#reference-results')).toContainText('dad');
   await panel.getByRole('button',{name:'Luyện thẻ tham khảo',exact:true}).click();
-  await expect(page.locator('#reference-results')).toContainText('Mở đáp án');
+  await expect(panel.getByRole('button',{name:/Mở đáp án/})).toBeVisible();
   await panel.getByRole('button',{name:/Mở đáp án/}).click();
   await expect(page.locator('#reference-results')).toContainText('dad');
   await panel.getByRole('button',{name:'Đã nhớ',exact:true}).click();
