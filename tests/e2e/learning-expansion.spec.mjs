@@ -141,6 +141,18 @@ test('Example loading can be retried and sentence text cannot inject markup',asy
   expect(await page.evaluate(()=>window.injected)).toBeUndefined();expect(attempts).toBe(2);
 });
 
+test('An empty example retry restores the original whole-card keyboard interaction',async({page})=>{
+  await mockCloud(page,'student',{world:{vocab:vocab(),examples:[],items:[],classes:[],assignments:[],submissions:[],questions:[],progress:null}});
+  let attempts=0;
+  await page.route('**/rest/v1/example_sentences?**',route=>++attempts===1?route.fulfill({status:400,json:{message:'unavailable'}}):route.fallback());
+  await page.goto('/index.html#hsk');const panel=page.locator('#syllabus-panel');await panel.locator('[data-syl-stage="0"]').click();
+  await panel.getByRole('button',{name:/Mở đáp án/}).click();await expect(panel.locator('.flashcard')).toHaveAttribute('role','group');
+  await panel.getByRole('button',{name:'Thử tải lại câu ví dụ',exact:true}).click();
+  await expect(panel.locator('.flashcard')).toHaveAttribute('role','button');
+  await expect(panel.locator('.card-hint[role="button"]')).toHaveCount(0);
+  await panel.locator('.flashcard').focus();await page.keyboard.press('Space');await expect(panel.locator('.flashcard')).not.toHaveClass(/flipped/);
+});
+
 test('Review in the due queue targets the visible word and does not claim a missing row was updated',async({page})=>{
   const sentence={...example(8,'学生来了。','Học sinh đến rồi.','draft'),seq:2};
   const {calls,data}=await mockCloud(page,'admin',{world:{vocab:vocab(),examples:[sentence],items:[],classes:[],assignments:[],submissions:[],questions:[],progress:null}});

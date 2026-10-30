@@ -71,10 +71,11 @@ export function renderStudyCard({namespace,word,homograph=null,reading='',answer
 export function refreshStudyCard(root) {
   const card=root.matches?.('.flashcard')?root:root.querySelector('.flashcard');if(!card)return;
   const revealed=card.classList.contains('flipped'),face=card.querySelector('.card-face[aria-hidden="false"]');if(!face)return;
+  const hint=face.querySelector('.card-hint'),namespace=card.dataset.studyNamespace;
+  hint.removeAttribute('role');hint.removeAttribute('tabindex');hint.removeAttribute('data-study-flip');hint.removeAttribute('data-'+namespace);hint.removeAttribute('aria-label');hint.style.removeProperty('min-height');
   card.setAttribute('aria-label',face.textContent.trim()+' '+(revealed?'Ẩn đáp án':'Mở đáp án'));
   if(revealed&&face.querySelector('a,button,audio')){
     card.setAttribute('role','group');card.removeAttribute('aria-pressed');card.tabIndex=-1;
-    const hint=face.querySelector('.card-hint'),namespace=card.dataset.studyNamespace;
     hint.setAttribute('role','button');hint.tabIndex=0;hint.dataset.studyFlip='';hint.style.minHeight='44px';hint.setAttribute('aria-label',hint.textContent+' Ẩn đáp án');hint.setAttribute('data-'+namespace,namespace==='hs'?'flip':'reveal');
   }else{card.setAttribute('role','button');card.setAttribute('aria-pressed',String(revealed));card.tabIndex=0;}
 }
