@@ -6,6 +6,8 @@
 
 Đợt hoàn thiện Flashcard bổ sung chuyển nhanh tám bộ riêng, khôi phục vị trí CLEC, báo câu quiz/hàng đợi biên tập, 50 ký tự offline có hash và pilot 50 cặp câu ở nháp. Pipeline audio đã có nhưng snapshot hiện tại không có bản ghi đạt giấy phép CC0/CC BY; không tự xuất bản học liệu chưa duyệt. Chi tiết UX, kiểm thử và bảo trì: [FLASHCARD-UX-AUDIT.md](FLASHCARD-UX-AUDIT.md).
 
+Đã kiểm chứng bản mã `9adb263` trên production: bundle/luồng học khớp, đủ 11 migration, 50 câu pilot còn ở nháp, RLS chặn truy cập ẩn danh. Kiểm thử tự động: 59 unit, 51 nhóm database và 73 browser flows; Lighthouse production: hiệu năng 99, accessibility 100, LCP 1,4 giây. Phần kỹ thuật đã triển khai; duyệt sư phạm 50 câu/hai nghĩa thiếu, nghiệm thu bút/cảm ứng thật và tìm audio đủ quyền vẫn là bước nội dung/thiết bị riêng.
+
 Các phần dưới giữ bối cảnh nghiên cứu ban đầu. Tiến độ mã nguồn hiện tại:
 
 | Hạng mục | Đã triển khai | Còn lại |

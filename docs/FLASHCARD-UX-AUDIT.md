@@ -34,7 +34,7 @@ Giữ màu tím, font Be Vietnam Pro, nhận diện và cấu trúc điều hư�
 ## Kiểm chứng và ranh giới nghiệm thu
 
 - 59 unit tests; 51 nhóm kiểm tra database trong PostgreSQL dùng một lần; 73 Playwright flows, gồm đổi tài khoản, quota/quyền, lỗi storage/mạng, bàn phím, mobile dọc/ngang, sáng/tối, reduced motion và PWA offline.
-- Lighthouse accessibility local: **100/100** trên màn Flashcard mặc định. Baseline CDN production trước thay đổi: performance 93, LCP 1,7 giây; số đo sau phát hành cần đối chiếu riêng, không suy từ điểm local.
+- Lighthouse màn Flashcard production sau sửa tải trang: **performance 99, accessibility 100, LCP 1,4 giây, CLS 0**. Baseline trước thay đổi: performance 93, accessibility 90, LCP 1,7 giây. Đây là các lần đo mobile mô phỏng, không phải số liệu người dùng thực tế.
 - Dữ liệu/tài khoản/API giả trong E2E. Audio dương tính được kiểm tra bằng fixture có nguồn/giấy phép giả; không chứng minh snapshot thật có bản ghi đủ quyền.
 - 50 file nét so sánh byte với package ghim phiên bản và kiểm tra hash/schema. Không gọi model/provider trả phí.
 - Cần áp dụng hai migration mới **trước** bundle dùng quan hệ `example_audio`; hướng dẫn tại [DEPLOYMENT.md](DEPLOYMENT.md#flashcard-báo-câu-và-pilot-học-liệu).
@@ -55,3 +55,5 @@ Giữ màu tím, font Be Vietnam Pro, nhận diện và cấu trúc điều hư�
 `c6d43d2` đã có trên `main` và nhánh worktree. [CI main](https://github.com/ChienhocIT/Hanzi_Studio_HSK/actions/runs/41001262979) chạy đúng SHA, đạt 59 unit / 51 nhóm database / 73 browser flows. Vercel đã phát hành, bundle khớp SHA-256 `97c373702c9b7e7412339126a78beeee87c9b2fb43b8595da97386ea698facb9`; smoke trên domain production qua chọn tám bộ, đánh giá SRS riêng, chuyển bộ/reload giữ vị trí, nút đánh giá mobile và nét chữ thật đóng gói. Các API tài khoản/AI trong smoke dùng fixture, không ghi tiến độ người thật.
 
 Lighthouse production ở bản này: accessibility **100**, performance **81**, LCP **4,3 giây**, CLS **0,001** (một lần đo mạng mobile mô phỏng). Đây là lý do bỏ thử nghiệm `defer` và thêm preload ở bản tiếp theo; không coi CI xanh là bằng chứng đạt mục tiêu hiệu năng. Hai bố cục trước/sau có phần tử LCP khác nhau, cần đọc trace cùng điểm số.
+
+Bản mã cuối `9adb263` giữ picker trong HTML ban đầu và ưu tiên tải script khởi tạo. Đã đối chiếu 8 asset trên domain thực (chuẩn hóa CRLF/LF của Windows; service worker đối chiếu nội dung ngoài build ID phụ thuộc byte nền tảng). Bundle SHA-256 là `841684bedf07bcf3784c9e52b94ae3fdcb77feb2b4ea28c6465f485f4d77fe9f`. Smoke chọn bộ/đánh giá/đổi bộ/reload/mobile/nét chữ qua, không có lỗi JavaScript. Lighthouse cuối: **99 / 100, LCP 1,4 giây, CLS 0**. [CI đúng SHA trên main](https://github.com/ChienhocIT/Hanzi_Studio_HSK/actions/runs/41002140128), [CI nhánh worktree](https://github.com/ChienhocIT/Hanzi_Studio_HSK/actions/runs/41002124352); kết quả tổng là 59 unit, 51 nhóm database, 73 browser flows. Các commit tài liệu sau đó không thay bundle/runtime.
