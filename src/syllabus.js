@@ -24,7 +24,8 @@ export function mountSyllabus(root) {
   if (!root) return { setSession() {} };
   let client = null, profile = null, level = initialLevel(), query = '', page = 0, position = 0, revealed = false, view = 'stages', stage = null, adminOpen = false;
   let sessionEpoch=0,loadEpoch=0,quiz=null;
-  const cache = new Map();
+  const cache = new Map(), examples = new Map();
+  let shownCard = null;
   const admin = () => profile?.role === 'admin', staff = () => ['teacher','admin'].includes(profile?.role);
   root.innerHTML = `<div class="art-hero hsk-hero"><picture class="art-hero-media"><source media="(max-width:700px)" srcset="./assets/illustrations/banner-reading-mobile.webp" width="750" height="900"><img src="./assets/illustrations/banner-reading-desktop.webp" alt="" width="1600" height="600"></picture><div class="art-hero-copy"><h1>Thư viện từ vựng HSK 1–9</h1><p>11.000 từ của đề cương HSK 3.0 (2025), chia theo cấp và chặng: tra cứu, nghe, luyện thẻ, ôn đúng lúc.</p></div></div><div class="panel" id="syllabus-panel"><p id="syllabus-status" role="status" aria-live="polite"></p><div id="syllabus-content"></div></div>`;
   const status = (text, error = false) => { const el = root.querySelector('#syllabus-status'); el.textContent = text; el.classList.toggle('cloud-error', error); };
@@ -55,6 +56,25 @@ export function mountSyllabus(root) {
     }).join('')}</div>`;
   }
   const label = r => `${h(r.word)}${r.homograph ? `<sup>${r.homograph}</sup>` : ''}`;
+  // Tatoeba example sentences for one word, loaded when its answer is revealed. Learners only receive published rows (RLS);
+  // staff also see drafts and administrators review each sentence here. Authors are credited per sentence (CC BY).
+  const tatoeba = (id, author) => `<a href="https://tatoeba.org/vi/sentences/show/${Number(id)}" target="_blank" rel="noopener noreferrer">#${Number(id)}</a>${author ? ` (${h(author)})` : ''}`;
+  function exampleList(r) {
+    const rows = examples.get(r.seq);
+    if (rows === undefined || rows === 'loading') { if (rows === undefined) loadExamples(r.seq); return '<p class="panel-sub syllabus-examples">Đang tải câu ví dụ...</p>'; }
+    if (rows === 'error') return '<div class="syllabus-examples"><p class="panel-sub">Chưa tải được câu ví dụ.</p><button type="button" class="btn" data-syl="examples-retry">Thử tải lại câu ví dụ</button></div>';
+    if (!rows.length) return '';
+    return `<div class="syllabus-examples"><h4>Câu ví dụ</h4><ul>${rows.map(e => `<li><p lang="zh-Hans" class="example-zh">${h(e.zh)} <button type="button" class="btn btn-listen" data-syl="say" data-word="${h(e.zh)}" aria-label="Nghe câu ${h(e.zh)}"><span class="ico-listen" aria-hidden="true"></span>Nghe</button></p><p>${h(e.vi)}</p><p class="panel-sub">Tatoeba ${tatoeba(e.zh_id, e.zh_author)} · bản dịch ${tatoeba(e.vi_id, e.vi_author)} · ${h(e.license)}${staff() ? ` · ${h(STATUS[e.review_status] || e.review_status)}` : ''}</p>${admin() ? `<div class="cloud-actions">${[['published', 'Duyệt'], ['rejected', 'Từ chối'], ['draft', 'Về nháp']].filter(([d]) => d !== e.review_status).map(([d, text]) => `<button type="button" class="btn" data-syl="example-review" data-zh="${Number(e.zh_id)}" data-decision="${d}">${text}</button>`).join('')}</div>` : ''}</li>`).join('')}</ul></div>`;
+  }
+  async function loadExamples(seq) {
+    const owner = sessionEpoch, activeClient = client; examples.set(seq, 'loading');
+    let rows;
+    try { rows = await reply(activeClient.from('example_sentences').select('zh_id,zh,zh_author,vi_id,vi,vi_author,license,review_status').eq('syllabus', SYLLABUS).eq('seq', seq).order('zh_id')); }
+    catch { rows = 'error'; }
+    if (owner !== sessionEpoch) return;
+    examples.set(seq, rows);
+    if (shownCard === seq && revealed) renderResults();
+  }
   const extra = r => r.extra_levels.length ? ` · nghĩa mở rộng ở HSK ${r.extra_levels.map(h).join(', ')}` : '';
   async function fetchLevel(name,owner,activeClient) {
     if (cache.has(name)) return;
@@ -89,7 +109,7 @@ export function mountSyllabus(root) {
     const result = root.querySelector('#syllabus-results');
     if (!result) return;
     if(view==='quiz'){renderQuiz(result);return;}
-    result.innerHTML = adminTools();
+    result.innerHTML = adminTools(); shownCard = null;
     if (level !== 'all' && stage === null && !query && view === 'stages') {
       const total = (cache.get(level) || []).length;
       if (total) result.insertAdjacentHTML('beforeend', `<p class="stage-intro">HSK ${h(level)} có ${total.toLocaleString('vi-VN')} từ, chia ${Math.ceil(total / STAGE[level])} chặng, mỗi chặng ${STAGE[level]} từ. Chọn một chặng để học.</p>${stageGrid()}`);
@@ -103,8 +123,8 @@ export function mountSyllabus(root) {
     const list = view === 'due' ? words().filter(isDue) : words();
     if (!list.length) { result.insertAdjacentHTML('beforeend', `<p>${view === 'due' ? 'Chưa có từ nào đến hạn ôn ở cấp này. Luyện thẻ và bấm “Đã nhớ” để bắt đầu lịch ôn.' : query ? 'Không có mục phù hợp. Thử chữ Hán hoặc pinyin khác (gõ không dấu cũng được).' : 'Chưa có mục để hiển thị.'}</p>`); return; }
     if (view === 'cards' || view === 'due' || view === 'stages') {
-      position = Math.min(position, list.length - 1); const r = list[position], record = progress(r.seq);
-      result.insertAdjacentHTML('beforeend', `<p>${position + 1} / ${list.length.toLocaleString('vi-VN')} · HSK ${h(r.level)}${extra(r)}</p><p class="reference-word" lang="zh-Hans">${label(r)}</p>${revealed ? `<p lang="zh-Latn" class="syllabus-pinyin">${h(r.pinyin)}</p><p>${posText(r)}</p>${meaning(r)}` : '<p>Đọc to từ này, nhớ pinyin và nghĩa, rồi mở đáp án.</p>'}<p>${record?.reps ? `Đã nhớ ${record.reps} lượt. Lần ôn: ${new Date(record.due).toLocaleString('vi-VN')}` : 'Chưa có lượt ghi nhớ.'}</p><div class="cloud-actions"><button type="button" class="btn" data-syl="previous">Thẻ trước</button><button type="button" class="btn" data-syl="reveal">${revealed ? 'Ẩn đáp án' : 'Mở đáp án'}</button><button type="button" class="btn" data-syl="next">Thẻ sau</button><button type="button" class="btn btn-listen" data-syl="speak"><span class="ico-listen" aria-hidden="true"></span>Nghe</button>${revealed ? '<button type="button" class="btn" data-syl="again">Cần ôn lại</button><button type="button" class="btn" data-syl="good">Đã nhớ</button>' : ''}</div>`);
+      position = Math.min(position, list.length - 1); const r = list[position], record = progress(r.seq); shownCard = r.seq;
+      result.insertAdjacentHTML('beforeend', `<p>${position + 1} / ${list.length.toLocaleString('vi-VN')} · HSK ${h(r.level)}${extra(r)}</p><p class="reference-word" lang="zh-Hans">${label(r)}</p>${revealed ? `<p lang="zh-Latn" class="syllabus-pinyin">${h(r.pinyin)}</p><p>${posText(r)}</p>${meaning(r)}${exampleList(r)}` : '<p>Đọc to từ này, nhớ pinyin và nghĩa, rồi mở đáp án.</p>'}<p>${record?.reps ? `Đã nhớ ${record.reps} lượt. Lần ôn: ${new Date(record.due).toLocaleString('vi-VN')}` : 'Chưa có lượt ghi nhớ.'}</p><div class="cloud-actions"><button type="button" class="btn" data-syl="previous">Thẻ trước</button><button type="button" class="btn" data-syl="reveal">${revealed ? 'Ẩn đáp án' : 'Mở đáp án'}</button><button type="button" class="btn" data-syl="next">Thẻ sau</button><button type="button" class="btn btn-listen" data-syl="speak"><span class="ico-listen" aria-hidden="true"></span>Nghe</button><button type="button" class="btn" data-strokes="${h(r.word)}">Thứ tự nét</button>${revealed ? '<button type="button" class="btn" data-syl="again">Cần ôn lại</button><button type="button" class="btn" data-syl="good">Đã nhớ</button>' : ''}</div>`);
       return;
     }
     const pages = Math.ceil(list.length / PAGE); page = Math.min(page, pages - 1);
@@ -114,7 +134,7 @@ export function mountSyllabus(root) {
     cache.clear(); position = 0; page = 0; revealed = false; quiz = null; stage = null; view = 'stages';
     if (!client) { content.innerHTML = window.HANZI_CLOUD_CONFIG?.url ? '<p class="cloud-loading">Đang kiểm tra phiên đăng nhập...</p>' : '<p>Danh mục được lưu trên máy chủ đồng bộ. Tính năng này cần quản trị viên kết nối Supabase.</p>'; status(''); return; }
     if (!profile) { content.innerHTML = '<div class="gate"><p>Đăng nhập để tra cứu và luyện 11.000 từ của đề cương HSK 3.0.</p><button type="button" class="btn btn-primary" data-go="auth" data-auth-view="login">Đăng nhập để mở danh mục</button></div>'; status(''); return; }
-    content.innerHTML = `<div class="hsk-levels" role="group" aria-label="Chọn cấp HSK">${[...LEVELS, 'all'].map(l => `<button type="button" class="level-chip" data-syl-level="${l}" aria-pressed="${l === level}">${l === 'all' ? 'Tất cả' : `HSK ${l}`}</button>`).join('')}</div><form id="syllabus-search" class="cloud-form syllabus-search">${field('Tìm chữ Hán hoặc pinyin','query','search',`value="${h(query)}" maxlength="60"`)}<button class="btn">Tra cứu</button></form><div class="cloud-actions"><button type="button" class="btn" data-syl="list">Danh sách từ</button><button type="button" class="btn" data-syl="cards">Luyện thẻ</button><button type="button" class="btn" data-syl="due">Ôn từ đến hạn</button><button type="button" class="btn" data-go="library">Bộ HSK 3 nghĩa tiếng Việt</button></div><div id="syllabus-results"></div><p class="panel-sub syllabus-source">Danh mục từ: 《中文水平考试 HSK 考试大纲》, 中外语言交流合作中心 (CLEC), 2025, không ghi giấy phép; chỉ lưu từ, cấp, pinyin, từ loại kèm trích dẫn và số trang, không phải ngân hàng đề thi. Nghĩa tiếng Anh: <a href="https://www.mdbg.net/chinese/dictionary?page=cc-cedict" target="_blank" rel="noopener noreferrer">CC-CEDICT</a> (CC-CEDICT contributors, MDBG), <a href="./data/CC-BY-SA-4.0.txt" target="_blank" rel="noopener noreferrer">CC BY-SA 4.0</a>, chọn theo cách đọc của đề cương. Chưa có nghĩa tiếng Việt.</p>`;
+    content.innerHTML = `<div class="hsk-levels" role="group" aria-label="Chọn cấp HSK">${[...LEVELS, 'all'].map(l => `<button type="button" class="level-chip" data-syl-level="${l}" aria-pressed="${l === level}">${l === 'all' ? 'Tất cả' : `HSK ${l}`}</button>`).join('')}</div><form id="syllabus-search" class="cloud-form syllabus-search">${field('Tìm chữ Hán hoặc pinyin','query','search',`value="${h(query)}" maxlength="60"`)}<button class="btn">Tra cứu</button></form><div class="cloud-actions"><button type="button" class="btn" data-syl="list">Danh sách từ</button><button type="button" class="btn" data-syl="cards">Luyện thẻ</button><button type="button" class="btn" data-syl="due">Ôn từ đến hạn</button><button type="button" class="btn" data-go="library">Bộ HSK 3 nghĩa tiếng Việt</button></div><div id="syllabus-results"></div><p class="panel-sub syllabus-source">Danh mục từ: 《中文水平考试 HSK 考试大纲》, 中外语言交流合作中心 (CLEC), 2025, không ghi giấy phép; chỉ lưu từ, cấp, pinyin, từ loại kèm trích dẫn và số trang, không phải ngân hàng đề thi. Nghĩa tiếng Anh: <a href="https://www.mdbg.net/chinese/dictionary?page=cc-cedict" target="_blank" rel="noopener noreferrer">CC-CEDICT</a> (CC-CEDICT contributors, MDBG), <a href="./data/CC-BY-SA-4.0.txt" target="_blank" rel="noopener noreferrer">CC BY-SA 4.0</a>, chọn theo cách đọc của đề cương. Chưa có nghĩa tiếng Việt. Câu ví dụ Trung–Việt: <a href="https://tatoeba.org" target="_blank" rel="noopener noreferrer">Tatoeba</a>, CC BY 2.0 FR, ghi tác giả từng câu; chỉ hiện câu đã được quản trị viên duyệt.</p>`;
     content.querySelector('[name="query"]').required = false;
     content.querySelector('.cloud-actions').insertAdjacentHTML('beforeend','<button type="button" class="btn" data-syl="quiz">Luyện trắc nghiệm</button>');
     load();
@@ -183,6 +203,21 @@ export function mountSyllabus(root) {
     if (action === 'list' || action === 'cards' || action === 'due') { view = action; position = 0; revealed = false; renderResults(); return; }
     if (action === 'publish' || action === 'unpublish') { button.disabled = true; await review(action === 'publish' ? 'published' : 'draft'); return; }
     if (action === 'say') { window.speak?.(button.dataset.word); return; }
+    if (action === 'examples-retry') {
+      if (shownCard === null || !revealed) return;
+      examples.delete(shownCard); renderResults(); return;
+    }
+    if (action === 'example-review') {
+      if (shownCard === null || !admin()) return;
+      const owner = sessionEpoch, seq = shownCard; button.disabled = true;
+      try {
+        const changed = await reply(client.rpc('review_example_sentences', {entry_syllabus: SYLLABUS, entry_seq: seq, entry_zh_ids: [Number(button.dataset.zh)], decision: button.dataset.decision}));
+        if (owner === sessionEpoch) status(changed === 1 ? `Đã chuyển câu ví dụ sang “${STATUS[button.dataset.decision]}”.` : 'Câu ví dụ không còn tồn tại. Đã tải lại danh sách.', changed !== 1);
+      }
+      catch { if (owner === sessionEpoch) status('Không cập nhật được câu ví dụ. Chức năng này cần quyền quản trị viên.', true); }
+      if (owner !== sessionEpoch) return;
+      examples.delete(seq); renderResults(); return;
+    }
     if (action === 'prev-page') page--; if (action === 'next-page') page++;
     if (!r && !action.endsWith('page')) return;
     if (action === 'next' || action === 'previous') { position = (position + (action === 'next' ? 1 : list.length - 1)) % list.length; revealed = false; }
@@ -209,5 +244,5 @@ export function mountSyllabus(root) {
   // Links elsewhere (roadmap, old HSK 3 library) open the library on a level: data-go="hsk" data-hsk-level="4".
   document.addEventListener('click', event => { const link = event.target.closest('[data-hsk-level]'); if (link) chooseLevel(link.dataset.hskLevel, link.dataset.hskView); }, true);
   render();
-  return { openLevel: chooseLevel, get level() { return level; }, setSession(nextClient, nextProfile) { if (client === nextClient && profile?.id === nextProfile?.id && profile?.role === nextProfile?.role) return;sessionEpoch++; client = nextClient; profile = nextProfile; render(); } };
+  return { openLevel: chooseLevel, get level() { return level; }, setSession(nextClient, nextProfile) { if (client === nextClient && profile?.id === nextProfile?.id && profile?.role === nextProfile?.role) return;sessionEpoch++; examples.clear(); client = nextClient; profile = nextProfile; render(); } };
 }

@@ -17,12 +17,14 @@
     "data:import-hsk3": "node scripts/import-hsk3.mjs",
     "db:seed-vocabulary": "node --env-file-if-exists=.env.local scripts/seed-vocabulary.mjs",
     "db:seed-glosses": "node --env-file-if-exists=.env.local scripts/seed-glosses.mjs",
+    "db:seed-examples": "node --env-file-if-exists=.env.local scripts/seed-examples.mjs",
     "db:promote-admin": "node --env-file-if-exists=.env.local scripts/promote-admin.mjs",
     "auth:configure": "node --env-file-if-exists=.env.local scripts/configure-auth.mjs",
     "db:bundle": "node scripts/bundle-migrations.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.118.0",
+    "hanzi-writer": "3.7.3",
     "pg": "^8.16.3"
   },
   "devDependencies": {

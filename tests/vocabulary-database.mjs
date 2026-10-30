@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import {seedVocabulary} from '../scripts/seed-vocabulary.mjs';
+import {seedExamples} from '../scripts/seed-examples.mjs';
 export async function exerciseVocabulary(db) {
   const student='00000000-0000-4000-8000-000000000001',teacher='00000000-0000-4000-8000-000000000003',admin='00000000-0000-4000-8000-000000000004';
   async function as(id,sql,args=[]) {
@@ -44,6 +45,35 @@ export async function exerciseVocabulary(db) {
     assert.equal(rows[0].level,'1');assert.equal(rows[0].review_status,'published');assert.equal(rows[2].pinyin,'bā');
     await assert.rejects(seedVocabulary(db,{...dataset,source:{...dataset.source,sha256:'b'.repeat(64)}}),/Source content changed/);
     assert.equal((await db.query('select sha256 from public.data_sources where id=$1',[dataset.source.id])).rows[0].sha256,'a'.repeat(64));
+  });
+  await check('Example sentences load as drafts, only administrators publish them and re-import keeps reviews',async()=>{
+    const source={id:'fixture-tatoeba',title:'Fixture Tatoeba',url:'https://example.com/tatoeba',sha256:'c'.repeat(64),license:'CC BY 2.0 FR',attribution:'Fixture',retrievedAt:'2026-10-30T00:00:00Z'};
+    const row=(seq,zh_id,zh)=>({seq,zh_id,zh,zh_author:'amy',vi_id:zh_id+1000,vi:'Câu '+zh_id,vi_author:null});
+    const rows=[row(1,11,'我爱你。'),row(2,12,'八个人。'),row(99,13,'不在大纲。')];
+    assert.equal(await seedExamples(db,dataset.syllabus,source,rows),2);
+    assert.equal(await seedExamples(db,dataset.syllabus,source,rows),0);
+    const examples='select seq,zh_id from public.example_sentences order by zh_id';
+    assert.equal((await as(student,examples)).rowCount,0);
+    assert.equal((await as(teacher,examples)).rowCount,2);
+    await assert.rejects(as(null,examples),/permission denied/);
+    const review="select public.review_example_sentences($1,$2,$3,$4) n";
+    await assert.rejects(as(teacher,review,[dataset.syllabus,1,[11],'published']),/admin_required/);
+    await assert.rejects(as(student,"update public.example_sentences set review_status='published'"),/permission denied/);
+    await assert.rejects(as(admin,review,[dataset.syllabus,1,[11],'approved']),/invalid_transition/);
+    await assert.rejects(as(admin,review,[dataset.syllabus,1,[11],null]),/invalid_transition/);
+    await assert.rejects(as(admin,review,[dataset.syllabus,1,[],'published']),/invalid_selection/);
+    await assert.rejects(as(admin,review,[dataset.syllabus,1,null,'published']),/invalid_selection/);
+    assert.equal((await as(admin,review,[dataset.syllabus,1,[11,12],'published'])).rows[0].n,1);
+    assert.deepEqual((await as(student,examples)).rows,[{seq:1,zh_id:11}]);
+    assert.equal(await seedExamples(db,dataset.syllabus,source,[{...rows[0],zh:'改过的句子。'}]),0);
+    const kept=(await db.query('select zh,review_status,reviewer_id from public.example_sentences where zh_id=11')).rows[0];
+    assert.equal(kept.zh,'我爱你。');assert.equal(kept.review_status,'published');assert.equal(kept.reviewer_id,admin);
+    await assert.rejects(seedExamples(db,dataset.syllabus,{...source,sha256:'d'.repeat(64)},rows),/Source content changed/);
+    assert.equal((await as(admin,review,[dataset.syllabus,1,[11],'rejected'])).rows[0].n,1);
+    assert.equal((await as(student,examples)).rowCount,0);
+    await as(admin,review,[dataset.syllabus,1,[11],'draft']);
+    const reset=(await db.query('select reviewer_id,reviewed_at from public.example_sentences where zh_id=11')).rows[0];
+    assert.deepEqual(reset,{reviewer_id:null,reviewed_at:null});
   });
   console.log(`${checks} vocabulary database checks passed.`);
 }

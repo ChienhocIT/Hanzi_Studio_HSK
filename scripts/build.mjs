@@ -12,6 +12,7 @@ assets.push('assets/fonts/OFL.txt');
 await mkdir('dist', { recursive: true });
 for (const name of assets) {await mkdir(dirname(`dist/${name}`),{recursive:true});await copyFile(name, `dist/${name}`);}
 await mkdir('dist/data',{recursive:true});
+await copyFile('node_modules/hanzi-writer/LICENSE', 'dist/data/HANZI-WRITER-LICENSE.txt');
 const dataAssets=['hsk2-reference.json','hsk2-provenance.json','CC-BY-SA-4.0.txt'];
 for(const name of dataAssets)await copyFile(`data/${name}`,`dist/data/${name}`);
 const {url,key}=publicConfig();

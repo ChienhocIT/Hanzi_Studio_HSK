@@ -401,3 +401,22 @@ body.public-mode .body{max-width:none;padding:0}
 .review-hsk{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin:0 0 20px;padding:16px 20px;border:1px solid var(--stroke);border-radius:20px;background:var(--grad-soft)}
 .review-hsk p{margin:4px 0 0;color:var(--muted);font-size:13px}
 @media(max-width:640px){.deck-chips{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px}.deck-chips .level-chip{flex:none}}
+/* Stroke order dialog (src/strokes.js) */
+.stroke-dialog{padding:0;border:1px solid var(--stroke);border-radius:20px;background:var(--surface);color:var(--txt);width:min(420px,calc(100vw - 32px));box-shadow:var(--shadow)}
+.stroke-dialog::backdrop{background:rgba(18,16,42,.45)}
+.stroke-body{padding:20px;display:grid;gap:12px}
+.stroke-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.stroke-head h2{margin:0;font-size:20px}
+.stroke-stage{justify-self:center;border:1px dashed var(--stroke);border-radius:16px;background:var(--paper,var(--surface));touch-action:none;min-width:180px;min-height:180px;display:grid;place-items:center}
+.stroke-stage svg{display:block}
+.stroke-status{margin:0;min-height:1.5em;font-weight:600}
+.stroke-note{margin:0;font-size:13px;color:var(--muted)}
+.stroke-dialog [aria-pressed="true"].btn{background:var(--primary-light);border-color:var(--primary);color:var(--primary-strong)}
+.stroke-dialog [hidden]{display:none!important}
+/* Tatoeba example sentences on library cards (src/syllabus.js) */
+.syllabus-examples{margin-top:12px;text-align:left}
+.syllabus-examples h4{margin:0 0 6px}
+.syllabus-examples ul{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.syllabus-examples li{border:1px solid var(--stroke);border-radius:14px;padding:10px 12px}
+.syllabus-examples li p{margin:2px 0}
+.example-zh{font-size:20px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}

@@ -9,7 +9,7 @@ export async function mockCloud(page,role='student',{authenticated=true,userId=i
   const id=userId;
   const calls=[],data=world||{items:[],classes:[],assignments:[],submissions:[],questions:[],progress:null};
   data.liveRooms??=[];
-  data.vocab??=[];
+  data.vocab??=[];data.examples??=[];
   data.liveDrafts??={};data.liveResults??={};
   const user={id,email:'learner@example.test',aud:'authenticated',role:'authenticated',app_metadata:{provider:'email'},user_metadata:{}};
   const jwt=Buffer.from(JSON.stringify({alg:'HS256',typ:'JWT'})).toString('base64url')+'.'+Buffer.from(JSON.stringify({sub:id,exp:Math.floor(Date.now()/1000)+3600,role:'authenticated'})).toString('base64url')+'.test';
@@ -34,6 +34,8 @@ export async function mockCloud(page,role='student',{authenticated=true,userId=i
       const level=url.searchParams.get('level')?.replace(/^eq\./,''),offset=Number(url.searchParams.get('offset')||0),limit=Number(url.searchParams.get('limit')||1000);
       result=data.vocab.filter(v=>v.level===level&&(role!=='student'||v.review_status==='published')).slice(offset,offset+limit);
     }
+    else if(url.pathname.endsWith('/example_sentences')){const seq=Number(url.searchParams.get('seq')?.replace(/^eq\./,''));result=data.examples.filter(e=>e.seq===seq&&(role!=='student'||e.review_status==='published'));}
+    else if(url.pathname.endsWith('/review_example_sentences')){if(role!=='admin'){status=403;result={code:'42501',message:'admin_required'};}else{const rows=data.examples.filter(e=>e.seq===body.entry_seq&&body.entry_zh_ids.includes(e.zh_id));rows.forEach(e=>e.review_status=body.decision);result=rows.length;}}
     else if(url.pathname.endsWith('/tutor_quota_left'))result=data.tutorLeft??30;
     else if(url.pathname.endsWith('/review_vocab_entries')){const rows=data.vocab.filter(v=>body.entry_seqs.includes(v.seq));rows.forEach(v=>v.review_status=body.decision);result=rows.length;}
     else if(url.pathname.endsWith('/profiles'))result=url.searchParams.get('id')?{id,display_name:'Học viên kiểm thử',role}:[{id,display_name:'Học viên kiểm thử',role}];

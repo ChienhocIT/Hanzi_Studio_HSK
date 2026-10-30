@@ -1,5 +1,7 @@
 # Trạng thái triển khai nghiệp vụ
 
+Cập nhật local ngày 2026-10-30 cho luyện nét và câu ví dụ Trung–Việt: [phạm vi, kiểm thử và bước phát hành còn lại](PROJECT-PROGRESS-2026-10-30.md).
+
 Đây là phạm vi mã nguồn của bản phát hành, không phải xác nhận nghiệm thu production. Trạng thái deploy và cấu hình project thực phải kiểm tra riêng sau khi push.
 
 | Nhóm | Đã triển khai trong mã nguồn | Còn lại |
