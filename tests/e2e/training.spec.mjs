@@ -382,7 +382,8 @@ test('The library opens on the learner level and splits it into stages that trac
   // The original 500-word library links into the full library by level.
   await page.evaluate(()=>{nav('library');window.__spoken=[];speechSynthesis.speak=u=>window.__spoken.push(u.text);});
   await page.locator('#library-rows').getByRole('button',{name:'Nghe 矮',exact:true}).click();
-  expect(await page.evaluate(()=>window.__spoken)).toEqual(['矮']);
+  // Without a Chinese device voice a signed-in learner goes through the server voice first, so this can be async.
+  await expect.poll(()=>page.evaluate(()=>window.__spoken)).toEqual(['矮']);
   await page.locator('#page-library .level-jump').getByRole('button',{name:'HSK 1',exact:true}).click();
   await expect(panel.getByRole('button',{name:'HSK 1',exact:true})).toHaveAttribute('aria-pressed','true');
 });
@@ -493,4 +494,31 @@ test('Devices without a Chinese voice play Cloudflare speech, cached per word',a
   await listen.click();await expect.poll(()=>page.evaluate(()=>window.__played.length)).toBe(1);
   await listen.click();await expect.poll(()=>page.evaluate(()=>window.__played.length)).toBe(2);
   expect(calls).toBe(1);expect(await page.evaluate(()=>window.__device)).toEqual([]);
+});
+test('Flashcards switch between the HSK 3 deck and HSK 1–9 levels, and review counts library words',async({page})=>{
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  const rows=Array.from({length:60},(_,i)=>({seq:i+1,level:'1',extra_levels:[],word:'字'+(i+1),homograph:null,pinyin:'zì',pos:['名'],pos_extra:[],review_status:'published',source_page:80,gloss_en:['word '+(i+1)]}));
+  await mockCloud(page,'student',{world:{items:[],classes:[],assignments:[],submissions:[],questions:[],progress:null,vocab:rows}});
+  await page.addInitScript(()=>{if(!sessionStorage.getItem('seeded')){sessionStorage.setItem('seeded','1');localStorage.setItem('hanzi-studio-curriculum-v4',JSON.stringify({progress:{'clec2025-3':{reps:1,interval:1,due:Date.now()-1000},'clec2025-4':{reps:3,interval:4,due:Date.now()+86400000}}}));}});
+  await page.goto('/index.html#study');
+  await expect(page.locator('#study-active')).toBeVisible();
+  await page.getByRole('button',{name:'HSK 1 · 300',exact:true}).click();
+  await expect(page.locator('#study-active')).toBeHidden();
+  await expect(page.locator('#page-study .stage-tile')).toHaveCount(2);
+  await page.locator('#page-study [data-syl-stage="0"]').click();
+  await expect(page.locator('#page-study .reference-word')).toHaveText('字1');
+  await page.reload();
+  await expect(page.getByRole('button',{name:'HSK 1 · 300',exact:true})).toHaveAttribute('aria-pressed','true');
+  await expect(page.locator('#page-study .stage-tile')).toHaveCount(2);
+  await page.evaluate(()=>nav('hsk'));await expect(page.locator('#page-hsk .stage-tile')).toHaveCount(2);
+  await page.evaluate(()=>nav('home'));
+  await expect(page.locator('#m-studied')).toHaveText('2');await expect(page.locator('#m-studied-foot')).toContainText('HSK 1–9: 2');
+  await page.evaluate(()=>nav('review'));
+  await expect(page.locator('#review-hsk-due')).toContainText('1 từ HSK 1–9 đến hạn');
+  await page.locator('#review-hsk-due').getByRole('button',{name:'Ôn ngay',exact:true}).click();
+  await expect(page).toHaveURL(/#hsk$/);await expect(page.locator('#page-hsk .reference-word')).toHaveText('字3');
+  await page.evaluate(()=>nav('study'));
+  await page.getByRole('button',{name:'HSK 3 · 500 từ nghĩa Việt',exact:true}).click();
+  await expect(page.locator('#study-active')).toBeVisible();await expect(page.locator('#study-syllabus-slot')).toBeHidden();
+  expect(errors).toEqual([]);
 });

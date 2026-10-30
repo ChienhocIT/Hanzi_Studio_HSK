@@ -390,3 +390,14 @@ body.public-mode .body{max-width:none;padding:0}
 .vl-ai-link{font-weight:800}
 @media(max-width:640px){.voice-modes{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px}.voice-modes .level-chip{flex:none}.voice-mic{width:100%;justify-content:center}}
 .tutor-tabs{grid-template-columns:repeat(3,1fr);max-width:440px}
+
+/* ---------- Flashcard deck picker ---------- */
+.deck-picker{display:grid;gap:8px;margin:0 0 18px}
+.deck-picker>span{font-size:13px;font-weight:700;color:var(--muted)}
+.deck-chips{display:flex;flex-wrap:wrap;gap:8px}
+#page-study.deck-hsk>:not(.page-heading):not(.deck-picker):not(#study-syllabus-slot){display:none!important}
+#study-syllabus-slot .hsk-hero{display:none}
+#study-syllabus-slot #syllabus-panel{margin-top:0}
+.review-hsk{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin:0 0 20px;padding:16px 20px;border:1px solid var(--stroke);border-radius:20px;background:var(--grad-soft)}
+.review-hsk p{margin:4px 0 0;color:var(--muted);font-size:13px}
+@media(max-width:640px){.deck-chips{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px}.deck-chips .level-chip{flex:none}}

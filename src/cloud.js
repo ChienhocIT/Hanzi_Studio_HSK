@@ -7,6 +7,7 @@ import { mountSyllabus } from './syllabus.js';
 import { mountTutor } from './tutor.js';
 import { mountVideoAI } from './video-ai.js';
 import { mountSpeechFallback } from './speech.js';
+import { mountFlashcardDecks } from './flashcard-decks.js';
 import { mountShell } from './shell.js';
 import { setMood } from './mascot.js';
 
@@ -15,6 +16,7 @@ const syllabus = mountSyllabus(document.getElementById('syllabus-container'));
 const tutor = mountTutor(document.getElementById('tutor-panel'));
 const videoAI = mountVideoAI();
 const speechFallback = mountSpeechFallback();
+mountFlashcardDecks(syllabus);
 mountShell();
 
 const root = document.getElementById('cloud-panel');

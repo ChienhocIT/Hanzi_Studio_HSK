@@ -198,16 +198,16 @@ export function mountSyllabus(root) {
     }
     renderResults();
   });
-  function chooseLevel(next) {
+  function chooseLevel(next, nextView) {
     if (![...LEVELS, 'all'].includes(next)) return;
-    level = next; stage = null; quiz = null; query = ''; page = 0; position = 0; revealed = false; view = level === 'all' ? 'list' : 'stages';
+    level = next; stage = null; quiz = null; query = ''; page = 0; position = 0; revealed = false; view = ['due', 'cards', 'list'].includes(nextView) ? nextView : level === 'all' ? 'list' : 'stages';
     try { if (level !== 'all') localStorage.setItem(LEVEL_KEY, level); } catch {}
     root.querySelectorAll('[data-syl-level]').forEach(el => el.setAttribute('aria-pressed', String(el.dataset.sylLevel === level)));
     const input = root.querySelector('#syllabus-search [name="query"]'); if (input) input.value = '';
     if (client && profile) load();
   }
   // Links elsewhere (roadmap, old HSK 3 library) open the library on a level: data-go="hsk" data-hsk-level="4".
-  document.addEventListener('click', event => { const link = event.target.closest('[data-hsk-level]'); if (link) chooseLevel(link.dataset.hskLevel); }, true);
+  document.addEventListener('click', event => { const link = event.target.closest('[data-hsk-level]'); if (link) chooseLevel(link.dataset.hskLevel, link.dataset.hskView); }, true);
   render();
-  return { setSession(nextClient, nextProfile) { if (client === nextClient && profile?.id === nextProfile?.id && profile?.role === nextProfile?.role) return;sessionEpoch++; client = nextClient; profile = nextProfile; render(); } };
+  return { openLevel: chooseLevel, get level() { return level; }, setSession(nextClient, nextProfile) { if (client === nextClient && profile?.id === nextProfile?.id && profile?.role === nextProfile?.role) return;sessionEpoch++; client = nextClient; profile = nextProfile; render(); } };
 }
