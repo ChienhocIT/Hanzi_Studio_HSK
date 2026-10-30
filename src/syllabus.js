@@ -136,18 +136,25 @@ export function mountSyllabus(root) {
     if (!profile) { content.innerHTML = '<div class="gate"><p>Đăng nhập để tra cứu và luyện 11.000 từ của đề cương HSK 3.0.</p><button type="button" class="btn btn-primary" data-go="auth" data-auth-view="login">Đăng nhập để mở danh mục</button></div>'; status(''); return; }
     content.innerHTML = `<div class="hsk-levels" role="group" aria-label="Chọn cấp HSK">${[...LEVELS, 'all'].map(l => `<button type="button" class="level-chip" data-syl-level="${l}" aria-pressed="${l === level}">${l === 'all' ? 'Tất cả' : `HSK ${l}`}</button>`).join('')}</div><form id="syllabus-search" class="cloud-form syllabus-search">${field('Tìm chữ Hán hoặc pinyin','query','search',`value="${h(query)}" maxlength="60"`)}<button class="btn">Tra cứu</button></form><div class="cloud-actions"><button type="button" class="btn" data-syl="list">Danh sách từ</button><button type="button" class="btn" data-syl="cards">Luyện thẻ</button><button type="button" class="btn" data-syl="due">Ôn từ đến hạn</button><button type="button" class="btn" data-go="library">Bộ HSK 3 nghĩa tiếng Việt</button></div><div id="syllabus-results"></div><p class="panel-sub syllabus-source">Danh mục từ: 《中文水平考试 HSK 考试大纲》, 中外语言交流合作中心 (CLEC), 2025, không ghi giấy phép; chỉ lưu từ, cấp, pinyin, từ loại kèm trích dẫn và số trang, không phải ngân hàng đề thi. Nghĩa tiếng Anh: <a href="https://www.mdbg.net/chinese/dictionary?page=cc-cedict" target="_blank" rel="noopener noreferrer">CC-CEDICT</a> (CC-CEDICT contributors, MDBG), <a href="./data/CC-BY-SA-4.0.txt" target="_blank" rel="noopener noreferrer">CC BY-SA 4.0</a>, chọn theo cách đọc của đề cương. Chưa có nghĩa tiếng Việt. Câu ví dụ Trung–Việt: <a href="https://tatoeba.org" target="_blank" rel="noopener noreferrer">Tatoeba</a>, CC BY 2.0 FR, ghi tác giả từng câu; chỉ hiện câu đã được quản trị viên duyệt.</p>`;
     content.querySelector('[name="query"]').required = false;
-    content.querySelector('.cloud-actions').insertAdjacentHTML('beforeend','<button type="button" class="btn" data-syl="quiz">Luyện trắc nghiệm</button>');
+    content.querySelector('.cloud-actions').insertAdjacentHTML('beforeend','<button type="button" class="btn" data-syl="quiz">Luyện trắc nghiệm</button><button type="button" class="btn" data-syl="quiz-pinyin">Luyện pinyin</button>');
     load();
   }
-  function startQuiz(sequences=null) {
-    const pool=sequences?quiz.pool:words(),questions=vocabularyQuiz(pool,{sequences});
-    if(!questions.length){status('Cần ít nhất 4 từ đã xuất bản có nghĩa khác nhau. Chọn cấp rộng hơn hoặc bỏ bộ lọc tìm kiếm.',true);return;}
-    quiz={pool,questions,answers:[],level,index:0,saved:false};view='quiz';status('');renderResults();
+  function startQuiz(sequences=null,kind='meaning') {
+    const pool=sequences?quiz.pool:words(),dueOnly=sequences?quiz.dueOnly:view==='due'||(view==='quiz'&&quiz?.dueOnly);
+    const targets=sequences||(dueOnly?pool.filter(isDue).map(r=>r.seq):null),questions=vocabularyQuiz(pool,{sequences:targets,kind});
+    if(!questions.length){
+      let message='Cần ít nhất 4 từ đã xuất bản có nghĩa khác nhau. Chọn cấp rộng hơn hoặc bỏ bộ lọc tìm kiếm.';
+      if(dueOnly)message='Chưa có từ đến hạn đủ điều kiện tạo câu hỏi. Cần thêm lựa chọn khác nhau ở cấp hoặc chặng đang chọn.';
+      else if(kind==='pinyin')message='Cần ít nhất 4 cách đọc khác nhau từ các từ đã xuất bản, không có nhiều cách đọc cho cùng một chữ. Chọn cấp rộng hơn hoặc bỏ bộ lọc tìm kiếm.';
+      status(message,true);return;
+    }
+    quiz={pool,questions,answers:[],level,kind,dueOnly:Boolean(dueOnly),index:0,saved:false};view='quiz';status('');renderResults();
+    root.querySelector('[data-syl="quiz-answer"]')?.focus();
   }
   function saveQuiz() {
     const correct=quiz.answers.filter((a,i)=>a===quiz.questions[i].answer).length;
     const wrong=quiz.questions.filter((q,i)=>q.answer!==quiz.answers[i]).map(q=>q.seq);
-    const detail={level:quiz.level,total:quiz.questions.length,correct,wrong,saved:false};
+    const detail={level:quiz.level,kind:quiz.kind,scope:quiz.dueOnly?'due':'selection',total:quiz.questions.length,correct,wrong,saved:false};
     window.dispatchEvent(new CustomEvent('hanzi:syllabus-quiz',{detail}));quiz.saved=detail.saved;
   }
   function renderQuiz(result) {
@@ -155,11 +162,11 @@ export function mountSyllabus(root) {
     const {questions,answers,index}=quiz;
     if(index===questions.length) {
       const wrong=questions.filter((q,i)=>q.answer!==answers[i]),correct=questions.length-wrong.length;
-      result.innerHTML=`<h3>Kết quả luyện tập: ${correct}/${questions.length}</h3><p>HSK ${h(quiz.level)} · ${Math.round(correct*100/questions.length)}%. Luyện nghĩa tiếng Anh từ CC-CEDICT; chưa phải bài thi chuẩn hóa. Lịch SRS chỉ thay đổi khi bạn tự đánh giá thẻ.</p><p role="status">${quiz.saved?'Đã lưu kết quả trên thiết bị; có thể đồng bộ theo tài khoản.':'Chưa lưu được kết quả. Kiểm tra dung lượng thiết bị rồi thử lưu lại.'}</p>${wrong.length?`<h4>Từ cần luyện lại</h4><ul>${wrong.map(q=>`<li><span lang="zh-Hans">${h(q.word)}</span> (${h(q.pinyin)}): ${h(q.options[q.answer])}</li>`).join('')}</ul>`:''}<div class="cloud-actions">${wrong.length?'<button type="button" class="btn" data-syl="quiz-wrong">Luyện lại từ sai</button>':''}<button type="button" class="btn" data-syl="quiz">Bài luyện mới</button>${quiz.saved?'':'<button type="button" class="btn" data-syl="quiz-save">Lưu lại kết quả</button>'}</div>`;
+      result.innerHTML=`<h3 tabindex="-1">Kết quả luyện tập: ${correct}/${questions.length}</h3><p>HSK ${h(quiz.level)} · ${Math.round(correct*100/questions.length)}%. ${quiz.kind==='pinyin'?'Luyện pinyin theo đề cương':'Luyện nghĩa tiếng Anh từ CC-CEDICT'}${quiz.dueOnly?' · từ đến hạn ôn':''}; chưa phải bài thi chuẩn hóa. Lịch SRS chỉ thay đổi khi bạn tự đánh giá thẻ.</p><p role="status">${quiz.saved?'Đã lưu kết quả trên thiết bị; có thể đồng bộ theo tài khoản.':'Chưa lưu được kết quả. Kiểm tra dung lượng thiết bị rồi thử lưu lại.'}</p>${wrong.length?`<h4>Từ cần luyện lại</h4><ul>${wrong.map(q=>`<li><span lang="zh-Hans">${h(q.word)}</span> (${h(q.pinyin)}): ${h(q.options[q.answer])}</li>`).join('')}</ul>`:''}<div class="cloud-actions">${wrong.length?'<button type="button" class="btn" data-syl="quiz-wrong">Luyện lại từ sai</button>':''}<button type="button" class="btn" data-syl="quiz-new">Bài luyện mới</button>${quiz.saved?'':'<button type="button" class="btn" data-syl="quiz-save">Lưu lại kết quả</button>'}</div>`;
       return;
     }
     const q=questions[index],answered=answers.length>index,correct=answered&&answers[index]===q.answer;
-    result.innerHTML=`<p>Câu ${index+1}/${questions.length} · Chọn nghĩa tiếng Anh</p><h3 class="reference-word" lang="zh-Hans">${h(q.word)}</h3><p lang="zh-Latn">${h(q.pinyin)}</p><div class="cloud-form">${q.options.map((option,i)=>`<button type="button" class="btn" data-syl="quiz-answer" data-option="${i}" ${answered?'disabled':''}>${h(option)}</button>`).join('')}</div>${answered?`<p role="status">${correct?'Chính xác.':'Chưa đúng.'} Đáp án: <span lang="en">${h(q.options[q.answer])}</span></p><button type="button" class="btn btn-primary" data-syl="quiz-next">${index===questions.length-1?'Xem kết quả':'Câu tiếp theo'}</button>`:''}`;
+    result.innerHTML=`<p>Câu ${index+1}/${questions.length} · ${quiz.kind==='pinyin'?'Chọn pinyin':'Chọn nghĩa tiếng Anh'}${quiz.dueOnly?' · từ đến hạn ôn':''}</p><h3 class="reference-word" lang="zh-Hans">${h(q.word)}</h3>${quiz.kind==='meaning'||answered?`<p lang="zh-Latn">${h(q.pinyin)}</p>`:''}<div class="cloud-form">${q.options.map((option,i)=>`<button type="button" class="btn" data-syl="quiz-answer" data-option="${i}" lang="${quiz.kind==='pinyin'?'zh-Latn':'en'}" ${answered?'disabled':''}>${h(option)}</button>`).join('')}</div>${answered?`<p role="status">${correct?'Chính xác.':'Chưa đúng.'} Đáp án: <span lang="${quiz.kind==='pinyin'?'zh-Latn':'en'}">${h(q.options[q.answer])}</span></p><button type="button" class="btn btn-primary" data-syl="quiz-next">${index===questions.length-1?'Xem kết quả':'Câu tiếp theo'}</button>`:''}`;
   }
   async function review(decision) {
     const owner=sessionEpoch,reviewLevel=level,activeClient=client;
@@ -189,16 +196,18 @@ export function mountSyllabus(root) {
     const stageButton = event.target.closest('[data-syl-stage]');
     if (stageButton) { stage = Number(stageButton.dataset.sylStage); view = 'cards'; position = 0; revealed = false; page = 0; renderResults(); root.querySelector('#syllabus-results')?.scrollIntoView({block: 'start', behavior: 'smooth'}); return; }
     const button = event.target.closest('[data-syl]'); if (!button) return;
-    const action = button.dataset.syl, list = words(), r = list[position];
+    const action = button.dataset.syl, list = view === 'due' ? words().filter(isDue) : words(), r = list[position];
     if(action==='quiz'){startQuiz();return;}
-    if(action==='quiz-wrong'){startQuiz(quiz.questions.filter((q,i)=>q.answer!==quiz.answers[i]).map(q=>q.seq));return;}
+    if(action==='quiz-pinyin'){startQuiz(null,'pinyin');return;}
+    if(action==='quiz-new'){startQuiz(null,quiz.kind);return;}
+    if(action==='quiz-wrong'){startQuiz(quiz.questions.filter((q,i)=>q.answer!==quiz.answers[i]).map(q=>q.seq),quiz.kind);return;}
     if(action==='quiz-save'){if(quiz&&!quiz.saved&&quiz.index===quiz.questions.length){saveQuiz();renderResults();}return;}
     if(action==='quiz-answer'){
       const chosen=Number(button.dataset.option);
       if(quiz&&quiz.index<quiz.questions.length&&quiz.answers.length===quiz.index&&Number.isInteger(chosen)&&chosen>=0&&chosen<4){quiz.answers.push(chosen);renderResults();root.querySelector('[data-syl="quiz-next"]')?.focus();}
       return;
     }
-    if(action==='quiz-next'){if(quiz&&quiz.answers.length===quiz.index+1){quiz.index++;if(quiz.index===quiz.questions.length)saveQuiz();renderResults();}return;}
+    if(action==='quiz-next'){if(quiz&&quiz.answers.length===quiz.index+1){quiz.index++;if(quiz.index===quiz.questions.length)saveQuiz();renderResults();(root.querySelector('[data-syl="quiz-answer"]')||root.querySelector('#syllabus-results h3'))?.focus();}return;}
     if (action === 'stages') { stage = null; view = 'stages'; renderResults(); return; }
     if (action === 'list' || action === 'cards' || action === 'due') { view = action; position = 0; revealed = false; renderResults(); return; }
     if (action === 'publish' || action === 'unpublish') { button.disabled = true; await review(action === 'publish' ? 'published' : 'draft'); return; }

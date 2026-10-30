@@ -19,3 +19,27 @@ test('Drafts, missing meanings, homographs and overlapping glosses do not create
   assert.deepEqual(vocabularyQuiz(rows.slice(0,3)),[]);
   assert.ok(vocabularyQuiz(pool).every(q=>![7,8].includes(q.seq)));
 });
+
+test('Pinyin practice keeps tone differences, deduplicates equivalent spacing and does not require glosses',()=>{
+  const pool=[
+    {seq:1,word:'你好',pinyin:'nǐ hǎo'},
+    {seq:2,word:'拟好',pinyin:'nǐhǎo'},
+    {seq:3,word:'妈',pinyin:'mā'},
+    {seq:4,word:'麻',pinyin:'má'},
+    {seq:5,word:'马',pinyin:'mǎ'}
+  ].map(r=>({...r,review_status:'published',gloss_en:[]}));
+  const questions=vocabularyQuiz(pool,{kind:'pinyin',sequences:[1],random:()=>0});
+  assert.equal(questions.length,1);assert.equal(questions[0].options[questions[0].answer],'nǐ hǎo');
+  assert.deepEqual([...questions[0].options].sort(),['nǐ hǎo','mā','má','mǎ'].sort());
+  assert.deepEqual(vocabularyQuiz(pool.slice(0,4),{kind:'pinyin'}),[]);
+});
+
+test('A word with several published readings cannot become a context-free pinyin question or distractor',()=>{
+  const pool=[...rows,{seq:20,word:'行',pinyin:'xíng',gloss_en:[],review_status:'published'},
+    {seq:21,word:'行',pinyin:'háng',gloss_en:[],review_status:'published'},
+    {seq:22,word:'好',homograph:1,pinyin:'hào',gloss_en:[],review_status:'published'}];
+  const questions=vocabularyQuiz(pool,{kind:'pinyin'});
+  assert.ok(questions.length>0);
+  assert.ok(questions.every(q=>!['行','好'].includes(q.word)&&!q.options.some(p=>['xíng','háng','hào'].includes(p))));
+  assert.deepEqual(vocabularyQuiz(pool,{kind:'pinyin',sequences:[20,21,22]}),[]);
+});

@@ -2,6 +2,22 @@
 
 Đối chiếu ngày **2026-10-29**, với mã nguồn nền `68b2289`. Đây là nghiên cứu và tiêu chí triển khai; tài liệu này không xác nhận một tính năng mới đã chạy trên production, không nhập thêm dữ liệu và không sử dụng API trả phí.
 
+## Cập nhật triển khai 2026-10-30
+
+Các phần dưới giữ bối cảnh nghiên cứu ban đầu. Tiến độ mã nguồn hiện tại:
+
+| Hạng mục | Đã triển khai | Còn lại |
+| --- | --- | --- |
+| Quiz từ vựng | Nghĩa Anh và pinyin; tối đa 10 câu, bốn lựa chọn khác nhau; luyện lại từ sai; lịch sử có loại quiz/phạm vi, đi cùng sao lưu và đồng bộ curriculum | Báo câu mơ hồ cho biên tập viên; đánh giá sư phạm nghĩa gần nhau |
+| Hàng đợi ôn | Quiz chỉ hỏi từ đến hạn, lấy phương án nhiễu từ cấp/chặng đang chọn; không tự đổi lịch SRS. Nút nghe/đánh giá thẻ dùng đúng từ đang hiển thị | Nghiệm thu đa thiết bị với người học thật |
+| Luyện nét | Hanzi Writer 3.7.3, dữ liệu từng chữ ghim `hanzi-writer-data@2.0.1`, thử lại khi tải lỗi, dừng khi đóng/đổi màn; license MIT đóng gói riêng | Snapshot/hash dữ liệu nét, đo độ phủ ký tự; kiểm tra bút/cảm ứng trên thiết bị thật |
+| Câu Trung–Việt | Migration, bộ nhập Tatoeba vào nháp, attribution từng câu, RLS và duyệt bằng quyền admin; dry-run cache local chọn 528 câu cho 391 từ | Duyệt thử 50 cặp câu, quyền/nguồn cho tối đa 20 audio; chưa xác nhận migration/seed production |
+| Nghĩa còn thiếu | Resolver CC-CEDICT đã có trong `main`, giữ provenance và trạng thái duyệt | Biên tập `精彩纷呈`, `口哨儿`, dịch/duyệt nghĩa Việt |
+
+Quiz pinyin loại mục có số đồng tự và từ có nhiều cách đọc được phát hiện trong tập đang chọn; chuẩn hóa khoảng trắng khi khử trùng, giữ khác biệt dấu thanh. Không đòi hỏi nghĩa Anh để hỏi pinyin. Các bài này vẫn là luyện từ, không phải đề thi HSK chuẩn hóa. Kết quả test dùng dữ liệu giả; không thay thế nghiệm thu nguồn nét, dịch câu, audio hay provider AI thật.
+
+Phần luyện nét/câu ví dụ đã commit trên worktree tại [`2625849`](https://github.com/ChienhocIT/Hanzi_Studio_HSK/commit/262584976e0c499749543b89480cd1da55127c42); đã đối chiếu commit này trên remote `main` và nhánh `codex/learning-expansion`. Chi tiết kiểm chứng và ranh giới production: [báo cáo 2026-10-30](PROJECT-PROGRESS-2026-10-30.md).
+
 ## Phạm vi đã có
 
 Màn `#hsk` có tra cứu, luyện thẻ, nghe giọng thiết bị và ôn đến hạn trên danh mục **HSK 3.0 (CLEC 2025)**. Mã nguồn dùng ID `clec2025-<seq>` và tiến độ curriculum hiện có. Chưa có chế độ trắc nghiệm ngay trong màn này. Tài liệu triển khai ghi 11.000 mục, 10.983 mục có nghĩa Anh CC-CEDICT; số lượng và trạng thái xuất bản trên database cần kiểm tra riêng khi phát hành. [Mã màn học](../src/syllabus.js), [phạm vi triển khai](IMPLEMENTATION.md).
