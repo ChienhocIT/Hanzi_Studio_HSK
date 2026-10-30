@@ -1,0 +1,483 @@
+{
+  "format": "hanzi-example-pilot-v1",
+  "syllabus": "HSK 3.0 (CLEC 2025)",
+  "reviewStatus": "draft",
+  "source": {
+    "id": "tatoeba-pilot-7f706a197bc2",
+    "title": "Tatoeba Mandarin–Vietnamese editorial pilot",
+    "url": "https://tatoeba.org/en/downloads",
+    "sha256": "7f706a197bc28f21655adb1669ff40d0582215dfc82d8b136f82a9d9d8c904d6",
+    "license": "CC BY 2.0 FR",
+    "attribution": "Tatoeba contributors; authors and original IDs are retained per sentence.",
+    "retrievedAt": "2026-10-30T03:31:08.019Z"
+  },
+  "examples": [
+    {
+      "seq": 3,
+      "zh_id": 332895,
+      "zh": "据说他爸爸在外国去世了。",
+      "zh_author": "fucongcong",
+      "vi_id": 9725910,
+      "vi": "Người ta nói cha ông ấy mất ở nước ngoài.",
+      "vi_author": "dotheduyet1999"
+    },
+    {
+      "seq": 4,
+      "zh_id": 628103,
+      "zh": "学吧！",
+      "zh_author": "shanghainese",
+      "vi_id": 10257571,
+      "vi": "Học đi!",
+      "vi_author": "hothuyhien"
+    },
+    {
+      "seq": 4,
+      "zh_id": 3526243,
+      "zh": "你想怎么说就说吧。",
+      "zh_author": "trieuho",
+      "vi_id": 3526244,
+      "vi": "Anh muốn nói thế nào thì cứ nói đi.",
+      "vi_author": "trieuho"
+    },
+    {
+      "seq": 6,
+      "zh_id": 3538014,
+      "zh": "我校图书馆藏书二百五十万册。",
+      "zh_author": "trieuho",
+      "vi_id": 3538017,
+      "vi": "Thư viện trường chúng tôi có hai triệu rưởi quyển sách.",
+      "vi_author": "trieuho"
+    },
+    {
+      "seq": 13,
+      "zh_id": 4297298,
+      "zh": "不关我的事。",
+      "zh_author": "trieuho",
+      "vi_id": 4297300,
+      "vi": "Không phải chuyện của tôi.",
+      "vi_author": "trieuho"
+    },
+    {
+      "seq": 13,
+      "zh_id": 4970116,
+      "zh": "不是吗？",
+      "zh_author": "wzhd",
+      "vi_id": 13853094,
+      "vi": "Không phải ư?",
+      "vi_author": "vexvine"
+    },
+    {
+      "seq": 15,
+      "zh_id": 336977,
+      "zh": "不要虐待动物。",
+      "zh_author": "fucongcong",
+      "vi_id": 12876212,
+      "vi": "Đừng ngược đãi động vật.",
+      "vi_author": "thienhoang15722"
+    },
+    {
+      "seq": 15,
+      "zh_id": 784401,
+      "zh": "我不要钱。",
+      "zh_author": "fucongcong",
+      "vi_id": 9733857,
+      "vi": "Tôi không cần tiền.",
+      "vi_author": "dotheduyet1999"
+    },
+    {
+      "seq": 16,
+      "zh_id": 3537885,
+      "zh": "我们向菜园走去。",
+      "zh_author": "trieuho",
+      "vi_id": 3537886,
+      "vi": "Chúng tôi đi về phía vườn rau.",
+      "vi_author": "trieuho"
+    },
+    {
+      "seq": 20,
+      "zh_id": 3709284,
+      "zh": "不开夜车，工作搞不完。",
+      "zh_author": "trieuho",
+      "vi_id": 3709285,
+      "vi": "Không cày đêm, việc làm không xong.",
+      "vi_author": "trieuho"
+    },
+    {
+      "seq": 21,
+      "zh_id": 420118,
+      "zh": "我在两年前吃过一次。",
+      "zh_author": "sysko",
+      "vi_id": 13841692,
+      "vi": "Tôi đã ăn một lần vào khoảng hai năm trước.",
+      "vi_author": "vexvine"
+    },
+    {
+      "seq": 21,
+      "zh_id": 3537960,
+      "zh": "我吃过了。",
+      "zh_author": "trieuho",
+      "vi_id": 3537961,
+      "vi": "Tôi đã ăn rồi.",
+      "vi_author": "trieuho"
+    },
+    {
+      "seq": 26,
+      "zh_id": 363886,
+      "zh": "我要养一大家子。",
+      "zh_author": "fucongcong",
+      "vi_id": 9013368,
+      "vi": "Tôi phải nuôi sống một gia đình đông người.",
+      "vi_author": "Kenbi93"
+    },
+    {
+      "seq": 26,
+      "zh_id": 9419130,
+      "zh": "大家都喜欢她。",
+      "zh_author": "BobbyLee",
+      "vi_id": 8995064,
+      "vi": "Tất cả mọi người đều thích cô ấy.",
+      "vi_author": "dotheduyet1999"
+    },
+    {
+      "seq": 27,
+      "zh_id": 3538018,
+      "zh": "我进大学已经两年半了。",
+      "zh_author": "trieuho",
+      "vi_id": 3538020,
+      "vi": "Tôi vào đại học đã được hai năm rưỡi.",
+      "vi_author": "trieuho"
+    },
+    {
+      "seq": 29,
+      "zh_id": 899617,
+      "zh": "我到了。",
+      "zh_author": "shanghainese",
+      "vi_id": 511682,
+      "vi": "Tôi đến.",
+      "vi_author": "autuno"
+    },
+    {
+      "seq": 30,
+      "zh_id": 487711,
+      "zh": "我的表被偷了。",
+      "zh_author": "fucongcong",
+      "vi_id": 9917692,
+      "vi": "Đồng hồ của tôi bị trộm mất rồi.",
+      "vi_author": "dotheduyet1999"
+    },
+    {
+      "seq": 30,
+      "zh_id": 4302120,
+      "zh": "他是我的手下。",
+      "zh_author": "trieuho",
+      "vi_id": 4302125,
+      "vi": "Nó là thuộc hạ của tôi.",
+      "vi_author": "trieuho"
+    },
+    {
+      "seq": 31,
+      "zh_id": 3526235,
+      "zh": "他是来问这件事的第几个人？",
+      "zh_author": "trieuho",
+      "vi_id": 3526236,
+      "vi": "Anh ta là người thứ bao nhiêu đến đây hỏi việc này?",
+      "vi_author": "trieuho"
+    },
+    {
+      "seq": 31,
+      "zh_id": 3526267,
+      "zh": "现在我来讲第二个问题。",
+      "zh_author": "trieuho",
+      "vi_id": 3526268,
+      "vi": "Bây giờ tôi sẽ trình bày vấn đề thứ hai.",
+      "vi_author": "trieuho"
+    },
+    {
+      "seq": 33,
+      "zh_id": 471376,
+      "zh": "你该早一点来的。",
+      "zh_author": "fucongcong",
+      "vi_id": 507751,
+      "vi": "Lẽ ra bạn nên đến sớm hơn một chút.",
+      "vi_author": "autuno"
+    },
+    {
+      "seq": 33,
+      "zh_id": 9007280,
+      "zh": "现在五点钟。",
+      "zh_author": "Kenbi93",
+      "vi_id": 9007272,
+      "vi": "Hiện tại là năm giờ.",
+      "vi_author": "Kenbi93"
+    },
+    {
+      "seq": 35,
+      "zh_id": 333194,
+      "zh": "他半夜打了个电话给我。",
+      "zh_author": "fucongcong",
+      "vi_id": 10266987,
+      "vi": "Anh ấy đã gọi cho tôi một cuộc vào lúc nửa đêm.",
+      "vi_author": "dotheduyet1999"
+    },
+    {
+      "seq": 36,
+      "zh_id": 343844,
+      "zh": "我有一台电脑。",
+      "zh_author": "fucongcong",
+      "vi_id": 9843985,
+      "vi": "Tôi có một cái máy tính.",
+      "vi_author": "dotheduyet1999"
+    },
+    {
+      "seq": 36,
+      "zh_id": 6197258,
+      "zh": "我的电脑好诡异。",
+      "zh_author": "yuiyu",
+      "vi_id": 9013373,
+      "vi": "Máy tính của tôi khá dị.",
+      "vi_author": "Kenbi93"
+    },
+    {
+      "seq": 37,
+      "zh_id": 1411623,
+      "zh": "不要再调大电视的声音了。",
+      "zh_author": "asosan",
+      "vi_id": 9741691,
+      "vi": "Đừng bật to tiếng ti vi thêm nữa.",
+      "vi_author": "dotheduyet1999"
+    },
+    {
+      "seq": 38,
+      "zh_id": 3537954,
+      "zh": "你看过那部电影吗？",
+      "zh_author": "trieuho",
+      "vi_id": 3537955,
+      "vi": "Anh đã xem phim ấy chưa ?",
+      "vi_author": "trieuho"
+    },
+    {
+      "seq": 38,
+      "zh_id": 4952851,
+      "zh": "我每次看这部电影都会哭。",
+      "zh_author": "murr",
+      "vi_id": 10257574,
+      "vi": "Mỗi lần xem bộ phim này tôi đều khóc.",
+      "vi_author": "hothuyhien"
+    },
+    {
+      "seq": 40,
+      "zh_id": 3526245,
+      "zh": "我朋友哪里买过什么东西！",
+      "zh_author": "trieuho",
+      "vi_id": 3526247,
+      "vi": "Bạn tôi có mua gì đâu?",
+      "vi_author": "trieuho"
+    },
+    {
+      "seq": 41,
+      "zh_id": 333193,
+      "zh": "她一整晚都在哭。",
+      "zh_author": "fucongcong",
+      "vi_id": 9778065,
+      "vi": "Cô ấy đã khóc suốt đêm.",
+      "vi_author": "dotheduyet1999"
+    },
+    {
+      "seq": 41,
+      "zh_id": 3537983,
+      "zh": "你家里都有谁？",
+      "zh_author": "trieuho",
+      "vi_id": 3537984,
+      "vi": "Nhà anh có những ai?",
+      "vi_author": "trieuho"
+    },
+    {
+      "seq": 42,
+      "zh_id": 3537973,
+      "zh": "每人读一段。",
+      "zh_author": "trieuho",
+      "vi_id": 3537974,
+      "vi": "Mỗi người đọc một đoạn.",
+      "vi_author": "trieuho"
+    },
+    {
+      "seq": 44,
+      "zh_id": 3526231,
+      "zh": "他对你说了些什么？",
+      "zh_author": "trieuho",
+      "vi_id": 3526232,
+      "vi": "Anh ấy nói những gì với chị?",
+      "vi_author": "trieuho"
+    },
+    {
+      "seq": 46,
+      "zh_id": 335082,
+      "zh": "他跑得能有多快就有多快。",
+      "zh_author": "fucongcong",
+      "vi_id": 3309273,
+      "vi": "Nó chạy nhanh nhất mà nó có thể.",
+      "vi_author": "trieuho"
+    },
+    {
+      "seq": 46,
+      "zh_id": 3537998,
+      "zh": "他太多事了。",
+      "zh_author": "trieuho",
+      "vi_id": 3537999,
+      "vi": "Anh ấy lắm chuyện quá.",
+      "vi_author": "trieuho"
+    },
+    {
+      "seq": 47,
+      "zh_id": 332881,
+      "zh": "我的房间号是多少？",
+      "zh_author": "fucongcong",
+      "vi_id": 593009,
+      "vi": "Số phòng của tôi là số nào?",
+      "vi_author": "autuno"
+    },
+    {
+      "seq": 49,
+      "zh_id": 12993361,
+      "zh": "一，二，三，四，五。",
+      "zh_author": "XZJqz",
+      "vi_id": 12993429,
+      "vi": "Một, hai, ba, bốn, năm.",
+      "vi_author": "XZJqz"
+    },
+    {
+      "seq": 52,
+      "zh_id": 1944852,
+      "zh": "帮我找间空房间。",
+      "zh_author": "bigfatpanda",
+      "vi_id": 13841720,
+      "vi": "Giúp tôi tìm một căn phòng trống.",
+      "vi_author": "vexvine"
+    },
+    {
+      "seq": 52,
+      "zh_id": 3537636,
+      "zh": "你的房间真干净。",
+      "zh_author": "trieuho",
+      "vi_id": 3537799,
+      "vi": "Phòng của bạn thật sạch sẽ.",
+      "vi_author": "trieuho"
+    },
+    {
+      "seq": 53,
+      "zh_id": 333172,
+      "zh": "她非常周到和耐心。",
+      "zh_author": "fucongcong",
+      "vi_id": 10267005,
+      "vi": "Cô ấy rất kiên nhẫn và suy nghĩ vô cùng thấu đáo.",
+      "vi_author": "dotheduyet1999"
+    },
+    {
+      "seq": 53,
+      "zh_id": 471292,
+      "zh": "你非常勇敢。",
+      "zh_author": "fucongcong",
+      "vi_id": 1587965,
+      "vi": "Bạn rất dũng cảm.",
+      "vi_author": "trieuho"
+    },
+    {
+      "seq": 54,
+      "zh_id": 3537851,
+      "zh": "飞机消失在丛林中。",
+      "zh_author": "trieuho",
+      "vi_id": 3537852,
+      "vi": "Máy bay biến mất vào trong rừng.",
+      "vi_author": "trieuho"
+    },
+    {
+      "seq": 54,
+      "zh_id": 3537951,
+      "zh": "飞机降落在新山一机场。",
+      "zh_author": "trieuho",
+      "vi_id": 3537953,
+      "vi": "Máy bay xuống sân bay Tân Sơn Nhất.",
+      "vi_author": "trieuho"
+    },
+    {
+      "seq": 58,
+      "zh_id": 3526263,
+      "zh": "这首歌也还可以吧？",
+      "zh_author": "trieuho",
+      "vi_id": 3526264,
+      "vi": "Bài hát ấy cũng hay đấy chứ?",
+      "vi_author": "trieuho"
+    },
+    {
+      "seq": 59,
+      "zh_id": 3488737,
+      "zh": "她哥哥很认真学习。",
+      "zh_author": "sysko",
+      "vi_id": 10257573,
+      "vi": "Anh trai của cô ấy học rất nghiêm túc.",
+      "vi_author": "hothuyhien"
+    },
+    {
+      "seq": 60,
+      "zh_id": 3526212,
+      "zh": "那是下个月的事。",
+      "zh_author": "trieuho",
+      "vi_id": 3526213,
+      "vi": "Đó là chuyện tháng sau.",
+      "vi_author": "trieuho"
+    },
+    {
+      "seq": 60,
+      "zh_id": 5613626,
+      "zh": "我睡了个好觉。",
+      "zh_author": "verdastelo9604",
+      "vi_id": 9726686,
+      "vi": "Tôi đã có một giấc ngủ ngon.",
+      "vi_author": "dotheduyet1999"
+    },
+    {
+      "seq": 61,
+      "zh_id": 334646,
+      "zh": "请你给我一杯水。",
+      "zh_author": "fucongcong",
+      "vi_id": 510433,
+      "vi": "Làm ơn cho tôi một cốc nước.",
+      "vi_author": "autuno"
+    },
+    {
+      "seq": 63,
+      "zh_id": 414038,
+      "zh": "你有工作经验吗?",
+      "zh_author": "fucongcong",
+      "vi_id": 571658,
+      "vi": "Anh có kinh nghiệm chuyên môn không?",
+      "vi_author": "autuno"
+    },
+    {
+      "seq": 63,
+      "zh_id": 3538060,
+      "zh": "他曾在河内工作过。",
+      "zh_author": "trieuho",
+      "vi_id": 3538061,
+      "vi": "Anh ấy từng làm việc ở Hà Nội.",
+      "vi_author": "trieuho"
+    }
+  ],
+  "audio": [],
+  "audioAudit": {
+    "linkedRecordings": 39,
+    "missingLicense": 37,
+    "noncommercialOnly": 2,
+    "eligibleForPilot": 0,
+    "metadataSha256": "6af74c8b9c0d7cc1b5ebb0add143f4a4ea3371f12665f9c35520c543eff7d7e7"
+  },
+  "audioSource": {
+    "id": "tatoeba-audio-6af74c8b9c0d",
+    "title": "Tatoeba audio rights metadata",
+    "url": "https://tatoeba.org/en/downloads",
+    "sha256": "6af74c8b9c0d7cc1b5ebb0add143f4a4ea3371f12665f9c35520c543eff7d7e7",
+    "license": "Per recording; exclude empty licenses and NC licenses",
+    "attribution": "Tatoeba contributors; authors and original IDs are retained per sentence.",
+    "retrievedAt": "2026-10-30T03:31:08.019Z"
+  }
+}

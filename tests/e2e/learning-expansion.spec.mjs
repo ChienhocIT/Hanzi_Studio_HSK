@@ -97,7 +97,7 @@ test('Library cards show only reviewed Tatoeba examples to learners, credited pe
   await page.goto('/index.html#hsk');const panel=page.locator('#syllabus-panel');
   await panel.locator('[data-syl-stage="0"]').click();
   await expect(panel.locator('.reference-word')).toHaveText('好');await expect(panel.locator('.syllabus-examples')).toHaveCount(0);
-  await panel.getByRole('button',{name:'Mở đáp án',exact:true}).click();
+  await panel.getByRole('button',{name:/Mở đáp án/}).click();
   const list=panel.locator('.syllabus-examples li');
   await expect(list).toHaveCount(1);await expect(list).toContainText('你好！');await expect(list).toContainText('Xin chào!');
   await expect(list).toContainText('Tatoeba #7 (amy) · bản dịch #107 · CC BY 2.0 FR');
@@ -109,7 +109,7 @@ test('Administrators review each example sentence on the card',async({page})=>{
   const {data,calls}=await mockCloud(page,'admin',{world:{vocab:vocab(),examples:[example(8,'好不好？','Được không?','draft')],items:[],classes:[],assignments:[],submissions:[],questions:[],progress:null}});
   await page.goto('/index.html#hsk');const panel=page.locator('#syllabus-panel');
   await panel.locator('[data-syl-stage="0"]').click();
-  await panel.getByRole('button',{name:'Mở đáp án',exact:true}).click();
+  await panel.getByRole('button',{name:/Mở đáp án/}).click();
   const item=panel.locator('.syllabus-examples li');
   await expect(item).toContainText('Bản nháp');
   await item.getByRole('button',{name:'Duyệt',exact:true}).click();
@@ -128,7 +128,7 @@ test('Example loading can be retried and sentence text cannot inject markup',asy
   });
   await page.goto('/index.html#hsk');const panel=page.locator('#syllabus-panel');
   await panel.locator('[data-syl-stage="0"]').click();
-  await panel.getByRole('button',{name:'Mở đáp án',exact:true}).click();
+  await panel.getByRole('button',{name:/Mở đáp án/}).click();
   await panel.getByRole('button',{name:'Thử tải lại câu ví dụ',exact:true}).click();
   await expect(panel.locator('.syllabus-examples li')).toContainText('<img src=x');
   await expect(panel.locator('.syllabus-examples img, .syllabus-examples script')).toHaveCount(0);
@@ -141,7 +141,7 @@ test('Review in the due queue targets the visible word and does not claim a miss
   await page.addInitScript(()=>localStorage.setItem('hanzi-studio-curriculum-v4',JSON.stringify({progress:{'clec2025-2':{reps:1,due:1}}})));
   await page.goto('/index.html#hsk');const panel=page.locator('#syllabus-panel');
   await panel.getByRole('button',{name:'Ôn từ đến hạn',exact:true}).click();
-  await panel.getByRole('button',{name:'Mở đáp án',exact:true}).click();
+  await panel.getByRole('button',{name:/Mở đáp án/}).click();
   await panel.locator('.syllabus-examples').getByRole('button',{name:'Duyệt',exact:true}).click();
   await expect(panel.locator('.syllabus-examples')).toContainText('Đã xuất bản');
   expect(calls.find(c=>c.path.endsWith('/review_example_sentences')).body.entry_seq).toBe(2);
@@ -162,15 +162,15 @@ test('A late staff example response cannot populate another account card',async(
     window.learner={from:table=>query(Promise.resolve({data:table==='vocab_entries'?[word]:[]}))};
   });
   await page.locator('[data-syl-stage="0"]').click();
-  await page.getByRole('button',{name:'Mở đáp án',exact:true}).click();
+  await page.getByRole('button',{name:/Mở đáp án/}).click();
   await expect(page.locator('.syllabus-examples')).toContainText('Đang tải');
   await page.evaluate(()=>window.syllabus.setSession(window.learner,{id:'learner',role:'student'}));
   await page.locator('[data-syl-stage="0"]').click();
-  await page.getByRole('button',{name:'Mở đáp án',exact:true}).click();
+  await page.getByRole('button',{name:/Mở đáp án/}).click();
   await expect(page.locator('.syllabus-examples')).toHaveCount(0);
   await page.evaluate(()=>window.releaseExample({data:[{zh_id:8,zh:'私密草稿',vi:'Bản nháp riêng',review_status:'draft'}]}));
-  await page.getByRole('button',{name:'Ẩn đáp án',exact:true}).click();
-  await page.getByRole('button',{name:'Mở đáp án',exact:true}).click();
+  await page.getByRole('button',{name:/Ẩn đáp án/}).click();
+  await page.getByRole('button',{name:/Mở đáp án/}).click();
   await expect(page.locator('#fixture')).not.toContainText('私密草稿');
   await expect(page.locator('.syllabus-examples')).toHaveCount(0);
 });

@@ -9,7 +9,7 @@ export async function mockCloud(page,role='student',{authenticated=true,userId=i
   const id=userId;
   const calls=[],data=world||{items:[],classes:[],assignments:[],submissions:[],questions:[],progress:null};
   data.liveRooms??=[];
-  data.vocab??=[];data.examples??=[];
+  data.vocab??=[];data.examples??=[];data.vocabReports??=[];data.exampleAudio??=[];
   data.liveDrafts??={};data.liveResults??={};
   const user={id,email:'learner@example.test',aud:'authenticated',role:'authenticated',app_metadata:{provider:'email'},user_metadata:{}};
   const jwt=Buffer.from(JSON.stringify({alg:'HS256',typ:'JWT'})).toString('base64url')+'.'+Buffer.from(JSON.stringify({sub:id,exp:Math.floor(Date.now()/1000)+3600,role:'authenticated'})).toString('base64url')+'.test';
@@ -34,8 +34,12 @@ export async function mockCloud(page,role='student',{authenticated=true,userId=i
       const level=url.searchParams.get('level')?.replace(/^eq\./,''),offset=Number(url.searchParams.get('offset')||0),limit=Number(url.searchParams.get('limit')||1000);
       result=data.vocab.filter(v=>v.level===level&&(role!=='student'||v.review_status==='published')).slice(offset,offset+limit);
     }
-    else if(url.pathname.endsWith('/example_sentences')){const seq=Number(url.searchParams.get('seq')?.replace(/^eq\./,''));result=data.examples.filter(e=>e.seq===seq&&(role!=='student'||e.review_status==='published'));}
+    else if(url.pathname.endsWith('/example_sentences')){const seq=Number(url.searchParams.get('seq')?.replace(/^eq\./,'')),review=url.searchParams.get('review_status')?.replace(/^eq\./,'');result=data.examples.filter(e=>(!Number.isFinite(seq)||e.seq===seq)&&(!review||e.review_status===review)&&(role!=='student'||e.review_status==='published')).slice(Number(url.searchParams.get('offset')||0),Number(url.searchParams.get('offset')||0)+Number(url.searchParams.get('limit')||1000)).map(e=>({...e,vocab_entries:data.vocab.find(v=>v.seq===e.seq),example_audio:data.exampleAudio.filter(a=>a.seq===e.seq&&a.zh_id===e.zh_id&&(role!=='student'||a.review_status==='published'&&e.review_status==='published'))}));}
     else if(url.pathname.endsWith('/review_example_sentences')){if(role!=='admin'){status=403;result={code:'42501',message:'admin_required'};}else{const rows=data.examples.filter(e=>e.seq===body.entry_seq&&body.entry_zh_ids.includes(e.zh_id));rows.forEach(e=>e.review_status=body.decision);result=rows.length;}}
+    else if(url.pathname.endsWith('/review_example_audio')){if(role!=='admin'){status=403;result={message:'admin_required'};}else{const r=data.exampleAudio.find(a=>a.seq===body.entry_seq&&a.zh_id===body.entry_zh_id&&a.audio_id===body.entry_audio_id);result=r?1:0;if(r)r.review_status=body.decision;}}
+    else if(url.pathname.endsWith('/report_vocab_question')){const existing=data.vocabReports.find(r=>r.seq===body.entry_seq&&r.kind===body.question_kind&&r.status==='open');result=existing?.id||'00000000-0000-4000-8000-'+String(data.vocabReports.length+100).padStart(12,'0');if(!existing)data.vocabReports.push({id:result,seq:body.entry_seq,kind:body.question_kind,reason:body.report_reason,message:body.report_message,options:body.question_options,correct_option:body.correct_index,status:'open',reporter_id:id});}
+    else if(url.pathname.endsWith('/vocab_reports'))result=data.vocabReports.filter(r=>r.status==='open'&&(role==='admin'||r.reporter_id===id));
+    else if(url.pathname.endsWith('/resolve_vocab_report')){if(role!=='admin'){status=403;result={message:'admin_required'};}else{const r=data.vocabReports.find(r=>r.id===body.report_id&&r.status==='open');result=r?1:0;if(r){r.status='resolved';r.review_note=body.note;}}}
     else if(url.pathname.endsWith('/tutor_quota_left'))result=data.tutorLeft??30;
     else if(url.pathname.endsWith('/review_vocab_entries')){const rows=data.vocab.filter(v=>body.entry_seqs.includes(v.seq));rows.forEach(v=>v.review_status=body.decision);result=rows.length;}
     else if(url.pathname.endsWith('/profiles'))result=url.searchParams.get('id')?{id,display_name:'Học viên kiểm thử',role}:[{id,display_name:'Học viên kiểm thử',role}];

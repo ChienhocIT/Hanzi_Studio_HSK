@@ -54,6 +54,18 @@ Tài liệu gốc về cấu hình: [Google provider](https://supabase.com/docs/
 - Thử mất mạng, dung lượng localStorage đầy, khôi phục JSON, thiết bị di động và cả giao diện sáng/tối. Dữ liệu cloud không được cache bởi service worker.
 - Trong tab **Phòng thi**, giáo viên chọn lớp/bài trắc nghiệm và thời gian 1-120 phút rồi tạo phòng. Học viên đã thuộc lớp nhập mã 8 ký tự trước khi giáo viên bắt đầu. Kiểm tra hai trình duyệt, lưu lựa chọn, tải lại trang, nộp một lần, giấu điểm khi đang thi, hết giờ/giáo viên kết thúc và bảng xếp hạng. Kết quả phiên trực tiếp tách khỏi bài tập. Mã chờ hết hạn sau 24 giờ; tối đa 100 học viên/phòng và 10 phòng đang mở/lớp. Các con số này là ràng buộc sản phẩm, chưa phải mức tải đã được benchmark.
 
+## Flashcard, báo câu và pilot học liệu
+
+Trước khi phát hành bundle Flashcard mới, áp dụng `202610300002_vocab_reports.sql` và `202610300003_example_audio.sql` theo lịch sử migration hiện tại. Production đang dùng `supabase_migrations.schema_migrations`: áp dụng qua Supabase MCP/CLI hoặc Management API, giữ version/name và SQL trong lịch sử, kiểm tra lại schema sau transaction. Không chạy `db:migrate` của ledger Hanzi trên cài đặt này. Hai migration thêm bảng/RPC/RLS; không sửa lịch ôn hay xuất bản câu/audio. Với cấu hình operator nằm trong `.env.local` bị ignore, kiểm tra/nhập pilot sau migration:
+
+```powershell
+npm run db:seed-examples -- --pilot --dry-run
+npm run db:seed-examples -- --pilot
+npm run db:seed-example-audio -- --dry-run
+```
+
+Trong worktree không có `.env.local`, dùng `node --env-file=<đường-dẫn-env-operator> scripts/seed-examples.mjs --pilot`. Không sao chép secret vào Git hoặc dist. Seeder nhập 50 câu pilot ở nháp, giữ bản đã tồn tại/đã duyệt. Admin mở Thư viện → hàng đợi câu ví dụ để duyệt từng cặp; lọc nghĩa còn thiếu để biên tập riêng. Snapshot audio hiện có 0 bản đạt giấy phép, nên dry-run không nhập audio. Xem [audit và giới hạn nghiệm thu](FLASHCARD-UX-AUDIT.md).
+
 ## Đồng bộ và sao lưu
 
 Đồng bộ snapshot của bốn nhóm dữ liệu cũ, bao gồm SRS, lịch sử quiz, lộ trình và video. Revision được tăng nguyên tử trên server. Không tự gộp lịch ôn vì phép gộp có thể làm sai ngày ôn và lịch sử.

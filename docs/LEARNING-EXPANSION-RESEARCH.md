@@ -4,15 +4,17 @@
 
 ## Cập nhật triển khai 2026-10-30
 
+Đợt hoàn thiện Flashcard bổ sung chuyển nhanh tám bộ riêng, khôi phục vị trí CLEC, báo câu quiz/hàng đợi biên tập, 50 ký tự offline có hash và pilot 50 cặp câu ở nháp. Pipeline audio đã có nhưng snapshot hiện tại không có bản ghi đạt giấy phép CC0/CC BY; không tự xuất bản học liệu chưa duyệt. Chi tiết UX, kiểm thử và bảo trì: [FLASHCARD-UX-AUDIT.md](FLASHCARD-UX-AUDIT.md).
+
 Các phần dưới giữ bối cảnh nghiên cứu ban đầu. Tiến độ mã nguồn hiện tại:
 
 | Hạng mục | Đã triển khai | Còn lại |
 | --- | --- | --- |
-| Quiz từ vựng | Nghĩa Anh và pinyin; tối đa 10 câu, bốn lựa chọn khác nhau; luyện lại từ sai; lịch sử có loại quiz/phạm vi, đi cùng sao lưu và đồng bộ curriculum | Báo câu mơ hồ cho biên tập viên; đánh giá sư phạm nghĩa gần nhau |
+| Quiz từ vựng | Nghĩa Anh và pinyin; tối đa 10 câu, bốn lựa chọn khác nhau; luyện lại từ sai; lịch sử có loại quiz/phạm vi, đi cùng sao lưu và đồng bộ curriculum; báo câu và hàng đợi xử lý có RLS | Đánh giá sư phạm nghĩa gần nhau |
 | Hàng đợi ôn | Quiz chỉ hỏi từ đến hạn, lấy phương án nhiễu từ cấp/chặng đang chọn; không tự đổi lịch SRS. Nút nghe/đánh giá thẻ dùng đúng từ đang hiển thị | Nghiệm thu đa thiết bị với người học thật |
-| Luyện nét | Hanzi Writer 3.7.3, dữ liệu từng chữ ghim `hanzi-writer-data@2.0.1`, thử lại khi tải lỗi, dừng khi đóng/đổi màn; license MIT đóng gói riêng | Snapshot/hash dữ liệu nét, đo độ phủ ký tự; kiểm tra bút/cảm ứng trên thiết bị thật |
-| Câu Trung–Việt | Migration, bộ nhập Tatoeba vào nháp, attribution từng câu, RLS và duyệt bằng quyền admin; dry-run cache local chọn 528 câu cho 391 từ | Duyệt thử 50 cặp câu, quyền/nguồn cho tối đa 20 audio; chưa xác nhận migration/seed production |
-| Nghĩa còn thiếu | Resolver CC-CEDICT đã có trong `main`, giữ provenance và trạng thái duyệt | Biên tập `精彩纷呈`, `口哨儿`, dịch/duyệt nghĩa Việt |
+| Luyện nét | Hanzi Writer 3.7.3; dữ liệu ghim `hanzi-writer-data@2.0.1`; 50 ký tự offline có hash/Arphic license riêng; 3.088 ký tự CLEC có file upstream; thử lại lỗi và hủy khi rời màn | Giáo viên nghiệm thu nét, kiểm tra bút/cảm ứng trên thiết bị thật |
+| Câu Trung–Việt | Migration, nhập nháp idempotent, attribution, RLS, hàng đợi duyệt; pilot 50 cặp có hash; pipeline audio/duyệt/phát lại riêng | Giáo viên duyệt 50 cặp; tìm audio CC0/CC BY đủ quyền (snapshot hiện có 0); trạng thái production ghi ở báo cáo phát hành |
+| Nghĩa còn thiếu | Resolver CC-CEDICT giữ provenance/trạng thái duyệt; bộ lọc hàng đợi thiếu nghĩa cho admin | Biên tập `精彩纷呈`, `口哨儿`, dịch/duyệt nghĩa Việt |
 
 Quiz pinyin loại mục có số đồng tự và từ có nhiều cách đọc được phát hiện trong tập đang chọn; chuẩn hóa khoảng trắng khi khử trùng, giữ khác biệt dấu thanh. Không đòi hỏi nghĩa Anh để hỏi pinyin. Các bài này vẫn là luyện từ, không phải đề thi HSK chuẩn hóa. Kết quả test dùng dữ liệu giả; không thay thế nghiệm thu nguồn nét, dịch câu, audio hay provider AI thật.
 

@@ -11,10 +11,24 @@ export function strokeChars(word) { return [...new Set([...String(word || '')].f
 
 export function mountStrokes() {
   const cache = new Map();
+  let manifestPromise=null;
+  async function dataResponse(ch){
+    if(!manifestPromise)manifestPromise=fetch('./data/strokes/manifest.json',{signal:AbortSignal.timeout(15000)}).then(r=>{if(!r.ok)throw Error('network');return r.json();}).catch(error=>{manifestPromise=null;throw error;});
+    const manifest=await manifestPromise,entry=manifest.characters?.[ch];
+    if(entry){
+      if(!/^[a-f0-9]+\.json$/.test(entry.file)||!/^[a-f0-9]{64}$/.test(entry.sha256))throw Error('network');
+      const response=await fetch('./data/strokes/'+entry.file,{signal:AbortSignal.timeout(15000)});
+      if(!response.ok)throw Error('network');
+      const bytes=await response.arrayBuffer(),hash=[...new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))].map(n=>n.toString(16).padStart(2,'0')).join('');
+      if(hash!==entry.sha256)throw Error('network');
+      return new Response(bytes,{headers:{'content-type':'application/json'}});
+    }
+    return fetch(STROKE_DATA + encodeURIComponent(ch) + '.json', { signal: AbortSignal.timeout(15000) });
+  }
   let dialog = null, writer = null, drawing = null, chars = [], index = 0, mode = 'watch', hints = true, run = 0;
   // A missing character stays cached as missing; a network failure is dropped so "Thử lại" fetches again.
   function load(ch) {
-    if (!cache.has(ch)) cache.set(ch, fetch(STROKE_DATA + encodeURIComponent(ch) + '.json', { signal: AbortSignal.timeout(15000) }).then(async r => {
+    if (!cache.has(ch)) cache.set(ch, dataResponse(ch).then(async r => {
       if (r.status === 404) throw Error('missing');
       if (!r.ok) throw Error('network');
       const data = await r.json();
@@ -83,7 +97,7 @@ export function mountStrokes() {
 <div class="stroke-stage" data-stroke-stage></div>
 <p class="stroke-status" role="status" data-stroke-status></p>
 <div class="cloud-actions"><button type="button" class="btn" data-stroke-mode="watch" aria-pressed="true">Xem thứ tự nét</button><button type="button" class="btn" data-stroke-mode="quiz" aria-pressed="false">Luyện viết</button><button type="button" class="btn" data-stroke-hints aria-pressed="true" hidden>Gợi ý sau 3 lần sai</button><button type="button" class="btn" data-stroke-again>Viết lại</button><button type="button" class="btn" data-stroke-retry hidden>Thử lại</button></div>
-<p class="stroke-note">Phản hồi so với nét mẫu, không phải chấm thư pháp. Dữ liệu nét: Make Me a Hanzi (Arphic Public License); thư viện Hanzi Writer (<a href="./data/HANZI-WRITER-LICENSE.txt" target="_blank" rel="noopener">MIT</a>). <a href="https://hanziwriter.org/license.html" target="_blank" rel="noopener">Giấy phép dữ liệu</a></p></div>`;
+<p class="stroke-note">Phản hồi so với nét mẫu, không phải chấm thư pháp. Dữ liệu nét: Make Me a Hanzi (<a href="./data/strokes/ARPHICPL.TXT" target="_blank" rel="noopener">Arphic Public License</a>); thư viện Hanzi Writer (<a href="./data/HANZI-WRITER-LICENSE.txt" target="_blank" rel="noopener">MIT</a>). 50 chữ được lưu ngoại tuyến; chữ khác cần mạng. <a href="https://hanziwriter.org/license.html" target="_blank" rel="noopener">Nguồn giấy phép</a></p></div>`;
     document.body.appendChild(dialog);
     dialog.addEventListener('close', stopWriter);
     dialog.addEventListener('click', event => {

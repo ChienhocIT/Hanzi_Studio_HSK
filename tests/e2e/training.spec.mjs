@@ -265,8 +265,8 @@ test('Learners study published HSK 3.0 syllabus words and ratings join the on-de
   await panel.getByLabel('Tìm chữ Hán hoặc pinyin',{exact:true}).fill('ben');await panel.getByRole('button',{name:'Tra cứu',exact:true}).click();
   await expect(panel.locator('tbody tr')).toHaveCount(1);await expect(panel.locator('tbody')).toContainText('本');
   await panel.getByRole('button',{name:'Luyện thẻ',exact:true}).click();
-  await expect(panel).toContainText('Chưa có lượt ghi nhớ');  await expect(panel.locator('img[src="x"]')).toHaveCount(0);expect(await page.evaluate(()=>window.__xss)).toBeUndefined();
-  await panel.getByRole('button',{name:'Mở đáp án',exact:true}).click();await expect(panel).toContainText('běn');
+  await expect(panel.locator('.study-card-meta')).toContainText('Đang học');await expect(panel.locator('img[src="x"]')).toHaveCount(0);expect(await page.evaluate(()=>window.__xss)).toBeUndefined();
+  await panel.getByRole('button',{name:/Mở đáp án/}).click();await expect(panel).toContainText('běn');
   await panel.getByRole('button',{name:'Đã nhớ',exact:true}).click();
   await expect(panel.locator('#syllabus-status')).toContainText('Đã cập nhật lượt ôn');
   const record=await page.evaluate(()=>JSON.parse(localStorage.getItem('hanzi-studio-curriculum-v4')).progress['clec2025-2']);
@@ -276,7 +276,7 @@ test('Learners study published HSK 3.0 syllabus words and ratings join the on-de
   await panel.getByLabel('Tìm chữ Hán hoặc pinyin',{exact:true}).fill('');await panel.getByRole('button',{name:'Tra cứu',exact:true}).click();
   await panel.getByRole('button',{name:'Ôn từ đến hạn',exact:true}).click();
   await expect(panel.locator('.reference-word')).toHaveText('好');await expect(panel).toContainText('1 / 1');
-  await panel.getByRole('button',{name:'Mở đáp án',exact:true}).click();await expect(panel).toContainText('good; well');
+  await panel.getByRole('button',{name:/Mở đáp án/}).click();await expect(panel).toContainText('good; well');
   expect(errors).toEqual([]);
 });
 test('Admins publish a syllabus level in one action; signed-out visitors are asked to sign in',async({page,browser})=>{
@@ -502,15 +502,15 @@ test('Flashcards switch between the HSK 3 deck and HSK 1–9 levels, and review 
   await page.addInitScript(()=>{if(!sessionStorage.getItem('seeded')){sessionStorage.setItem('seeded','1');localStorage.setItem('hanzi-studio-curriculum-v4',JSON.stringify({progress:{'clec2025-3':{reps:1,interval:1,due:Date.now()-1000},'clec2025-4':{reps:3,interval:4,due:Date.now()+86400000}}}));}});
   await page.goto('/index.html#study');
   await expect(page.locator('#study-active')).toBeVisible();
-  await page.getByRole('button',{name:'HSK 1 · 300',exact:true}).click();
+  await page.getByLabel('Bộ thẻ đang học').selectOption('1');
   await expect(page.locator('#study-active')).toBeHidden();
   await expect(page.locator('#page-study .stage-tile')).toHaveCount(2);
   await page.locator('#page-study [data-syl-stage="0"]').click();
   await expect(page.locator('#page-study .reference-word')).toHaveText('字1');
   await page.reload();
-  await expect(page.getByRole('button',{name:'HSK 1 · 300',exact:true})).toHaveAttribute('aria-pressed','true');
-  await expect(page.locator('#page-study .stage-tile')).toHaveCount(2);
-  await page.evaluate(()=>nav('hsk'));await expect(page.locator('#page-hsk .stage-tile')).toHaveCount(2);
+  await expect(page.getByLabel('Bộ thẻ đang học')).toHaveValue('1');
+  await expect(page.locator('#page-study .reference-word')).toHaveText('字1');
+  await page.evaluate(()=>nav('hsk'));await expect(page.locator('#page-hsk .reference-word')).toHaveText('字1');
   await page.evaluate(()=>nav('home'));
   await expect(page.locator('#m-studied')).toHaveText('2');await expect(page.locator('#m-studied-foot')).toContainText('HSK 1–9: 2');
   await page.evaluate(()=>nav('review'));
@@ -518,7 +518,7 @@ test('Flashcards switch between the HSK 3 deck and HSK 1–9 levels, and review 
   await page.locator('#review-hsk-due').getByRole('button',{name:'Ôn ngay',exact:true}).click();
   await expect(page).toHaveURL(/#hsk$/);await expect(page.locator('#page-hsk .reference-word')).toHaveText('字3');
   await page.evaluate(()=>nav('study'));
-  await page.getByRole('button',{name:'HSK 3 · 500 từ nghĩa Việt',exact:true}).click();
+  await page.getByLabel('Bộ thẻ đang học').selectOption('hsk3');
   await expect(page.locator('#study-active')).toBeVisible();await expect(page.locator('#study-syllabus-slot')).toBeHidden();
   expect(errors).toEqual([]);
 });

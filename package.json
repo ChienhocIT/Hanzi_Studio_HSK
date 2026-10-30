@@ -18,6 +18,9 @@
     "db:seed-vocabulary": "node --env-file-if-exists=.env.local scripts/seed-vocabulary.mjs",
     "db:seed-glosses": "node --env-file-if-exists=.env.local scripts/seed-glosses.mjs",
     "db:seed-examples": "node --env-file-if-exists=.env.local scripts/seed-examples.mjs",
+    "db:seed-example-audio": "node --env-file-if-exists=.env.local scripts/example-audio.mjs",
+    "data:prepare-strokes": "node scripts/prepare-strokes.mjs",
+    "data:prepare-example-pilot": "node scripts/prepare-example-pilot.mjs",
     "db:promote-admin": "node --env-file-if-exists=.env.local scripts/promote-admin.mjs",
     "auth:configure": "node --env-file-if-exists=.env.local scripts/configure-auth.mjs",
     "db:bundle": "node scripts/bundle-migrations.mjs"
@@ -29,7 +32,8 @@
   },
   "devDependencies": {
     "@playwright/test": "1.64.1",
-    "esbuild": "0.28.2"
+    "esbuild": "0.28.2",
+    "hanzi-writer-data": "2.0.1"
   },
   "engines": {
     "node": ">=22"

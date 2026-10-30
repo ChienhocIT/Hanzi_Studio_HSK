@@ -1,0 +1,276 @@
+{
+  "format": "hanzi-stroke-snapshot-v1",
+  "package": "hanzi-writer-data@2.0.1",
+  "license": "Arphic Public License",
+  "source": "https://github.com/chanind/hanzi-writer-data/tree/v2.0.1",
+  "characters": {
+    "矮": {
+      "file": "77ee.json",
+      "sha256": "531495a8e4323b443c09396b78b2c6ef696b5856a9862c5d5abf9ef76a21fe03",
+      "strokes": 13
+    },
+    "爱": {
+      "file": "7231.json",
+      "sha256": "26312d0cf150b55c961e890c2a205f5143a185bd2c7337c9c3622040d61489c4",
+      "strokes": 10
+    },
+    "人": {
+      "file": "4eba.json",
+      "sha256": "18ffb9fb727576b0c3e7dc44914be7ffd43164de9ba121710824b83f27bd3bb1",
+      "strokes": 2
+    },
+    "安": {
+      "file": "5b89.json",
+      "sha256": "654830c5bfda6086c1ee48536ef8fe89f0c56112152dba149801f023c9627295",
+      "strokes": 6
+    },
+    "静": {
+      "file": "9759.json",
+      "sha256": "a4e4c645009b8d1d415cec634fef9e81b69a7847dff8bd3d638aa4af98998015",
+      "strokes": 14
+    },
+    "全": {
+      "file": "5168.json",
+      "sha256": "6630c21ff661e22e381122968fb39ced8527d470913cc939a5a1d29c34b40051",
+      "strokes": 6
+    },
+    "阿": {
+      "file": "963f.json",
+      "sha256": "d3a9c1ab3c03054bdbbe08045edf169c75529bc2354ad383944ac51e86ebb2d7",
+      "strokes": 7
+    },
+    "姨": {
+      "file": "59e8.json",
+      "sha256": "219999085ddfc1fe63b802a73cd90770c9cf165d687cf42583fbe8599b90bd16",
+      "strokes": 9
+    },
+    "把": {
+      "file": "628a.json",
+      "sha256": "0fc972bab80ed2f5336535665906cae41e4bec94cc0b2b7496e3f453e4acd48f",
+      "strokes": 7
+    },
+    "办": {
+      "file": "529e.json",
+      "sha256": "86519e575e2beda61d6ae623cb2987bef47be6a2665b2ac66df4bc14fa731787",
+      "strokes": 4
+    },
+    "搬": {
+      "file": "642c.json",
+      "sha256": "6721c1f362812bb55b806185d7a10799257f00e6365e32869444f53132997300",
+      "strokes": 13
+    },
+    "法": {
+      "file": "6cd5.json",
+      "sha256": "0150a3f02c12340a72a1d73457c2d7ad43c6dfbe064083e73b53df7d13de557d",
+      "strokes": 8
+    },
+    "公": {
+      "file": "516c.json",
+      "sha256": "f486cccfeb549f77756de2d5086c83c1ebfcb7ce4cfafa2ba332b9700d1c8738",
+      "strokes": 4
+    },
+    "室": {
+      "file": "5ba4.json",
+      "sha256": "e2b3399e15648522565b3f4dbe529fb07928f541eeee23119c7def8389a0b072",
+      "strokes": 9
+    },
+    "帮": {
+      "file": "5e2e.json",
+      "sha256": "bedc44702b264ee23d6d6cd0d2d6967a8d32b3c98918f16b643c8e5277430262",
+      "strokes": 9
+    },
+    "助": {
+      "file": "52a9.json",
+      "sha256": "6dab1ace944ff9e31de50be51eff1c0c1bab50d142938f6202841a8f26c04f08",
+      "strokes": 7
+    },
+    "班": {
+      "file": "73ed.json",
+      "sha256": "4ade745bbdd9f871e5aa1a3f44bdb83c1fdcad7806482a5f83fad8faf3085539",
+      "strokes": 10
+    },
+    "级": {
+      "file": "7ea7.json",
+      "sha256": "c5a1bf8c69945d3714077b446c7f95f732c4f8375dc6a8ef5683db479e36d402",
+      "strokes": 6
+    },
+    "家": {
+      "file": "5bb6.json",
+      "sha256": "390ad42ee60491df2ae9ddfd59358d4d6ff69208ccdac902aae0431b7e5f9aef",
+      "strokes": 10
+    },
+    "半": {
+      "file": "534a.json",
+      "sha256": "7f3a9c1766ccd8a44224babb7e106ad95e831b9a6f850fc89c6fd6f41e7b7099",
+      "strokes": 5
+    },
+    "天": {
+      "file": "5929.json",
+      "sha256": "8cacde3b91b815c7c667e80e6d4838e3b7dc30ab457763e32d29c1586b0d2446",
+      "strokes": 4
+    },
+    "饱": {
+      "file": "9971.json",
+      "sha256": "57be70aec8a1834a475432db6b764f22386faa78357464cce29689bc757bd2b4",
+      "strokes": 8
+    },
+    "报": {
+      "file": "62a5.json",
+      "sha256": "cd76834773d55064dc46f895ec7a431256705b4b00c4d74eac3b775dbd914f40",
+      "strokes": 7
+    },
+    "纸": {
+      "file": "7eb8.json",
+      "sha256": "65f545a17f58aa0aa0fae3ef8500031022d08d78ec1d98f616702c27bbef9019",
+      "strokes": 7
+    },
+    "被": {
+      "file": "88ab.json",
+      "sha256": "b316b26dd747608175d7c1faa753c8f666351a4877f403e77ca2693a1576c6f7",
+      "strokes": 10
+    },
+    "北": {
+      "file": "5317.json",
+      "sha256": "580cb19cf0714405c78f9bc1076622281c3a9de23f1e6608dfa4e9d69e913eea",
+      "strokes": 5
+    },
+    "方": {
+      "file": "65b9.json",
+      "sha256": "d643e7b430d9ecf2a81676aa4fae8b06981a4cd811d3b035f0278a72362e3a6a",
+      "strokes": 4
+    },
+    "变": {
+      "file": "53d8.json",
+      "sha256": "33ee8fff141ba8fac72e7fb44f4c763b96e182adafdce3299a3af6f1ee91f421",
+      "strokes": 8
+    },
+    "遍": {
+      "file": "904d.json",
+      "sha256": "f00a1435111c32f2752b902c734327ab8fdd3e1af9f9917c6cc9442d5cf4403d",
+      "strokes": 12
+    },
+    "成": {
+      "file": "6210.json",
+      "sha256": "2f809672d37d80b691d5fb9787ef94dd7e4b0be2685c051e776fd1888f44640e",
+      "strokes": 6
+    },
+    "化": {
+      "file": "5316.json",
+      "sha256": "a3cfd826e62d43d51fdf0321d7aaf1d66592e552dce198acd11a29b03d4ebf27",
+      "strokes": 4
+    },
+    "表": {
+      "file": "8868.json",
+      "sha256": "f462b53e7549c74927c4f3a802882609d7576fae6d4f9caa3a586ee18c169c0e",
+      "strokes": 8
+    },
+    "演": {
+      "file": "6f14.json",
+      "sha256": "bab00b442747b7830f0c05cb79566a28886c59d4c0195ca51e5fb3d82288a4fe",
+      "strokes": 14
+    },
+    "别": {
+      "file": "522b.json",
+      "sha256": "aa51bd9156c02a18394ec134796c5c0a41f472db8858e2303835a99ac3f7b1dd",
+      "strokes": 7
+    },
+    "的": {
+      "file": "7684.json",
+      "sha256": "d9a067e65c8c3770d5559d42bd2bc564b8e133d8fa3dc237d9c4a317adfbb32f",
+      "strokes": 8
+    },
+    "笔": {
+      "file": "7b14.json",
+      "sha256": "89f1e201c5c67fcdd714db847c68eaee2a874de3a9f6340be4171c53b98cffa8",
+      "strokes": 10
+    },
+    "记": {
+      "file": "8bb0.json",
+      "sha256": "9cd802d6220670eb4d59a384417a67b2da2ab91f2e13ffe00f57d610043b516d",
+      "strokes": 5
+    },
+    "比": {
+      "file": "6bd4.json",
+      "sha256": "4dc980796f5251417cd1a2ebf706e94bfcabb05d1b275cff28721aeb190fd12e",
+      "strokes": 4
+    },
+    "较": {
+      "file": "8f83.json",
+      "sha256": "942c15f2d662b66b66a8ae9b53320fceeef81de4d21d9a595b93f1a219799d9d",
+      "strokes": 10
+    },
+    "本": {
+      "file": "672c.json",
+      "sha256": "1507bfab8ff404936abc31790252d16b5eddf769b85791d89bc9c61c668fa838",
+      "strokes": 5
+    },
+    "冰": {
+      "file": "51b0.json",
+      "sha256": "3aeb6362fbf8e006ef9f779b5078f236ecd6286975e113771763f6126180fd04",
+      "strokes": 6
+    },
+    "激": {
+      "file": "6fc0.json",
+      "sha256": "98ef314590b142767f09f2b126949cd4a7cc20b2feaffe8387bbd91d0b85c384",
+      "strokes": 16
+    },
+    "凌": {
+      "file": "51cc.json",
+      "sha256": "5309fe47693e8011690bf83f915d2729821131f4e48ce44b3e0f206f1f6464a6",
+      "strokes": 10
+    },
+    "病": {
+      "file": "75c5.json",
+      "sha256": "7e1961f5a3d3120e7900df9da41dfee35b262fddba178433255ba5787549747b",
+      "strokes": 10
+    },
+    "宾": {
+      "file": "5bbe.json",
+      "sha256": "95df1b5b738410b936058307cf901fc230a72370108c5df813a3f3e28012beac",
+      "strokes": 10
+    },
+    "馆": {
+      "file": "9986.json",
+      "sha256": "966fc0537daae4e2ddde299b174f30bff69f7c5d88d5dd7d0046372cc297803c",
+      "strokes": 11
+    },
+    "箱": {
+      "file": "7bb1.json",
+      "sha256": "e922749be1fc285a7e04802715688473ebaea0f220c73a02f549a90115e84ada",
+      "strokes": 15
+    },
+    "如": {
+      "file": "5982.json",
+      "sha256": "94d439143d94d44b6b415cc2fa2068f062a22e0fede9ca1d155d8fc4f6af9f30",
+      "strokes": 6
+    },
+    "赛": {
+      "file": "8d5b.json",
+      "sha256": "6d099bb091691559c32dd89cee88b60d9e3be2dcf4789b0e1bd170c1e94d3ca2",
+      "strokes": 14
+    },
+    "必": {
+      "file": "5fc5.json",
+      "sha256": "f49fe562d7bd6ab1f2b876555d6ddcafefd0f47eaae5eeeb005bb958dfc77fd9",
+      "strokes": 5
+    }
+  },
+  "coverage": [
+    {
+      "name": "HSK 3 nghĩa Việt",
+      "sourceSha256": "030486fdf19c049f01c1b0b2629a51bb45a280d8df8846d2aa7db227d128dc28",
+      "words": 500,
+      "characters": 480,
+      "available": 480,
+      "missing": []
+    },
+    {
+      "name": "HSK 3.0 (CLEC 2025)",
+      "sourceSha256": "dd20adc5e0256e2597c8550956197403914afce42f09467d2a187a5f66e193fb",
+      "words": 11000,
+      "characters": 3088,
+      "available": 3088,
+      "missing": []
+    }
+  ]
+}

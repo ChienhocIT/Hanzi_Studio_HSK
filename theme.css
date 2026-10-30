@@ -420,3 +420,81 @@ body.public-mode .body{max-width:none;padding:0}
 .syllabus-examples li{border:1px solid var(--stroke);border-radius:14px;padding:10px 12px}
 .syllabus-examples li p{margin:2px 0}
 .example-zh{font-size:20px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+/* Flashcard study uses the existing brand tokens; library routes retain their navigation. */
+.study-deck-select{display:flex;gap:14px;align-items:center}
+.study-deck-select img{flex:none;object-fit:contain}
+.study-deck-select label{display:grid;gap:6px;flex:1;max-width:510px;font-size:13px;font-weight:700}
+.study-deck-select select{width:100%;min-height:48px;font-size:16px}
+#study-deck-note{margin:0 0 0 58px;max-width:65ch;color:var(--muted);font-size:13px;line-height:1.6}
+#page-study .page-heading{margin-bottom:20px}
+#page-study .flashcard{height:330px;min-height:300px}
+#page-study .flip-stage{margin-top:10px}
+#page-study .card-hint,#page-study .card-head,#page-study .study-info,#page-study .nav-arrows span{color:var(--muted)}
+#page-study .example-label,#page-study .example-py,#page-study .example-vi{color:var(--muted);font-size:13px}
+#page-study .card-face[aria-hidden="true"]{visibility:hidden}
+#page-study .nav-arrows{margin-top:12px}
+#page-study .nav-arrow{min-width:44px;min-height:44px}
+#page-study .field-select label{display:block;font-size:13px}
+#page-study .field-select{align-items:start;flex-direction:column;gap:6px}
+#page-study .icon-btn{min-width:44px;min-height:44px}
+.study-primary{display:none}
+#study-syllabus-slot .study-primary{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+#study-syllabus-slot .hsk-levels{display:none}
+#study-syllabus-slot .syllabus-search,#study-syllabus-slot #syllabus-content>.cloud-actions{display:none}
+#study-syllabus-slot .show-study-tools .syllabus-search{display:grid}
+#study-syllabus-slot .show-study-tools #syllabus-content>.cloud-actions{display:flex}
+.syllabus-source-details{margin-top:20px;color:var(--muted);font-size:13px;line-height:1.7}
+.syllabus-source-details summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:700;text-decoration:underline}
+.syllabus-study-card{max-width:740px;margin:12px auto;background:var(--paper);border:1px solid var(--stroke);border-radius:20px;padding:20px;box-shadow:var(--shadow)}
+.study-card-meta{display:flex;justify-content:space-between;gap:12px;font-size:13px;color:var(--muted)}
+.syllabus-flip{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;border:0;background:transparent;color:var(--txt);width:100%;min-height:220px;padding:24px 12px;cursor:pointer;border-radius:14px}
+.syllabus-flip .reference-word{font-size:clamp(56px,7vw,88px);line-height:1.25;margin:0;overflow-wrap:anywhere}
+.study-flip-hint{font-size:14px;color:var(--muted)}
+.syllabus-answer{text-align:center;font-size:18px;margin:0 0 20px}
+.syllabus-answer p{margin:8px 0}
+.study-card-controls{display:grid;grid-template-columns:44px 1fr 1fr 44px;gap:8px;align-items:center}
+.study-card-controls .btn{padding-inline:10px;min-width:44px;min-height:44px;justify-content:center}
+.study-card-rating{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.study-card-rating .btn{justify-content:center;min-height:48px}
+.study-card-rating kbd{margin-left:8px}
+.study-card-schedule{text-align:center;margin:14px 0 0;font-size:13px}
+#syllabus-card-examples{max-width:740px;margin:0 auto}
+#syllabus-results .cloud-form:has([data-syl="quiz-answer"]){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+#syllabus-results [data-syl="quiz-answer"]{justify-content:center;min-height:48px}
+@media(max-width:767px){
+ #page-study .study-layout{grid-template-columns:1fr}
+ #page-study .study-aside{display:none}
+ #page-study .flashcard{height:300px;min-height:280px}
+ #page-study .rating{display:grid;grid-template-columns:1fr 1fr}
+ #page-study .rate-btn{min-height:48px}
+ #study-deck-note{margin-left:0}
+ .syllabus-study-card{padding:16px}
+ .syllabus-flip{min-height:180px}
+ .study-card-rating kbd{display:none}
+ #study-syllabus-slot #syllabus-panel{padding:16px}
+}
+@media(prefers-reduced-motion:reduce){#page-study .flashcard-inner{transition:none}#page-study .thin-progress div{transition:none}}
+.report-dialog{width:min(520px,calc(100vw - 32px));max-height:calc(100dvh - 32px);overflow:auto;padding:24px;border:1px solid var(--stroke);border-radius:20px;background:var(--surface);color:var(--txt)}
+.report-dialog::backdrop{background:rgba(18,16,42,.5)}
+.report-dialog h2{margin:0;font-size:22px}
+.report-dialog textarea,.vocab-report-item textarea{box-sizing:border-box;width:100%;min-height:80px;background:var(--paper);color:var(--txt);border:1px solid var(--stroke);border-radius:12px;padding:12px;font:inherit}
+.vocab-report-item{padding:16px 0;border-bottom:1px solid var(--stroke);display:grid;gap:12px}
+.vocab-report-item label{display:grid;gap:8px}
+.report-question{margin-top:20px;color:var(--muted)}
+#syllabus-container [hidden]{display:none!important}
+.example-recording{margin-top:12px;padding-top:12px;border-top:1px solid var(--stroke)}
+.example-recording audio{width:100%;max-width:420px;min-height:44px}
+#page-study .deck-picker{position:sticky;top:88px;z-index:3;background:var(--bg);padding:10px 0}
+#study-syllabus-slot #syllabus-panel{background:transparent;border:0;box-shadow:none;padding:0!important}
+#page-study :is(button,select,[tabindex]){scroll-margin-block:220px 110px}
+@media(max-width:767px){#page-study .deck-picker{top:70px}.study-deck-select{gap:10px}.study-deck-select label{font-size:12px}#study-deck-note{font-size:12px}}
+.syllabus-study-card{scroll-margin-block:210px 100px}
+@media(max-width:767px){
+ #page-study .study-tools{display:grid;grid-template-columns:minmax(0,1fr)}
+ #page-study .tool-left{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));min-width:0}
+ #page-study .field-select{min-width:0;width:100%}
+ #page-study .field-select select{width:100%;max-width:100%;min-height:44px}
+ #page-study .tool-right{justify-content:flex-end}
+ #page-study .page-heading{margin-bottom:8px}
+ #page-study .page-heading h2{font-size:18px;margin-bottom:8px}
+}

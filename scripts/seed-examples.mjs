@@ -72,6 +72,15 @@ const bunzip=file=>execFileSync('python',['-I','-c','import bz2,sys;sys.stdout.b
 if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href) {
   let db;
   try {
+    if(process.argv.includes('--pilot')){
+      const pilot=JSON.parse(await readFile('data/tatoeba-pilot.json','utf8'));
+      console.log(`Pilot: ${pilot.examples.length} câu nháp; ${pilot.audio.length} audio đủ quyền.`);
+      if(process.argv.includes('--dry-run')){console.log('Không ghi database.');process.exit(0);}
+      const direct=process.env.POSTGRES_URL_NON_POOLING||process.env.POSTGRES_URL||process.env.DATABASE_URL;
+      if(direct){db=new pg.Client(migrationConnection());await db.connect();}else db=managementClient().database;
+      console.log(`Thêm ${await seedExamples(db,pilot.syllabus,pilot.source,pilot.examples)} câu nháp mới; không ghi đè bản đã có.`);
+      process.exitCode=0;
+    }else{
     await mkdir(DIR,{recursive:true});
     for(const file of FILES) {
       const target=`${DIR}/${file.split('/').pop()}`;if(existsSync(target))continue;
@@ -92,6 +101,7 @@ if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href) {
     const direct=process.env.POSTGRES_URL_NON_POOLING||process.env.POSTGRES_URL||process.env.DATABASE_URL;
     if(direct){db=new pg.Client(migrationConnection());await db.connect();}else db=managementClient().database;
     console.log(`${dataset.syllabus}: thêm ${await seedExamples(db,dataset.syllabus,source,rows)} câu nháp mới (câu đã có giữ nguyên).`);
+    }
   }catch(error){console.error(error.message);process.exitCode=1;}
   finally{if(db?.end)await db.end().catch(()=>{});}
 }

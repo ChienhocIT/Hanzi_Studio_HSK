@@ -1,5 +1,8 @@
 import { h, field } from './ui.js';
 import {vocabularyQuiz} from './vocabulary-quiz.js';
+import {mountVocabReports} from './vocab-reports.js';
+import {exampleAudio,mountExampleAudio} from './example-audio.js';
+import {mountExampleReview} from './example-review.js';
 // HSK 1–9 study screen over the 2025 CLEC syllabus list in vocab_entries, with CC-CEDICT English glosses.
 // Only served to signed-in accounts (redistribution rights are unclear); learners see published rows,
 // teachers/admins also see drafts. Card ratings join the curriculum SRS through hanzi:reference-rating.
@@ -25,7 +28,23 @@ export function mountSyllabus(root) {
   let client = null, profile = null, level = initialLevel(), query = '', page = 0, position = 0, revealed = false, view = 'stages', stage = null, adminOpen = false;
   let sessionEpoch=0,loadEpoch=0,quiz=null;
   const cache = new Map(), examples = new Map();
-  let shownCard = null;
+  const reports=mountVocabReports(root,()=>({client,profile}));
+  const exampleReview=mountExampleReview(root,()=>({client,profile}),seq=>examples.delete(seq));
+  mountExampleAudio(root);
+  let shownCard = null, resumeSeq = null;
+  function rememberLocation() {
+    if(!LEVELS.includes(level)||!['cards','due'].includes(view)||shownCard===null)return;
+    const detail={level,stage,seq:shownCard,saved:false};
+    window.dispatchEvent(new CustomEvent('hanzi:study-location',{detail}));
+  }
+  function restoreLocation() {
+    try{
+      const saved=JSON.parse(localStorage.getItem(stateKey)||'{}').studyLocations?.[level];
+      if(saved&&Number.isInteger(saved.seq)&&saved.seq>0&&(saved.stage===null||Number.isInteger(saved.stage)&&saved.stage>=0)){
+        stage=saved.stage;resumeSeq=saved.seq;view='cards';
+      }
+    }catch{}
+  }
   const admin = () => profile?.role === 'admin', staff = () => ['teacher','admin'].includes(profile?.role);
   root.innerHTML = `<div class="art-hero hsk-hero"><picture class="art-hero-media"><source media="(max-width:700px)" srcset="./assets/illustrations/banner-reading-mobile.webp" width="750" height="900"><img src="./assets/illustrations/banner-reading-desktop.webp" alt="" width="1600" height="600"></picture><div class="art-hero-copy"><h1>Thư viện từ vựng HSK 1–9</h1><p>11.000 từ của đề cương HSK 3.0 (2025), chia theo cấp và chặng: tra cứu, nghe, luyện thẻ, ôn đúng lúc.</p></div></div><div class="panel" id="syllabus-panel"><p id="syllabus-status" role="status" aria-live="polite"></p><div id="syllabus-content"></div></div>`;
   const status = (text, error = false) => { const el = root.querySelector('#syllabus-status'); el.textContent = text; el.classList.toggle('cloud-error', error); };
@@ -35,7 +54,8 @@ export function mountSyllabus(root) {
     const all = level === 'all' ? LEVELS.flatMap(l => cache.get(l) || []) : cache.get(level) || [];
     const rows = stage !== null && level !== 'all' ? stageRows(all, stage) : all;
     const q = plain(query);
-    return q ? rows.filter(r => r.word.includes(query.trim()) || plain(r.pinyin).includes(q)) : rows;
+    const filtered=q ? rows.filter(r => r.word.includes(query.trim()) || plain(r.pinyin).includes(q)) : rows;
+    return view==='missing'?filtered.filter(r=>!r.gloss_en?.some(g=>g.trim())):filtered;
   };
   // Progress is restorable from backups and cloud sync, so treat it as untrusted and keep only numbers.
   const progress = seq => { try { const r = JSON.parse(localStorage.getItem(stateKey) || '{}').progress?.[entryId(seq)]; return r ? {reps: Math.max(0, Number.parseInt(r.reps, 10) || 0), due: Number(r.due) || 0} : null; } catch { return null; } };
@@ -64,18 +84,20 @@ export function mountSyllabus(root) {
     if (rows === undefined || rows === 'loading') { if (rows === undefined) loadExamples(r.seq); return '<p class="panel-sub syllabus-examples">Đang tải câu ví dụ...</p>'; }
     if (rows === 'error') return '<div class="syllabus-examples"><p class="panel-sub">Chưa tải được câu ví dụ.</p><button type="button" class="btn" data-syl="examples-retry">Thử tải lại câu ví dụ</button></div>';
     if (!rows.length) return '';
-    return `<div class="syllabus-examples"><h4>Câu ví dụ</h4><ul>${rows.map(e => `<li><p lang="zh-Hans" class="example-zh">${h(e.zh)} <button type="button" class="btn btn-listen" data-syl="say" data-word="${h(e.zh)}" aria-label="Nghe câu ${h(e.zh)}"><span class="ico-listen" aria-hidden="true"></span>Nghe</button></p><p>${h(e.vi)}</p><p class="panel-sub">Tatoeba ${tatoeba(e.zh_id, e.zh_author)} · bản dịch ${tatoeba(e.vi_id, e.vi_author)} · ${h(e.license)}${staff() ? ` · ${h(STATUS[e.review_status] || e.review_status)}` : ''}</p>${admin() ? `<div class="cloud-actions">${[['published', 'Duyệt'], ['rejected', 'Từ chối'], ['draft', 'Về nháp']].filter(([d]) => d !== e.review_status).map(([d, text]) => `<button type="button" class="btn" data-syl="example-review" data-zh="${Number(e.zh_id)}" data-decision="${d}">${text}</button>`).join('')}</div>` : ''}</li>`).join('')}</ul></div>`;
+    return `<div class="syllabus-examples"><h4>Câu ví dụ</h4><ul>${rows.map(e => `<li><p lang="zh-Hans" class="example-zh">${h(e.zh)} <button type="button" class="btn btn-listen" data-syl="say" data-word="${h(e.zh)}" aria-label="Nghe câu ${h(e.zh)}"><span class="ico-listen" aria-hidden="true"></span>Nghe</button></p><p>${h(e.vi)}</p>${exampleAudio(e.example_audio,e.zh_id,admin())}<p class="panel-sub">Tatoeba ${tatoeba(e.zh_id, e.zh_author)} · bản dịch ${tatoeba(e.vi_id, e.vi_author)} · ${h(e.license)}${staff() ? ` · ${h(STATUS[e.review_status] || e.review_status)}` : ''}</p>${admin() ? `<div class="cloud-actions">${[['published', 'Duyệt'], ['rejected', 'Từ chối'], ['draft', 'Về nháp']].filter(([d]) => d !== e.review_status).map(([d, text]) => `<button type="button" class="btn" data-syl="example-review" data-zh="${Number(e.zh_id)}" data-decision="${d}">${text}</button>`).join('')}</div>` : ''}</li>`).join('')}</ul></div>`;
   }
   async function loadExamples(seq) {
     const owner = sessionEpoch, activeClient = client; examples.set(seq, 'loading');
     let rows;
-    try { rows = await reply(activeClient.from('example_sentences').select('zh_id,zh,zh_author,vi_id,vi,vi_author,license,review_status').eq('syllabus', SYLLABUS).eq('seq', seq).order('zh_id')); }
+    try { rows = await reply(activeClient.from('example_sentences').select('zh_id,zh,zh_author,vi_id,vi,vi_author,license,review_status,example_audio(audio_id,author,license,attribution_url,review_status)').eq('syllabus', SYLLABUS).eq('seq', seq).order('zh_id')); }
     catch { rows = 'error'; }
     if (owner !== sessionEpoch) return;
     examples.set(seq, rows);
-    if (shownCard === seq && revealed) renderResults();
+    if (shownCard === seq && revealed) {
+      const box=root.querySelector('#syllabus-card-examples'),row=words().find(r=>r.seq===seq);
+      if(box&&row)box.innerHTML=exampleList(row);
+    }
   }
-  const extra = r => r.extra_levels.length ? ` · nghĩa mở rộng ở HSK ${r.extra_levels.map(h).join(', ')}` : '';
   async function fetchLevel(name,owner,activeClient) {
     if (cache.has(name)) return;
     const rows = [];
@@ -95,8 +117,14 @@ export function mountSyllabus(root) {
     try {
       for (const name of needed) {await fetchLevel(name,owner,activeClient);if(owner!==sessionEpoch||request!==loadEpoch)return;}
       const total = needed.reduce((n, name) => n + cache.get(name).length, 0);
+      if(resumeSeq!==null){
+        const index=words().findIndex(r=>r.seq===resumeSeq);
+        if(index>=0)position=index;else{stage=null;view='stages';position=0;}
+        resumeSeq=null;
+      }
       status(total ? `HSK ${level === 'all' ? '1–9' : level}: ${total.toLocaleString('vi-VN')} mục.` : staff() ? 'Danh mục chưa được nạp vào database. Người vận hành chạy npm run db:seed-vocabulary.' : 'Cấp này chưa có mục nào được duyệt cho học viên.');
-    } catch { if(owner!==sessionEpoch||request!==loadEpoch)return;status('Không tải được danh mục. Kiểm tra kết nối và thử lại.', true); }
+      root.querySelector('[data-syl="reload"]').hidden=true;
+    } catch { if(owner!==sessionEpoch||request!==loadEpoch)return;status('Không tải được danh mục. Kiểm tra kết nối và thử lại.', true);root.querySelector('[data-syl="reload"]').hidden=false; }
     renderResults();
   }
   function adminTools() {
@@ -108,8 +136,11 @@ export function mountSyllabus(root) {
   function renderResults() {
     const result = root.querySelector('#syllabus-results');
     if (!result) return;
+    root.classList.toggle('has-study-card',['cards','due'].includes(view));
+    result.querySelectorAll('audio').forEach(audio=>audio.pause());
     if(view==='quiz'){renderQuiz(result);return;}
-    result.innerHTML = adminTools(); shownCard = null;
+    result.innerHTML = adminTools()+reports.adminTools()+exampleReview.adminTools(); shownCard = null;
+    if(admin())result.insertAdjacentHTML('afterbegin','<button type="button" class="btn" data-syl="missing">Hàng đợi thiếu nghĩa của cấp này</button>');
     if (level !== 'all' && stage === null && !query && view === 'stages') {
       const total = (cache.get(level) || []).length;
       if (total) result.insertAdjacentHTML('beforeend', `<p class="stage-intro">HSK ${h(level)} có ${total.toLocaleString('vi-VN')} từ, chia ${Math.ceil(total / STAGE[level])} chặng, mỗi chặng ${STAGE[level]} từ. Chọn một chặng để học.</p>${stageGrid()}`);
@@ -124,19 +155,23 @@ export function mountSyllabus(root) {
     if (!list.length) { result.insertAdjacentHTML('beforeend', `<p>${view === 'due' ? 'Chưa có từ nào đến hạn ôn ở cấp này. Luyện thẻ và bấm “Đã nhớ” để bắt đầu lịch ôn.' : query ? 'Không có mục phù hợp. Thử chữ Hán hoặc pinyin khác (gõ không dấu cũng được).' : 'Chưa có mục để hiển thị.'}</p>`); return; }
     if (view === 'cards' || view === 'due' || view === 'stages') {
       position = Math.min(position, list.length - 1); const r = list[position], record = progress(r.seq); shownCard = r.seq;
-      result.insertAdjacentHTML('beforeend', `<p>${position + 1} / ${list.length.toLocaleString('vi-VN')} · HSK ${h(r.level)}${extra(r)}</p><p class="reference-word" lang="zh-Hans">${label(r)}</p>${revealed ? `<p lang="zh-Latn" class="syllabus-pinyin">${h(r.pinyin)}</p><p>${posText(r)}</p>${meaning(r)}${exampleList(r)}` : '<p>Đọc to từ này, nhớ pinyin và nghĩa, rồi mở đáp án.</p>'}<p>${record?.reps ? `Đã nhớ ${record.reps} lượt. Lần ôn: ${new Date(record.due).toLocaleString('vi-VN')}` : 'Chưa có lượt ghi nhớ.'}</p><div class="cloud-actions"><button type="button" class="btn" data-syl="previous">Thẻ trước</button><button type="button" class="btn" data-syl="reveal">${revealed ? 'Ẩn đáp án' : 'Mở đáp án'}</button><button type="button" class="btn" data-syl="next">Thẻ sau</button><button type="button" class="btn btn-listen" data-syl="speak"><span class="ico-listen" aria-hidden="true"></span>Nghe</button><button type="button" class="btn" data-strokes="${h(r.word)}">Thứ tự nét</button>${revealed ? '<button type="button" class="btn" data-syl="again">Cần ôn lại</button><button type="button" class="btn" data-syl="good">Đã nhớ</button>' : ''}</div>`);
+      result.insertAdjacentHTML('beforeend', `<article class="syllabus-study-card"><header class="study-card-meta"><span>${position + 1} / ${list.length.toLocaleString('vi-VN')} <span class="panel-sub">HSK ${h(r.level)}</span></span><span>${record?.reps ? `Đã nhớ ${record.reps} lượt` : record ? 'Đang học' : 'Chưa học'}</span></header><button type="button" class="syllabus-flip" data-syl="reveal" aria-pressed="${revealed}"><span class="reference-word" lang="zh-Hans">${label(r)}</span><span class="study-flip-hint">${revealed ? 'Ẩn đáp án' : 'Mở đáp án'}</span></button>${revealed ? `<div class="syllabus-answer"><p lang="zh-Latn" class="syllabus-pinyin">${h(r.pinyin)}</p><p>${posText(r)}</p>${meaning(r)}</div>` : ''}<div class="study-card-controls"><button type="button" class="btn" data-syl="previous" aria-label="Thẻ trước">←</button><button type="button" class="btn btn-listen" data-syl="speak"><span class="ico-listen" aria-hidden="true"></span>Nghe</button><button type="button" class="btn" data-strokes="${h(r.word)}">Thứ tự nét</button><button type="button" class="btn" data-syl="next" aria-label="Thẻ sau">→</button></div>${revealed ? '<div class="study-card-rating"><button type="button" class="btn" data-syl="again" aria-label="Cần ôn lại" aria-keyshortcuts="1">Cần ôn lại <kbd>1</kbd></button><button type="button" class="btn btn-primary" data-syl="good" aria-label="Đã nhớ" aria-keyshortcuts="2">Đã nhớ <kbd>2</kbd></button></div>' : ''}<p class="study-card-schedule panel-sub">${record ? `Lần ôn: ${new Date(record.due).toLocaleString('vi-VN')}` : revealed ? 'Chọn mức nhớ để xếp lịch ôn.' : 'Mở đáp án trước khi đánh giá mức nhớ.'}</p></article>${revealed ? `<div id="syllabus-card-examples">${exampleList(r)}</div>` : ''}`);
       return;
     }
     const pages = Math.ceil(list.length / PAGE); page = Math.min(page, pages - 1);
     result.insertAdjacentHTML('beforeend', `<p>Tìm thấy ${list.length.toLocaleString('vi-VN')} mục. Trang ${page + 1}/${pages}.</p><div class="cloud-actions"><button type="button" class="btn" data-syl="prev-page" ${page === 0 ? 'disabled' : ''}>Trang trước</button><button type="button" class="btn" data-syl="next-page" ${page >= pages - 1 ? 'disabled' : ''}>Trang sau</button></div><div class="table-wrap"><table class="syllabus-table"><thead><tr><th scope="col">STT</th><th scope="col">Từ</th><th scope="col">Pinyin</th><th scope="col">Từ loại</th><th scope="col">Cấp</th>${staff() ? '<th scope="col">Trạng thái</th>' : ''}<th scope="col"><span class="sr-only">Nghe</span></th></tr></thead><tbody>${list.slice(page * PAGE, page * PAGE + PAGE).map(r => `<tr><td>${r.seq}</td><td lang="zh-Hans" class="syllabus-word">${label(r)}${meaning(r)}</td><td lang="zh-Latn">${h(r.pinyin)}</td><td>${posText(r)}</td><td>${h(r.level)}${r.extra_levels.length ? ` <small>(+${r.extra_levels.map(h).join(', ')})</small>` : ''}</td>${staff() ? `<td>${h(STATUS[r.review_status] || r.review_status)}<br><small>Trang ${h(r.source_page ?? '?')}</small></td>` : ''}<td><button type="button" class="btn btn-listen" data-syl="say" data-word="${h(r.word)}" aria-label="Nghe ${h(r.word)}"><span class="ico-listen" aria-hidden="true"></span>Nghe</button></td></tr>`).join('')}</tbody></table></div>`);
   }
   function render() {
-    cache.clear(); position = 0; page = 0; revealed = false; quiz = null; stage = null; view = 'stages';
+    cache.clear(); position = 0; page = 0; revealed = false; quiz = null; stage = null; view = 'stages'; resumeSeq=null;shownCard=null;
     if (!client) { content.innerHTML = window.HANZI_CLOUD_CONFIG?.url ? '<p class="cloud-loading">Đang kiểm tra phiên đăng nhập...</p>' : '<p>Danh mục được lưu trên máy chủ đồng bộ. Tính năng này cần quản trị viên kết nối Supabase.</p>'; status(''); return; }
     if (!profile) { content.innerHTML = '<div class="gate"><p>Đăng nhập để tra cứu và luyện 11.000 từ của đề cương HSK 3.0.</p><button type="button" class="btn btn-primary" data-go="auth" data-auth-view="login">Đăng nhập để mở danh mục</button></div>'; status(''); return; }
     content.innerHTML = `<div class="hsk-levels" role="group" aria-label="Chọn cấp HSK">${[...LEVELS, 'all'].map(l => `<button type="button" class="level-chip" data-syl-level="${l}" aria-pressed="${l === level}">${l === 'all' ? 'Tất cả' : `HSK ${l}`}</button>`).join('')}</div><form id="syllabus-search" class="cloud-form syllabus-search">${field('Tìm chữ Hán hoặc pinyin','query','search',`value="${h(query)}" maxlength="60"`)}<button class="btn">Tra cứu</button></form><div class="cloud-actions"><button type="button" class="btn" data-syl="list">Danh sách từ</button><button type="button" class="btn" data-syl="cards">Luyện thẻ</button><button type="button" class="btn" data-syl="due">Ôn từ đến hạn</button><button type="button" class="btn" data-go="library">Bộ HSK 3 nghĩa tiếng Việt</button></div><div id="syllabus-results"></div><p class="panel-sub syllabus-source">Danh mục từ: 《中文水平考试 HSK 考试大纲》, 中外语言交流合作中心 (CLEC), 2025, không ghi giấy phép; chỉ lưu từ, cấp, pinyin, từ loại kèm trích dẫn và số trang, không phải ngân hàng đề thi. Nghĩa tiếng Anh: <a href="https://www.mdbg.net/chinese/dictionary?page=cc-cedict" target="_blank" rel="noopener noreferrer">CC-CEDICT</a> (CC-CEDICT contributors, MDBG), <a href="./data/CC-BY-SA-4.0.txt" target="_blank" rel="noopener noreferrer">CC BY-SA 4.0</a>, chọn theo cách đọc của đề cương. Chưa có nghĩa tiếng Việt. Câu ví dụ Trung–Việt: <a href="https://tatoeba.org" target="_blank" rel="noopener noreferrer">Tatoeba</a>, CC BY 2.0 FR, ghi tác giả từng câu; chỉ hiện câu đã được quản trị viên duyệt.</p>`;
     content.querySelector('[name="query"]').required = false;
+    const source=root.querySelector('.syllabus-source'),details=document.createElement('details');
+    details.className='syllabus-source-details';details.innerHTML='<summary>Nguồn học liệu và giấy phép</summary>';source.before(details);details.appendChild(source);
+    content.insertAdjacentHTML('afterbegin','<div class="study-primary"><button type="button" class="btn" data-syl="stages">Chọn chặng</button><button type="button" class="btn" data-syl="due">Ôn đến hạn</button><button type="button" class="btn" data-syl="tools" aria-expanded="false">Tra cứu và quiz</button></div><button type="button" class="btn" data-syl="reload" hidden>Thử tải lại bộ thẻ</button>');
     content.querySelector('.cloud-actions').insertAdjacentHTML('beforeend','<button type="button" class="btn" data-syl="quiz">Luyện trắc nghiệm</button><button type="button" class="btn" data-syl="quiz-pinyin">Luyện pinyin</button>');
+    if(location.hash==='#study')restoreLocation();
     load();
   }
   function startQuiz(sequences=null,kind='meaning') {
@@ -167,6 +202,7 @@ export function mountSyllabus(root) {
     }
     const q=questions[index],answered=answers.length>index,correct=answered&&answers[index]===q.answer;
     result.innerHTML=`<p>Câu ${index+1}/${questions.length} · ${quiz.kind==='pinyin'?'Chọn pinyin':'Chọn nghĩa tiếng Anh'}${quiz.dueOnly?' · từ đến hạn ôn':''}</p><h3 class="reference-word" lang="zh-Hans">${h(q.word)}</h3>${quiz.kind==='meaning'||answered?`<p lang="zh-Latn">${h(q.pinyin)}</p>`:''}<div class="cloud-form">${q.options.map((option,i)=>`<button type="button" class="btn" data-syl="quiz-answer" data-option="${i}" lang="${quiz.kind==='pinyin'?'zh-Latn':'en'}" ${answered?'disabled':''}>${h(option)}</button>`).join('')}</div>${answered?`<p role="status">${correct?'Chính xác.':'Chưa đúng.'} Đáp án: <span lang="${quiz.kind==='pinyin'?'zh-Latn':'en'}">${h(q.options[q.answer])}</span></p><button type="button" class="btn btn-primary" data-syl="quiz-next">${index===questions.length-1?'Xem kết quả':'Câu tiếp theo'}</button>`:''}`;
+    result.insertAdjacentHTML('beforeend',`<button type="button" class="btn report-question" data-syl="report">${q.reported?'Đã báo câu này':'Báo câu cần kiểm tra'}</button>`);
   }
   async function review(decision) {
     const owner=sessionEpoch,reviewLevel=level,activeClient=client;
@@ -194,9 +230,22 @@ export function mountSyllabus(root) {
     const levelButton = event.target.closest('[data-syl-level]');
     if (levelButton) { chooseLevel(levelButton.dataset.sylLevel); return; }
     const stageButton = event.target.closest('[data-syl-stage]');
-    if (stageButton) { stage = Number(stageButton.dataset.sylStage); view = 'cards'; position = 0; revealed = false; page = 0; renderResults(); root.querySelector('#syllabus-results')?.scrollIntoView({block: 'start', behavior: 'smooth'}); return; }
+    if (stageButton) { stage = Number(stageButton.dataset.sylStage); view = 'cards'; position = 0; revealed = false; page = 0; renderResults();rememberLocation();root.querySelector('.syllabus-study-card')?.scrollIntoView({block:'start',behavior:'instant'});root.querySelector('[data-syl="reveal"]')?.focus({preventScroll:true});return; }
     const button = event.target.closest('[data-syl]'); if (!button) return;
     const action = button.dataset.syl, list = view === 'due' ? words().filter(isDue) : words(), r = list[position];
+    if(action==='reload'){load();return;}
+    if(action==='report'&&quiz?.questions[quiz.index]){const q=quiz.questions[quiz.index];q.kind=quiz.kind;reports.open(q);return;}
+    if(action==='missing'&&admin()){stage=null;query='';position=0;page=0;view='missing';const input=root.querySelector('[name="query"]');if(input)input.value='';renderResults();status('Chỉ liệt kê mục thiếu nghĩa Anh. Giữ trống cho tới khi biên tập viên có nguồn và duyệt nội dung.');return;}
+    if(action==='audio-review'){
+      if(!admin()||shownCard===null)return;
+      const owner=sessionEpoch,seq=shownCard;button.disabled=true;
+      try{
+        const changed=await reply(client.rpc('review_example_audio',{entry_syllabus:SYLLABUS,entry_seq:seq,entry_zh_id:Number(button.dataset.zh),entry_audio_id:Number(button.dataset.audio),decision:button.dataset.decision}));
+        if(owner===sessionEpoch)status(changed===1?'Đã cập nhật trạng thái bản ghi.':'Không có bản ghi để cập nhật.',changed!==1);
+      }catch(error){if(owner===sessionEpoch)status(error.message?.includes('publish_sentence_first')?'Xuất bản câu ví dụ trước khi duyệt bản ghi.':'Không cập nhật được bản ghi. Thử lại hoặc kiểm tra quyền quản trị.',true);}
+      if(owner!==sessionEpoch)return;examples.delete(seq);renderResults();return;
+    }
+    if(action==='tools'){const open=button.getAttribute('aria-expanded')!=='true';button.setAttribute('aria-expanded',String(open));root.classList.toggle('show-study-tools',open);return;}
     if(action==='quiz'){startQuiz();return;}
     if(action==='quiz-pinyin'){startQuiz(null,'pinyin');return;}
     if(action==='quiz-new'){startQuiz(null,quiz.kind);return;}
@@ -241,17 +290,34 @@ export function mountSyllabus(root) {
       if (view !== 'due') position = (position + 1) % list.length; revealed = false;
     }
     renderResults();
+    if(['previous','next','again','good'].includes(action)){rememberLocation();root.querySelector('[data-syl="reveal"]')?.focus();}
+    if(action==='reveal'){root.querySelector('.syllabus-study-card')?.scrollIntoView({block:'start',behavior:'instant'});root.querySelector('[data-syl="reveal"]')?.focus({preventScroll:true});}
   });
-  function chooseLevel(next, nextView) {
+  function chooseLevel(next, nextView, resume=false) {
     if (![...LEVELS, 'all'].includes(next)) return;
+    if(resume&&next===level&&cache.has(next))return;
+    rememberLocation();
+    resumeSeq=null;
     level = next; stage = null; quiz = null; query = ''; page = 0; position = 0; revealed = false; view = ['due', 'cards', 'list'].includes(nextView) ? nextView : level === 'all' ? 'list' : 'stages';
     try { if (level !== 'all') localStorage.setItem(LEVEL_KEY, level); } catch {}
+    if(resume)restoreLocation();
     root.querySelectorAll('[data-syl-level]').forEach(el => el.setAttribute('aria-pressed', String(el.dataset.sylLevel === level)));
     const input = root.querySelector('#syllabus-search [name="query"]'); if (input) input.value = '';
     if (client && profile) load();
   }
   // Links elsewhere (roadmap, old HSK 3 library) open the library on a level: data-go="hsk" data-hsk-level="4".
   document.addEventListener('click', event => { const link = event.target.closest('[data-hsk-level]'); if (link) chooseLevel(link.dataset.hskLevel, link.dataset.hskView); }, true);
+  document.addEventListener('keydown',event=>{
+    if(!['cards','due'].includes(view)||!root.closest('.page.active')||event.repeat||event.ctrlKey||event.metaKey||event.altKey||document.querySelector('dialog[open]'))return;
+    const target=event.target;
+    if(target.isContentEditable||target.closest('input,select,textarea'))return;
+    let action=null;
+    if(event.key==='ArrowRight')action='next';if(event.key==='ArrowLeft')action='previous';
+    if(event.code==='Space'&&!target.closest('button,a'))action='reveal';
+    if(revealed&&event.key==='1')action='again';if(revealed&&event.key==='2')action='good';
+    const control=action&&root.querySelector(`[data-syl="${action}"]`);
+    if(control){event.preventDefault();control.click();}
+  });
   render();
-  return { openLevel: chooseLevel, get level() { return level; }, setSession(nextClient, nextProfile) { if (client === nextClient && profile?.id === nextProfile?.id && profile?.role === nextProfile?.role) return;sessionEpoch++; examples.clear(); client = nextClient; profile = nextProfile; render(); } };
+  return { openLevel: chooseLevel, get level() { return level; }, setSession(nextClient, nextProfile) { if (client === nextClient && profile?.id === nextProfile?.id && profile?.role === nextProfile?.role) return;sessionEpoch++; reports.reset();exampleReview.reset();examples.clear(); client = nextClient; profile = nextProfile; render(); } };
 }

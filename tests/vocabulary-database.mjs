@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import {seedVocabulary} from '../scripts/seed-vocabulary.mjs';
 import {seedExamples} from '../scripts/seed-examples.mjs';
+import {seedExampleAudio} from '../scripts/example-audio.mjs';
 export async function exerciseVocabulary(db) {
   const student='00000000-0000-4000-8000-000000000001',teacher='00000000-0000-4000-8000-000000000003',admin='00000000-0000-4000-8000-000000000004';
   async function as(id,sql,args=[]) {
@@ -74,6 +75,54 @@ export async function exerciseVocabulary(db) {
     await as(admin,review,[dataset.syllabus,1,[11],'draft']);
     const reset=(await db.query('select reviewer_id,reviewed_at from public.example_sentences where zh_id=11')).rows[0];
     assert.deepEqual(reset,{reviewer_id:null,reviewed_at:null});
+  });
+  await check('Question reports preserve author isolation, reject invalid snapshots and require admin resolution',async()=>{
+    const sql='select public.report_vocab_question($1,$2,$3,$4,$5::jsonb,$6) id',args=[1,'meaning','ambiguous','Two choices overlap',JSON.stringify(['one','two','three','four']),0];
+    await assert.rejects(as(null,sql,args),/permission denied/);
+    await assert.rejects(as(student,sql,[...args.slice(0,4),'{}',0]),/invalid_report/);
+    await assert.rejects(as(student,sql,[3,...args.slice(1)]),/entry_unavailable/);
+    await assert.rejects(as(student,sql,[1,'forged',...args.slice(2)]),/invalid_report/);
+    const id=(await as(student,sql,args)).rows[0].id;
+    assert.equal((await as(student,sql,args)).rows[0].id,id);
+    assert.equal((await as('00000000-0000-4000-8000-000000000002','select * from public.vocab_reports')).rowCount,0);
+    assert.equal((await as(teacher,'select * from public.vocab_reports')).rowCount,0);
+    assert.equal((await as(admin,'select * from public.vocab_reports')).rowCount,1);
+    await assert.rejects(as(student,"update public.vocab_reports set status='resolved'"),/permission denied/);
+    const resolve='select public.resolve_vocab_report($1,$2) n';
+    await assert.rejects(as(student,resolve,[id,'Checked']),/admin_required/);
+    await assert.rejects(as(teacher,resolve,[id,'Checked']),/admin_required/);
+    await assert.rejects(as(admin,resolve,[id,' ']),/review_note_required/);
+    assert.equal((await as(admin,resolve,[id,'Checked; keep editorial review separate'])).rows[0].n,1);
+    assert.equal((await as(admin,resolve,[id,'Repeated check'])).rows[0].n,0);
+    assert.equal((await as(student,'select status from public.vocab_reports where id=$1',[id])).rows[0].status,'resolved');
+  });
+  await check('Report rate limits remain enforced after previous reports are resolved',async()=>{
+    for(let i=1;i<20;i++){
+      const id=(await as(student,"select public.report_vocab_question(1,'pinyin','incorrect','check', '[\"a\",\"b\",\"c\",\"d\"]',0) id")).rows[0].id;
+      await as(admin,"select public.resolve_vocab_report($1,'Reviewed')",[id]);
+    }
+    await assert.rejects(as(student,"select public.report_vocab_question(1,'pinyin','incorrect','check','[\"a\",\"b\",\"c\",\"d\"]',0)"),/report_quota/);
+  });
+  await check('Licensed audio is idempotent, admin reviewed and hidden when its sentence is withdrawn',async()=>{
+    const source={...dataset.source,id:'fixture-audio',sha256:'e'.repeat(64),license:'Per recording'};
+    const row={seq:1,zh_id:11,audio_id:71,author:'fixture-reader',license:'CC BY 4.0',attribution_url:'https://tatoeba.org/en/audio/of/fixture-reader',sha256:'f'.repeat(64)};
+    assert.equal(await seedExampleAudio(db,dataset.syllabus,source,[row]),1);
+    assert.equal(await seedExampleAudio(db,dataset.syllabus,source,[row]),0);
+    await assert.rejects(seedExampleAudio(db,dataset.syllabus,source,[{...row,license:'CC BY-NC 4.0'}]),/rights/);
+    const list='select audio_id from public.example_audio';
+    await assert.rejects(as(null,list),/permission denied/);
+    assert.equal((await as(student,list)).rowCount,0);assert.equal((await as(teacher,list)).rowCount,1);
+    const review='select public.review_example_audio($1,1,11,71,$2) n';
+    await assert.rejects(as(teacher,review,[dataset.syllabus,'published']),/admin_required/);
+    await assert.rejects(as(admin,review,[dataset.syllabus,'published']),/publish_sentence_first/);
+    await assert.rejects(as(student,"update public.example_audio set review_status='published'"),/permission denied/);
+    await as(admin,"select public.review_example_sentences($1,1,array[11],'published')",[dataset.syllabus]);
+    assert.equal((await as(admin,review,[dataset.syllabus,'published'])).rows[0].n,1);
+    assert.equal((await as(student,list)).rowCount,1);
+    await seedExampleAudio(db,dataset.syllabus,source,[{...row,author:'changed'}]);
+    assert.equal((await db.query('select author from public.example_audio where audio_id=71')).rows[0].author,'fixture-reader');
+    await as(admin,"select public.review_example_sentences($1,1,array[11],'draft')",[dataset.syllabus]);
+    assert.equal((await as(student,list)).rowCount,0);
   });
   console.log(`${checks} vocabulary database checks passed.`);
 }
